@@ -701,10 +701,10 @@
         dates.addEventListener("click", function (e) {
           var b = e.target.closest("[data-day]"); if (b) { markDay(+b.dataset.day); openCal(false); return; }
           if (e.target.closest(".x-pick")) { openCal(cal.hidden); return; }
-          var n = e.target.closest(".x-calnav"); if (n) { calM += +n.dataset.m; drawCal(); return; }
+          var n = e.target.closest(".x-calnav"); if (n) { e.stopPropagation(); if (!n.disabled) { calM += +n.dataset.m; drawCal(); } return; }
           var c = e.target.closest(".x-calday"); if (c && !c.disabled) { markDay(+c.dataset.off); openCal(false); }
         });
-        document.addEventListener("click", function (e) { if (!cal.hidden && !e.target.closest(".x-pickwrap") && !e.target.closest(".x-cal")) openCal(false); });
+        document.addEventListener("click", function (e) { if (!cal.hidden && e.target.isConnected && !e.target.closest(".x-pickwrap") && !e.target.closest(".x-cal")) openCal(false); });
         document.addEventListener("keydown", function (e) { if (e.key === "Escape" && !cal.hidden) { openCal(false); pick.focus(); } });
         var pop = $(".x-popular");
         ["Mysuru", "Chennai", "Hyderabad", "Goa"].forEach(function (c) {
