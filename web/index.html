@@ -91,6 +91,9 @@
       .x-field { display: grid; gap: 2px; padding: 10px 14px; border-radius: var(--r-m); background: var(--fill-tertiary); min-width: 0; }
       .x-field label { font: var(--type-caption); color: var(--text-secondary); }
       .x-field select { appearance: none; border: 0; background: transparent; color: var(--text-primary); font: var(--weight-bold) var(--size-heading)/1.2 var(--sans); padding: 0; min-height: 30px; cursor: pointer; width: 100%; }
+      .x-field input { border: 0; background: transparent; color: var(--text-primary); font: var(--weight-bold) var(--size-heading)/1.2 var(--sans); padding: 0; min-height: 30px; width: 100%; outline: none; text-overflow: ellipsis; }
+      .x-field input::placeholder { color: var(--text-secondary); font-weight: var(--weight-regular); }
+      .x-field:focus-within { box-shadow: 0 0 0 2px var(--fill-primary); }
       .x-field select option { color: var(--text-primary); background: var(--x-surface); }
       .x-field:focus-within { box-shadow: inset 0 0 0 1.5px var(--text-primary); }
       .x-od .x-field:last-child { padding-left: 26px; }
@@ -388,9 +391,9 @@
                 <button class="x-mode" type="button" aria-pressed="false" data-toast="Flights are coming soon"><svg class="i"><use href="#i-plane" /></svg>Flight <small>Coming soon</small></button>
               </div>
               <div class="x-od">
-                <div class="x-field"><label for="x-from">From</label><select id="x-from"></select></div>
+                <div class="x-field"><label for="x-from">From</label><input id="x-from" list="x-cities" autocomplete="off" spellcheck="false" placeholder="Leaving from" /></div>
                 <button class="x-swap" type="button" id="x-swap" aria-label="Swap From and To"><svg class="i"><use href="#i-swap" /></svg></button>
-                <div class="x-field"><label for="x-to">To</label><select id="x-to"></select></div>
+                <div class="x-field"><label for="x-to">To</label><input id="x-to" list="x-cities" autocomplete="off" spellcheck="false" placeholder="Going to" /><datalist id="x-cities"></datalist></div>
               </div>
               <div class="x-dates" role="group" aria-label="Date of travel" id="x-dates"></div>
               <button class="x-cta x-cta--wide" type="submit">Search buses</button>
@@ -619,9 +622,15 @@
       (function () {
         var $ = function (s) { return document.querySelector(s); }, root = document.documentElement;
         var reduce = matchMedia("(prefers-reduced-motion: reduce)").matches;
-        var CITIES = ["Bengaluru", "Mysuru", "Chennai", "Hyderabad", "Goa"];
+        var GEO = {}, CITIES = "Bengaluru|12.97|77.59;Mysuru|12.30|76.64;Mangaluru|12.91|74.86;Hubballi|15.36|75.12;Dharwad|15.46|75.01;Belagavi|15.85|74.50;Kalaburagi|17.33|76.83;Vijayapura|16.83|75.71;Ballari|15.14|76.92;Davanagere|14.46|75.92;Shivamogga|13.93|75.57;Tumakuru|13.34|77.10;Udupi|13.34|74.75;Hassan|13.01|76.10;Chikkamagaluru|13.32|75.77;Madikeri|12.42|75.74;Mandya|12.52|76.90;Chitradurga|14.23|76.40;Raichur|16.21|77.36;Bidar|17.91|77.52;Bagalkot|16.18|75.70;Gadag|15.43|75.63;Haveri|14.79|75.40;Koppal|15.35|76.15;Hosapete|15.27|76.39;Karwar|14.81|74.13;Sirsi|14.62|74.84;Kundapura|13.63|74.69;Bhatkal|13.98|74.56;Gokarna|14.55|74.32;Murudeshwar|14.09|74.48;Puttur|12.76|75.20;Dharmasthala|12.95|75.38;Kukke Subramanya|12.66|75.61;Sringeri|13.42|75.25;Kolar|13.14|78.13;Chikkaballapur|13.43|77.73;Ramanagara|12.72|77.28;Hosur|12.74|77.83;Kollegal|12.15|77.11;Chamarajanagar|11.92|76.94;Gundlupet|11.81|76.69;Hampi|15.33|76.46;Badami|15.92|75.68;Gangavathi|15.43|76.53;Sindhanur|15.77|76.76;Yadgir|16.77|77.14;Athani|16.73|75.06;Gokak|16.17|74.83;Chikkodi|16.43|74.60;Jamkhandi|16.50|75.29;Ranebennur|14.62|75.62;Sagar|14.17|75.03;Tiptur|13.26|76.48;Arsikere|13.31|76.26;Channarayapatna|12.90|76.39;Sakleshpur|12.94|75.79;Hiriyur|13.95|76.62;Chennai|13.08|80.27;Coimbatore|11.02|76.96;Madurai|9.93|78.12;Tiruchirappalli|10.79|78.70;Salem|11.66|78.15;Tirunelveli|8.71|77.76;Vellore|12.92|79.13;Erode|11.34|77.72;Tiruppur|11.11|77.34;Thanjavur|10.79|79.14;Dindigul|10.36|77.98;Kanyakumari|8.08|77.54;Nagercoil|8.18|77.41;Thoothukudi|8.76|78.13;Kumbakonam|10.96|79.38;Karur|10.96|78.08;Krishnagiri|12.52|78.21;Dharmapuri|12.13|78.16;Ooty|11.41|76.70;Kodaikanal|10.24|77.49;Rameswaram|9.29|79.31;Nagapattinam|10.77|79.84;Velankanni|10.68|79.85;Tiruvannamalai|12.23|79.07;Kanchipuram|12.83|79.70;Chidambaram|11.40|79.69;Cuddalore|11.75|79.75;Villupuram|11.94|79.49;Pollachi|10.66|77.01;Namakkal|11.22|78.17;Sivakasi|9.45|77.80;Theni|10.01|77.48;Pudukkottai|10.38|78.82;Karaikudi|10.07|78.78;Puducherry|11.94|79.81;Thiruvananthapuram|8.52|76.94;Kochi|9.93|76.27;Kozhikode|11.26|75.78;Thrissur|10.53|76.21;Kannur|11.87|75.37;Kollam|8.89|76.61;Alappuzha|9.50|76.34;Kottayam|9.59|76.52;Palakkad|10.79|76.65;Malappuram|11.07|76.07;Kasaragod|12.50|74.99;Munnar|10.09|77.06;Thekkady|9.60|77.16;Guruvayur|10.59|76.04;Sulthan Bathery|11.66|76.26;Kalpetta|11.61|76.08;Varkala|8.73|76.71;Pathanamthitta|9.26|76.79;Hyderabad|17.39|78.49;Warangal|17.97|79.59;Karimnagar|18.44|79.13;Nizamabad|18.67|78.09;Khammam|17.25|80.15;Mahabubnagar|16.74|78.00;Nalgonda|17.05|79.27;Adilabad|19.66|78.53;Suryapet|17.14|79.62;Siddipet|18.10|78.85;Vijayawada|16.51|80.65;Visakhapatnam|17.69|83.22;Tirupati|13.63|79.42;Guntur|16.31|80.44;Nellore|14.44|79.99;Kurnool|15.83|78.04;Anantapur|14.68|77.60;Kadapa|14.47|78.82;Rajahmundry|17.00|81.80;Kakinada|16.99|82.25;Eluru|16.71|81.10;Ongole|15.51|80.05;Chittoor|13.22|79.10;Srikakulam|18.30|83.90;Vizianagaram|18.11|83.40;Machilipatnam|16.19|81.14;Tenali|16.24|80.64;Hindupur|13.83|77.49;Madanapalle|13.55|78.50;Puttaparthi|14.17|77.81;Srisailam|16.07|78.87;Bhimavaram|16.54|81.52;Proddatur|14.75|78.55;Mumbai|19.08|72.88;Pune|18.52|73.86;Nagpur|21.15|79.09;Nashik|20.00|73.79;Aurangabad|19.88|75.34;Solapur|17.66|75.91;Kolhapur|16.70|74.24;Sangli|16.85|74.58;Satara|17.68|74.02;Ratnagiri|16.99|73.31;Latur|18.40|76.56;Nanded|19.15|77.32;Amravati|20.93|77.75;Akola|20.71|77.00;Jalgaon|21.01|75.56;Ahmednagar|19.09|74.74;Shirdi|19.77|74.48;Lonavala|18.75|73.41;Mahabaleshwar|17.92|73.66;Navi Mumbai|19.03|73.03;Thane|19.22|72.98;Panvel|18.99|73.12;Pandharpur|17.68|75.33;Beed|18.99|75.76;Osmanabad|18.18|76.04;Chandrapur|19.96|79.30;Sawantwadi|15.90|73.82;Panaji|15.49|73.83;Margao|15.27|73.96;Mapusa|15.59|73.81;Vasco da Gama|15.40|73.81;Ahmedabad|23.02|72.57;Surat|21.17|72.83;Vadodara|22.31|73.18;Rajkot|22.30|70.80;Bhavnagar|21.76|72.15;Jamnagar|22.47|70.06;Gandhinagar|23.22|72.64;Junagadh|21.52|70.46;Anand|22.56|72.95;Bhuj|23.24|69.67;Navsari|20.95|72.92;Vapi|20.37|72.90;Dwarka|22.24|68.97;Somnath|20.89|70.40;Udaipur|24.59|73.71;Jaipur|26.91|75.79;Jodhpur|26.24|73.02;Ajmer|26.45|74.64;Kota|25.21|75.86;Bikaner|28.02|73.31;Jaisalmer|26.92|70.91;Mount Abu|24.59|72.71;Pushkar|26.49|74.55;Bhilwara|25.35|74.63;Alwar|27.55|76.60;Sikar|27.61|75.14;Delhi|28.61|77.21;Gurugram|28.46|77.03;Noida|28.54|77.39;Faridabad|28.41|77.32;Chandigarh|30.73|76.78;Amritsar|31.63|74.87;Ludhiana|30.90|75.86;Jalandhar|31.33|75.58;Patiala|30.34|76.39;Shimla|31.10|77.17;Manali|32.24|77.19;Dharamshala|32.22|76.32;Dehradun|30.32|78.03;Haridwar|29.95|78.16;Rishikesh|30.09|78.27;Nainital|29.38|79.46;Haldwani|29.22|79.51;Jammu|32.73|74.86;Katra|32.99|74.93;Srinagar|34.08|74.80;Lucknow|26.85|80.95;Kanpur|26.45|80.33;Agra|27.18|78.01;Varanasi|25.32|82.97;Prayagraj|25.44|81.85;Gorakhpur|26.76|83.37;Bareilly|28.37|79.43;Meerut|28.98|77.71;Aligarh|27.88|78.08;Mathura|27.49|77.67;Ayodhya|26.80|82.20;Jhansi|25.45|78.57;Moradabad|28.84|78.77;Saharanpur|29.96|77.55;Ghaziabad|28.67|77.45;Bhopal|23.26|77.41;Indore|22.72|75.86;Jabalpur|23.18|79.99;Gwalior|26.22|78.18;Ujjain|23.18|75.78;Sagar (MP)|23.84|78.74;Satna|24.58|80.83;Rewa|24.53|81.30;Khajuraho|24.85|79.93;Raipur|21.25|81.63;Bilaspur|22.08|82.15;Durg|21.19|81.28;Jagdalpur|19.08|82.03;Kolkata|22.57|88.36;Siliguri|26.73|88.40;Durgapur|23.52|87.31;Asansol|23.68|86.98;Digha|21.63|87.51;Darjeeling|27.04|88.26;Bhubaneswar|20.30|85.82;Cuttack|20.46|85.88;Puri|19.81|85.83;Berhampur|19.31|84.79;Sambalpur|21.47|83.97;Rourkela|22.26|84.85;Patna|25.59|85.14;Gaya|24.80|85.00;Muzaffarpur|26.12|85.39;Bhagalpur|25.24|86.97;Ranchi|23.34|85.31;Jamshedpur|22.80|86.20;Dhanbad|23.80|86.43;Guwahati|26.14|91.74;Shillong|25.58|91.89;Agartala|23.83|91.29;Imphal|24.82|93.94;Dimapur|25.91|93.73;Gangtok|27.33|88.61".split(";").map(function (r) { r = r.split("|"); GEO[r[0]] = [+r[1], +r[2]]; return r[0]; });
+        CITIES.sort(function (a, b) { return a === "Bengaluru" ? -1 : b === "Bengaluru" ? 1 : a.localeCompare(b); });
         // price range in ₹ and base journey time in minutes from Bengaluru
-        var ROUTES = { Mysuru: [350, 900, 185], Chennai: [600, 1500, 365], Hyderabad: [900, 2200, 600], Goa: [1000, 2500, 690] };
+        function route(a, b) {
+          var A = GEO[a], B = GEO[b], r = Math.PI / 180, dl = (B[0] - A[0]) * r, dg = (B[1] - A[1]) * r;
+          var h = Math.sin(dl / 2) * Math.sin(dl / 2) + Math.cos(A[0] * r) * Math.cos(B[0] * r) * Math.sin(dg / 2) * Math.sin(dg / 2);
+          var km = 6371 * 2 * Math.atan2(Math.sqrt(h), Math.sqrt(1 - h)) * 1.3;
+          return [Math.max(180, Math.round(km * 1.1 / 10) * 10), Math.max(450, Math.round(km * 2.6 / 10) * 10), Math.max(60, Math.round(km / 50 * 60 + 20))];
+        }
         var BUSES = [
           { n: "Kaveri Travels", t: "Volvo AC Sleeper", p: 0.78, dep: 1290, m: 1, seats: 7, r: 4.6, s: 9.2, w: 1, a: ["wifi", "plug", "blanket", "water", "track"] },
           { n: "Sahyadri Express", t: "AC Seater 2+2", p: 0.22, dep: 375, m: 1.06, seats: 18, r: 4.2, s: 8.4, w: 0, a: ["plug", "water", "track"] },
@@ -657,10 +666,12 @@
 
         // search form
         var fromS = $("#x-from"), toS = $("#x-to");
-        [fromS, toS].forEach(function (s) { s.innerHTML = CITIES.map(function (c) { return "<option>" + c + "</option>"; }).join(""); });
+        $("#x-cities").innerHTML = CITIES.map(function (c) { return '<option value="' + c + '"></option>'; }).join("");
+        var findCity = function (v) { v = String(v).trim().toLowerCase(); for (var i = 0; i < CITIES.length; i++) if (CITIES[i].toLowerCase() === v) return CITIES[i]; return null; };
+        [fromS, toS].forEach(function (s) { s.addEventListener("focus", function () { s.select(); }); });
         function syncForm() { fromS.value = state.from; toS.value = state.to; $("#x-rf").textContent = state.from; $("#x-rt").textContent = state.to; }
-        fromS.addEventListener("change", function () { state.from = fromS.value; syncForm(); });
-        toS.addEventListener("change", function () { state.to = toS.value; syncForm(); });
+        fromS.addEventListener("change", function () { var c = findCity(fromS.value); if (c) state.from = c; else if (fromS.value.trim()) toast("Pick a city from the list"); syncForm(); });
+        toS.addEventListener("change", function () { var c = findCity(toS.value); if (c) state.to = c; else if (toS.value.trim()) toast("Pick a city from the list"); syncForm(); });
         $("#x-swap").addEventListener("click", function () { var f = state.from; state.from = state.to; state.to = f; this.classList.toggle("is-spun"); syncForm(); });
         var dates = $("#x-dates");
         dates.innerHTML = ["Today", "Tomorrow"].map(function (l, i) { return '<button class="x-chip" type="button" data-day="' + i + '" aria-pressed="' + (i === 0) + '">' + l + " <small>" + dayLabel(i) + "</small></button>"; }).join("") +
@@ -716,8 +727,7 @@
         var current = [];
         function search() {
           if (state.from === state.to) { toast("Pick two different cities"); return; }
-          var key = state.to !== "Bengaluru" ? state.to : state.from, R = ROUTES[key];
-          if (state.from !== "Bengaluru" && state.to !== "Bengaluru") R = [r10(R[0] * 1.2), r10(R[1] * 1.2), Math.round(R[2] * 1.25)];
+          var R = route(state.from, state.to);
           current = BUSES.map(function (b) {
             var d = Math.round((R[2] * b.m) / 5) * 5, price = r10(R[0] + b.p * (R[1] - R[0]));
             return Object.assign({}, b, { dur: d, price: price, arr: b.dep + d, lo: r10(price * 1.08), hi: r10(price * 1.24) });
@@ -773,6 +783,7 @@
           Hyderabad: [["Lakdi-ka-pul", "Opposite Ravindra Bharathi"], ["Ameerpet", "Below Ameerpet metro"], ["Miyapur", "X Roads, near metro station"]],
           Goa: [["Panaji", "Kadamba Bus Stand, Bay 3"], ["Mapusa", "Mapusa bus stand entrance"], ["Margao", "KTC bus stand, Margao"]]
         };
+        function pts(c) { return POINTS[c] || [[c + " Bus Stand", "Main bus stand, departure bays"], [c + " Bypass", "Highway bus stop at the bypass junction"], [c + " Railway Station", "Bus pickup bay outside the station"]]; }
         var MAX = 6, cur = null, sel = [], deck = 0, pax = {};
         var esc = function (s) { return String(s).replace(/[&<>"']/g, function (c) { return "&#" + c.charCodeAt(0) + ";"; }); };
         function rng(s) { var h = 2166136261; for (var i = 0; i < s.length; i++) h = Math.imul(h ^ s.charCodeAt(i), 16777619); return function () { h = Math.imul(h ^ (h >>> 15), 2246822507); h = Math.imul(h ^ (h >>> 13), 3266489909); return ((h ^= h >>> 16) >>> 0) / 4294967296; }; }
@@ -800,7 +811,7 @@
           renderDeck(); show("seats");
         }
         function spots(el, name, city, time, tag) {
-          $(el).innerHTML = POINTS[city].map(function (p, i) {
+          $(el).innerHTML = pts(city).map(function (p, i) {
             return '<label class="x-spot"><input type="radio" name="' + name + '" value="' + i + '"' + (i ? "" : " checked") + " /><b>" + hm(time(i)) + " · " + p[0] + "</b><em>" + tag + "</em><small>" + ico("pin") + p[1] + "</small></label>";
           }).join("");
         }
@@ -998,7 +1009,7 @@
           var R = rng(cur.n + Date.now()), L = "ABCDEFGHJKLMNPRSTUVWXYZ", D = "0123456789";
           var pick = function (s, n) { var o = ""; while (n--) o += s[Math.floor(R() * s.length)]; return o; };
           var bi = +document.querySelector('input[name="board"]:checked').value, di = +document.querySelector('input[name="drop"]:checked').value;
-          var bp = POINTS[state.from][bi], dp = POINTS[state.to][di], bt = cur.dep + bi * 20, dt = cur.dep + cur.dur - (2 - di) * 20, f = fare();
+          var bp = pts(state.from)[bi], dp = pts(state.to)[di], bt = cur.dep + bi * 20, dt = cur.dep + cur.dur - (2 - di) * 20, f = fare();
           var ph = $("#x-ph").value, dn = ["Ramesh Kumar", "Suresh Gowda", "Manjunath R", "Venkatesh S", "Imran Pasha"][Math.floor(R() * 5)];
           booking = {
             pnr: "DB" + pick(D, 4) + pick(L, 2) + pick(D, 2), amt: f.t,
