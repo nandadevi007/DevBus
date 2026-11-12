@@ -202,6 +202,15 @@
       .x-trip small { font: var(--type-caption); color: var(--text-secondary); }
       .x-trip > :last-child { text-align: right; }
       .x-trip .x-ic { color: var(--text-secondary); }
+      .x-emp { display: flex; align-items: center; gap: 10px; }
+      .x-emp i { display: grid; place-items: center; width: 34px; height: 34px; flex: none; border-radius: 50%; background: var(--x-navy, #0B1F3A); color: #fff; font: var(--type-tag); font-style: normal; font-weight: 700; }
+      .x-emp b { display: block; } .x-emp small { color: var(--text-secondary); font: var(--type-caption); }
+      .x-docs { list-style: none; margin: 0; padding: 0; display: grid; gap: 6px; font: var(--type-small); }
+      .x-docs li { display: flex; justify-content: space-between; gap: 10px; padding: 8px 0; border-bottom: 1px solid var(--stroke-secondary); }
+      .x-lvbal { display: grid; grid-template-columns: repeat(3, 1fr); gap: 8px; }
+      .x-lvbal div { padding: 10px; border-radius: var(--r-m); border: 1px solid var(--stroke-secondary); display: grid; gap: 2px; }
+      .x-lvbal small { color: var(--text-secondary); font: var(--type-caption); } .x-lvbal b { font: var(--type-body-strong); }
+      .x-dsec { font: var(--type-tag); color: var(--text-secondary); text-transform: uppercase; letter-spacing: 0.04em; margin: 4px 0 -4px; }
       .x-dl { display: grid; grid-template-columns: auto 1fr; gap: 10px 16px; margin: 0; font: var(--type-small); }
       .x-dl dt { color: var(--text-secondary); }
       .x-dl dd { margin: 0; text-align: right; font-weight: var(--weight-medium); }
@@ -901,6 +910,52 @@
             </div>
           </section>
 
+          <section class="x-view" id="view-emp" hidden>
+            <div class="x-row"><h2>Employees<small id="emSub"></small></h2><div class="x-row" style="gap:8px"><button class="btn x-btn" type="button" id="emCsv"><span data-i="download"></span>Export CSV</button><button class="btn x-btn x-primary" type="button" id="emAdd"><span data-i="plus"></span>Add employee</button></div></div>
+            <div class="x-kpis x-reveal" id="emKpis"></div>
+            <div class="x-row">
+              <div class="x-seg" role="group" aria-label="Show" id="emTabs">
+                <button type="button" data-t="dir" aria-pressed="true">Directory</button>
+                <button type="button" data-t="att" aria-pressed="false">Attendance</button>
+                <button type="button" data-t="lv" aria-pressed="false">Leave</button>
+              </div>
+            </div>
+            <div id="emDir">
+              <div class="x-filters">
+                <label class="x-search"><span data-i="search"></span><input class="x-input" id="emQ" type="search" placeholder="Search name, ID, role, phone" aria-label="Search employees" /></label>
+                <select class="x-select" id="emDept" aria-label="Department"></select>
+                <select class="x-select" id="emHub" aria-label="Hub"></select>
+                <select class="x-select" id="emSt" aria-label="Status"></select>
+              </div>
+              <div class="x-card"><div class="table-wrap"><table class="x-tbl">
+                <thead><tr><th scope="col">Employee</th><th scope="col">Role</th><th scope="col">Department</th><th scope="col">Hub</th><th scope="col">Reports to</th><th scope="col">Phone</th><th scope="col">Joined</th><th scope="col">Status</th></tr></thead>
+                <tbody id="emRows"></tbody>
+              </table></div>
+              <p class="fineprint" id="emCount"></p></div>
+            </div>
+            <div class="x-card" id="emAtt" hidden>
+              <div class="x-row"><h3>Attendance today<small id="emAttSub"></small></h3><select class="x-select" id="emAttHub" aria-label="Hub"></select></div>
+              <div class="table-wrap"><table>
+                <thead><tr><th scope="col">Employee</th><th scope="col">Hub</th><th scope="col">Shift</th><th scope="col">Check-in</th><th scope="col">Check-out</th><th scope="col">Status</th></tr></thead>
+                <tbody id="emAttRows"></tbody>
+              </table></div>
+              <p class="fineprint">Check-in comes from the hub's biometric or app punch. Change a status here to correct it; the change is logged.</p>
+            </div>
+            <div id="emLv" hidden>
+              <div class="x-card">
+                <div class="x-row"><h3>Leave requests<small id="emLvSub"></small></h3></div>
+                <div class="table-wrap"><table>
+                  <thead><tr><th scope="col">Employee</th><th scope="col">Type</th><th scope="col">Dates</th><th scope="col">Days</th><th scope="col">Reason</th><th scope="col">Status</th><th scope="col">Action</th></tr></thead>
+                  <tbody id="emLvRows"></tbody>
+                </table></div>
+              </div>
+              <div class="x-card">
+                <h3>Leave policy<small>Per calendar year · edit before go-live</small></h3>
+                <dl class="x-dl"><dt>Casual leave</dt><dd>12 days</dd><dt>Sick leave</dt><dd>12 days</dd><dt>Earned leave</dt><dd>15 days, carry forward up to 30</dd><dt>Approver</dt><dd>Reporting manager, then HR</dd></dl>
+              </div>
+            </div>
+          </section>
+
           <section class="x-view" id="view-set" hidden>
             <div class="x-row"><h2>Settings<small>Team access, business details, payments and policies for the whole console.</small></h2></div>
             <div class="x-tabs"><div class="x-seg" role="group" aria-label="Settings area" id="sTabs">
@@ -1076,6 +1131,7 @@ Track your bus live in the DevBus app.</p>
       </nav>
       <div class="x-sheet" id="moreSheet" role="menu" aria-label="More sections" hidden>
         <button class="x-nav" type="button" role="menuitem" data-v="off"><span data-i="office"></span>Offices</button>
+        <button class="x-nav" type="button" role="menuitem" data-v="emp"><span data-i="users"></span>Employees</button>
         <button class="x-nav" type="button" role="menuitem" data-v="set"><span data-i="gear"></span>Settings</button>
       </div>
       <div class="x-scrim" id="scrim"></div>
@@ -1141,7 +1197,7 @@ Track your bus live in the DevBus app.</p>
         var paintIcons = function (root) { root.querySelectorAll("[data-i]").forEach(function (el) { el.insertAdjacentHTML("afterbegin", ic(el.dataset.i)); el.removeAttribute("data-i"); }); };
 
         /* navigation */
-        var NAV = [["dash", "Dashboard", "dash"], ["book", "Bookings", "ticket"], ["ops", "Operators & Fleet", "bus"], ["routes", "Routes & Pricing", "route"], ["fr", "Franchise Partners", "hand"], ["mkt", "Marketing & Leads", "mega"], ["ref", "Refunds", "refund"], ["off", "Offices", "office"], ["set", "Settings", "gear"]];
+        var NAV = [["dash", "Dashboard", "dash"], ["book", "Bookings", "ticket"], ["ops", "Operators & Fleet", "bus"], ["routes", "Routes & Pricing", "route"], ["fr", "Franchise Partners", "hand"], ["mkt", "Marketing & Leads", "mega"], ["ref", "Refunds", "refund"], ["off", "Offices", "office"], ["emp", "Employees", "users"], ["set", "Settings", "gear"]];
         $("#nav").innerHTML = NAV.map(function (n, i) {
           return '<button class="x-nav' + (i === 0 ? " is-on" : "") + '" type="button" data-v="' + n[0] + '">' + ic(n[2]) + n[1] + "</button>";
         }).join("");
@@ -1150,12 +1206,13 @@ Track your bus live in the DevBus app.</p>
         var side = $("#side"), scrim = $("#scrim"), drawer = $("#drawer");
         function closeAll() { side.classList.remove("is-on"); drawer.classList.remove("is-on"); scrim.classList.remove("is-on"); }
         function setView(v) {
-          var T = { dash: "Dashboard", book: "Bookings", ops: "Operators & Fleet", routes: "Routes & Pricing", fr: "Franchise Partners", mkt: "Marketing & Leads", ref: "Refunds", off: "Offices", set: "Settings" };
+          var T = { dash: "Dashboard", book: "Bookings", ops: "Operators & Fleet", routes: "Routes & Pricing", fr: "Franchise Partners", mkt: "Marketing & Leads", ref: "Refunds", off: "Offices", emp: "Employees", set: "Settings" };
           Object.keys(T).forEach(function (k) { $("#view-" + k).hidden = k !== v; });
           $("#title").textContent = T[v];
           document.querySelectorAll("[data-v]").forEach(function (b) { b.classList.toggle("is-on", b.dataset.v === v); });
-          $("#moreBtn").classList.toggle("is-on", v === "off" || v === "set"); moreSheet(false);
+          $("#moreBtn").classList.toggle("is-on", v === "off" || v === "emp" || v === "set"); moreSheet(false);
           if (v === "off") renderOff();
+          if (v === "emp") renderEmp();
           if (v === "set") openSet();
           closeAll(); $("#main").scrollTop = 0;
           if (v === "book") renderRows(true);
@@ -2544,6 +2601,105 @@ Track your bus live in the DevBus app.</p>
         }
         renderTm(); renderAu(); renderGw(); syncSegs(); hints(); snap();
 
+
+        /* employees */
+        var DEPT = ["Leadership", "Operations", "Finance", "Customer Support", "Marketing", "Hub operations", "Technology"];
+        var EST = { Active: "live", "On notice": "kyc", Joining: "agr", Exited: "paused" };
+        var ATT = { Present: "live", Late: "kyc", "On leave": "agr", Absent: "due", "Week off": "paused" };
+        var DOCS = ["Aadhaar", "PAN", "Bank account", "Offer letter", "Police verification"];
+        var EMP = [], eid = 1;
+        var initials = function (n) { return n.replace(/\./g, "").split(" ").map(function (w) { return w[0]; }).join("").slice(0, 2).toUpperCase(); };
+        var addE = function (o) { var i = eid++; o.id = "DB-E" + String(i).padStart(3, "0"); o.ph = "+91 9" + String(7000 + i * 137).slice(0, 4) + " •••" + String(10 + (i * 37) % 89); o.mail = o.n.split(" ")[0].toLowerCase().replace(/\./g, "") + "@devbus.in";
+          o.join = o.join || dd(-40 - i * 23); o.type = o.type || (i % 7 === 0 ? "Contract" : "Full-time"); o.st = o.st || "Active"; o.docs = o.docs || DOCS.map(function (d, k) { return (i + k) % 9 === 0 ? 0 : 1; });
+          o.lv = o.lv || [12 - i % 5, 12 - i % 3, 15 - i % 6]; o.em = o.em || { n: ["Spouse", "Father", "Mother", "Brother"][i % 4], p: "+91 9" + String(8100 + i * 211).slice(0, 4) + " •••" + String(11 + (i * 53) % 87) };
+          o.blood = ["O+", "B+", "A+", "AB+", "O-"][i % 5]; o.dob = new Date(1984 + i % 15, i % 12, 1 + i % 27); EMP.push(o); return o; };
+        var SDEPT = [0, 1, 2, 3, 4, 1];
+        TM.forEach(function (m) { if (m.n === "Dev T.") return addE({ n: "Dev Thakur", role: "Founder & CEO", dept: 0, hub: "Bengaluru HQ", mgr: "Board", ctc: 0, join: dd(-420) });
+          addE({ n: m.n, role: SROLE[m.r], dept: SDEPT[m.r], hub: m.h ? SHUB[m.h] : "Bengaluru HQ", mgr: "Dev Thakur", ctc: [0, 1500000, 1100000, 520000, 960000, 900000][m.r], st: m.st === "Invited" ? "Joining" : m.st === "Disabled" ? "Exited" : "Active", join: m.st === "Invited" ? dd(9) : null }); });
+        addE({ n: "Vikram Rao", role: "Tech lead", dept: 6, hub: "Bengaluru HQ", mgr: "Dev Thakur", ctc: 2400000 });
+        HUB.forEach(function (h) { var mg = h.staff.filter(function (x) { return x.r === 0; })[0];
+          h.staff.forEach(function (x, k) { if (EMP.some(function (e) { return e.n === x.n; })) return;
+            addE({ n: x.n, role: ROLE[x.r], dept: 5, hub: h.city, mgr: x.r === 0 ? "Arjun Menon" : mg ? mg.n : "Arjun Menon", ctc: PAY[x.r] * 12, shift: SHIFT[x.sh], st: k === 7 ? "On notice" : "Active" }); }); });
+        EMP.forEach(function (e, i) { e.shift = e.shift || SHIFT[2]; var a = e.st === "Exited" || e.st === "Joining" ? "" : ["Present", "Present", "Present", "Late", "Present", "On leave", "Present", "Week off", "Present", "Absent", "Present"][i % 11];
+          e.att = a; var b = e.shift[0] === "M" ? 420 : e.shift[0] === "E" ? 840 : 540; e.cin = a === "Present" ? b - 8 + (i * 7) % 12 : a === "Late" ? b + 18 + i % 20 : null; e.cout = e.cin && e.shift[0] === "M" ? e.cin + 485 : null; });
+        var LVR = [[9, "Casual", 3, 2, "Family function in Davangere", "Pending"], [14, "Sick", 0, 1, "Fever", "Pending"], [21, "Earned", 12, 5, "Native place visit", "Pending"], [6, "Casual", -4, 1, "Bank work", "Approved"], [17, "Sick", -2, 2, "Medical certificate attached", "Approved"], [25, "Earned", 20, 3, "Wedding", "Rejected"]]
+          .filter(function (l) { return EMP[l[0]]; }).map(function (l) { return { e: EMP[l[0]], t: l[1], from: dd(l[2]), d: l[3], why: l[4], st: l[5] }; });
+        var ehm = function (m) { return m == null ? "—" : String(Math.floor(m / 60)).padStart(2, "0") + ":" + String(m % 60).padStart(2, "0"); };
+        var eOpt = function (lab, arr) { return '<option value="">' + lab + "</option>" + arr.map(function (x) { return "<option>" + x + "</option>"; }).join(""); };
+        var EHUBS = ["Bengaluru HQ"].concat(HUB.map(function (h) { return h.city; }).filter(function (c) { return c !== "Bengaluru HQ"; }));
+        $("#emDept").innerHTML = eOpt("All departments", DEPT); $("#emHub").innerHTML = eOpt("All hubs", EHUBS); $("#emSt").innerHTML = eOpt("All statuses", Object.keys(EST)); $("#emAttHub").innerHTML = eOpt("All hubs", EHUBS);
+        var ePill = function (s, m) { return '<span class="x-status x-s-' + (m || EST)[s] + '">' + s + "</span>"; };
+        var emTab = "dir";
+        function emList() { var q = $("#emQ").value.trim().toLowerCase(), d = $("#emDept").value, h = $("#emHub").value, st = $("#emSt").value;
+          return EMP.filter(function (e) { return (!q || (e.n + " " + e.id + " " + e.role + " " + e.ph).toLowerCase().indexOf(q) > -1) && (!d || DEPT[e.dept] === d) && (!h || e.hub === h) && (!st || e.st === st); }); }
+        function renderEmp() {
+          var act = EMP.filter(function (e) { return e.st === "Active" || e.st === "On notice"; }), cnt = function (a) { return act.filter(function (e) { return e.att === a; }).length; };
+          var K = [["users", "Headcount", act.length, EMP.filter(function (e) { return e.st === "Joining"; }).length + " joining soon"], ["check", "Present today", cnt("Present") + cnt("Late"), cnt("Late") + " late"], ["clock", "On leave today", cnt("On leave"), cnt("Absent") + " absent"], ["edit", "Leave requests", LVR.filter(function (l) { return l.st === "Pending"; }).length, "pending approval"]];
+          $("#emKpis").innerHTML = K.map(function (k, i) { return '<div class="x-card x-kpi" style="--i:' + i + '"><p>' + ic(k[0]) + k[1] + "</p><strong>" + k[2] + '</strong><span class="x-delta">' + k[3] + "</span></div>"; }).join("");
+          $("#emSub").textContent = EMP.length + " people · " + EHUBS.length + " hubs";
+          $("#emDir").hidden = emTab !== "dir"; $("#emAtt").hidden = emTab !== "att"; $("#emLv").hidden = emTab !== "lv";
+          var L = emList();
+          $("#emRows").innerHTML = L.map(function (e) { return '<tr tabindex="0" data-e="' + e.id + '"><td><span class="x-emp"><i>' + initials(e.n) + "</i><span><b>" + esc(e.n) + "</b><small class=\"x-mono\">" + e.id + "</small></span></span></td><td>" + e.role + "</td><td>" + DEPT[e.dept] + "</td><td>" + e.hub + "</td><td>" + esc(e.mgr) + '</td><td class="x-mono">' + e.ph + "</td><td>" + fdate(e.join) + " " + e.join.getFullYear() + "</td><td>" + ePill(e.st) + "</td></tr>"; }).join("") || '<tr><td colspan="8">No one matches these filters.</td></tr>';
+          $("#emCount").textContent = "Showing " + L.length + " of " + EMP.length + ". Select a person for their profile, documents and leave.";
+          var ah = $("#emAttHub").value, AL = act.filter(function (e) { return !ah || e.hub === ah; });
+          $("#emAttSub").textContent = fdate(now) + " · " + AL.length + " on roll";
+          $("#emAttRows").innerHTML = AL.map(function (e) { return "<tr><td>" + esc(e.n) + "</td><td>" + e.hub + "</td><td>" + e.shift + '</td><td class="x-mono">' + ehm(e.cin) + '</td><td class="x-mono">' + ehm(e.cout) + '</td><td><select class="x-select" data-att="' + e.id + '" aria-label="Attendance for ' + esc(e.n) + '">' + Object.keys(ATT).map(function (a) { return "<option" + (a === e.att ? " selected" : "") + ">" + a + "</option>"; }).join("") + "</select></td></tr>"; }).join("");
+          $("#emLvSub").textContent = LVR.filter(function (l) { return l.st === "Pending"; }).length + " pending";
+          $("#emLvRows").innerHTML = LVR.map(function (l, i) { var to = new Date(l.from); to.setDate(to.getDate() + l.d - 1);
+            return "<tr><td>" + esc(l.e.n) + "<br><small>" + l.e.hub + "</small></td><td>" + l.t + "</td><td>" + fdate(l.from) + (l.d > 1 ? " – " + fdate(to) : "") + "</td><td>" + l.d + "</td><td>" + esc(l.why) + "</td><td>" + ePill(l.st, { Pending: "kyc", Approved: "live", Rejected: "due" }) + "</td><td>" +
+              (l.st === "Pending" ? '<div class="x-row" style="gap:6px;flex-wrap:nowrap"><button class="btn x-btn x-primary" type="button" data-lv="' + i + '" data-ok="1">Approve</button><button class="btn x-btn" type="button" data-lv="' + i + '">Reject</button></div>' : "—") + "</td></tr>"; }).join("");
+        }
+        function openEmp(id) {
+          var e = EMP.filter(function (x) { return x.id === id; })[0]; if (!e) return;
+          var docs = DOCS.map(function (d, k) { var need = k < 4 || e.dept === 5; return need ? "<li><span>" + d + "</span>" + (e.docs[k] ? '<span class="x-status x-s-live">Verified</span>' : '<span class="x-status x-s-due">Missing</span>') + "</li>" : ""; }).join("");
+          var miss = DOCS.filter(function (d, k) { return (k < 4 || e.dept === 5) && !e.docs[k]; });
+          drawer.innerHTML = '<div class="x-dhead"><div><p class="x-mono">' + e.id + " · " + e.type + '</p><h2 id="dName">' + esc(e.n) + "</h2><p>" + e.role + " · " + DEPT[e.dept] + "</p>" + ePill(e.st) + '</div><button class="x-iconbtn" type="button" id="dClose" aria-label="Close">' + ic("x") + "</button></div>" +
+            '<div class="x-dbody"><p class="x-dsec">Work</p><dl class="x-dl"><dt>Hub</dt><dd>' + e.hub + "</dd><dt>Reports to</dt><dd>" + esc(e.mgr) + "</dd><dt>Shift</dt><dd>" + e.shift + "</dd><dt>" + (e.st === "Joining" ? "Joins on" : "Joined") + "</dt><dd>" + fdate(e.join) + " " + e.join.getFullYear() + "</dd>" +
+            "<dt>CTC</dt><dd>" + (e.ctc ? '<button class="btn x-btn" type="button" id="eCtc" style="min-height:32px">Show</button>' : "Not on payroll") + '</dd></dl><p class="fineprint">Salary is visible to Founder and Finance roles only.</p>' +
+            '<p class="x-dsec">Contact</p><dl class="x-dl"><dt>Phone</dt><dd class="x-mono">' + e.ph + "</dd><dt>Work email</dt><dd>" + e.mail + "</dd><dt>Date of birth</dt><dd>" + fdate(e.dob) + " " + e.dob.getFullYear() + "</dd><dt>Blood group</dt><dd>" + e.blood + "</dd><dt>Emergency contact</dt><dd>" + e.em.n + ' · <span class="x-mono">' + e.em.p + "</span></dd></dl>" +
+            '<p class="x-dsec">Leave balance</p><div class="x-lvbal"><div><small>Casual</small><b>' + e.lv[0] + ' of 12</b></div><div><small>Sick</small><b>' + e.lv[1] + ' of 12</b></div><div><small>Earned</small><b>' + e.lv[2] + " of 15</b></div></div>" +
+            '<p class="x-dsec">Documents</p><ul class="x-docs">' + docs + "</ul></div>" +
+            '<div class="x-dfoot"><button class="btn x-btn" type="button" id="eRem"' + (miss.length ? "" : " disabled") + ">" + ic("send") + (miss.length ? "Request documents" : "All documents in") + '</button><button class="btn x-btn" type="button" id="eEdit">' + ic("edit") + "Edit</button>" +
+            (e.st === "Exited" ? "" : '<button class="btn x-btn" type="button" id="eExit">' + (e.st === "On notice" ? "Complete exit" : "Start exit") + "</button>") + "</div>";
+          drawer.classList.add("is-on"); scrim.classList.add("is-on");
+          $("#dClose").addEventListener("click", closeAll); $("#dClose").focus();
+          if ($("#eCtc")) $("#eCtc").addEventListener("click", function () { this.outerHTML = inr(e.ctc) + " a year"; });
+          $("#eRem").addEventListener("click", function () { toast("Asked " + e.n + " for " + miss.join(", ") + " by SMS and email"); });
+          $("#eEdit").addEventListener("click", function () { empForm(e); });
+          if ($("#eExit")) $("#eExit").addEventListener("click", function () { e.st = e.st === "On notice" ? "Exited" : "On notice"; log((e.st === "Exited" ? "Completed exit for " : "Started exit for ") + e.n, "Employees"); toast(e.st === "Exited" ? e.n + " exited · console access revoked" : e.n + " is on notice"); renderEmp(); openEmp(e.id); });
+        }
+        function empForm(e) {
+          var ed = !!e; e = e || { n: "", role: "", dept: 1, hub: "Bengaluru HQ", mgr: "Dev Thakur", ctc: 0, type: "Full-time" };
+          var o = function (arr, v) { return arr.map(function (x, j) { return '<option value="' + j + '"' + (x === v || j === v ? " selected" : "") + ">" + x + "</option>"; }).join(""); };
+          fdf.innerHTML = '<h2 id="frDlgH">' + (ed ? "Edit " + esc(e.n) : "Add employee") + "</h2>" +
+            '<label>Full name<input class="x-input" name="n" required minlength="2" value="' + esc(e.n) + '"></label>' +
+            (ed ? "" : '<div class="x-two"><label>Mobile<input class="x-input" name="ph" required pattern="[6-9][0-9]{9}" inputmode="numeric" maxlength="10" placeholder="10 digits"></label><label>Joining date<input class="x-input" type="date" name="jd" required></label></div>') +
+            '<div class="x-two"><label>Role<input class="x-input" name="role" required value="' + esc(e.role) + '"></label><label>Department<select class="x-select" name="dept">' + o(DEPT, e.dept) + "</select></label></div>" +
+            '<div class="x-two"><label>Hub<select class="x-select" name="hub">' + o(EHUBS, e.hub) + '</select></label><label>Reports to<select class="x-select" name="mgr">' + o(EMP.filter(function (x) { return x.st !== "Exited" && x !== e; }).map(function (x) { return x.n; }), e.mgr) + "</select></label></div>" +
+            '<div class="x-two"><label>Employment type<select class="x-select" name="type">' + o(["Full-time", "Contract", "Intern"], e.type) + '</select></label><label>CTC a year, ₹<input class="x-input" type="number" name="ctc" min="0" step="1000" value="' + (e.ctc || "") + '" required></label></div>' +
+            '<div class="x-row"><button class="btn x-btn" type="button" data-x>Cancel</button><button class="btn x-btn x-primary" type="submit">' + (ed ? "Save" : "Add and send offer") + "</button></div>";
+          fsub = function () { var f = fdf.elements; if (!fdf.reportValidity()) return;
+            var mg = f.mgr.options[f.mgr.selectedIndex].text;
+            var v = { n: f.n.value.trim(), role: f.role.value.trim(), dept: +f.dept.value, hub: EHUBS[+f.hub.value], mgr: mg, type: ["Full-time", "Contract", "Intern"][+f.type.value], ctc: +f.ctc.value };
+            if (ed) { Object.assign(e, v); log("Edited employee " + e.n, "Employees"); toast("Saved " + e.n); }
+            else { v.st = "Joining"; v.join = new Date(f.jd.value); v.docs = [0, 0, 0, 1, 0]; v.lv = [12, 12, 15]; var ne = addE(v); ne.ph = "+91 " + f.ph.value.slice(0, 5) + " " + f.ph.value.slice(5); ne.shift = SHIFT[2]; ne.att = ""; log("Added employee " + v.n, "Employees"); toast(v.n + " added · offer letter and document request sent"); }
+            fdlg.close(); renderEmp(); if (ed) openEmp(e.id); };
+          fdlg.showModal();
+        }
+        $("#emAdd").addEventListener("click", function () { empForm(null); });
+        ["#emQ", "#emDept", "#emHub", "#emSt", "#emAttHub"].forEach(function (s) { $(s).addEventListener("input", renderEmp); });
+        $("#emTabs").addEventListener("click", function (e) { var b = e.target.closest("[data-t]"); if (!b) return; emTab = b.dataset.t; $("#emTabs").querySelectorAll("button").forEach(function (x) { x.setAttribute("aria-pressed", String(x === b)); }); renderEmp(); });
+        $("#emRows").addEventListener("click", function (e) { var tr = e.target.closest("tr[data-e]"); if (tr) openEmp(tr.dataset.e); });
+        $("#emRows").addEventListener("keydown", function (e) { var tr = e.target.closest("tr[data-e]"); if (tr && (e.key === "Enter" || e.key === " ")) { e.preventDefault(); openEmp(tr.dataset.e); } });
+        $("#emAttRows").addEventListener("change", function (e) { var s = e.target.closest("[data-att]"); if (!s) return; var x = EMP.filter(function (y) { return y.id === s.dataset.att; })[0]; x.att = s.value; log("Marked " + x.n + " " + s.value, "Employees"); toast(x.n + " marked " + s.value); renderEmp(); });
+        $("#emLvRows").addEventListener("click", function (e) { var b = e.target.closest("[data-lv]"); if (!b) return; var l = LVR[+b.dataset.lv]; l.st = b.dataset.ok ? "Approved" : "Rejected";
+          if (l.st === "Approved") { var k = { Casual: 0, Sick: 1, Earned: 2 }[l.t]; l.e.lv[k] = Math.max(0, l.e.lv[k] - l.d); }
+          log(l.st + " " + l.t.toLowerCase() + " leave for " + l.e.n, "Employees"); toast(l.st + " · " + l.e.n + " is told by SMS"); renderEmp(); });
+        $("#emCsv").addEventListener("click", function () {
+          var q = function (v) { return '"' + String(v).replace(/"/g, '""') + '"'; };
+          var csv = [["Employee ID", "Name", "Role", "Department", "Hub", "Reports to", "Phone", "Work email", "Joined", "Type", "Status"]].concat(emList().map(function (e) { return [e.id, e.n, e.role, DEPT[e.dept], e.hub, e.mgr, e.ph, e.mail, e.join.toISOString().slice(0, 10), e.type, e.st]; })).map(function (r) { return r.map(q).join(","); }).join("\n");
+          var a = document.createElement("a"); a.href = URL.createObjectURL(new Blob(["\ufeff" + csv], { type: "text/csv" })); a.download = "devbus-employees-" + now.toISOString().slice(0, 10) + ".csv"; document.body.appendChild(a); a.click(); a.remove();
+        });
         renderDash();
         renderRows(true);
       })();
