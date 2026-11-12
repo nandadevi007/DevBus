@@ -186,8 +186,9 @@
       .x-deck { width: 100%; max-width: 300px; margin: 0 auto; padding: 12px; border-radius: var(--r-m); border: 1.5px solid var(--stroke-secondary); display: grid; gap: 10px; }
       .x-deck__top { display: flex; justify-content: space-between; align-items: center; min-height: 24px; padding-bottom: 8px; border-bottom: 1px dashed var(--stroke-secondary); font: var(--type-caption); color: var(--text-secondary); }
       .x-deck__top span { display: inline-flex; align-items: center; gap: 4px; }
-      .x-grid { display: grid; grid-template-columns: 1fr 1fr 14px 1fr 1fr; gap: 8px; }
-      .x-grid--sl { grid-template-columns: 1fr 14px 1fr 1fr; }
+      .x-grid { display: grid; grid-template-columns: 1fr 1fr 0.8fr 1fr 1fr; gap: 6px; }
+      .x-grid--sl { grid-template-columns: 1fr 0.7fr 1fr 1fr; gap: 8px; }
+      .x-modes[hidden] { display: none; }
       .x-seat { position: relative; display: grid; place-items: center; min-height: 46px; padding: 0; border-radius: 10px 10px 6px 6px; border: 1.5px solid var(--x-seat-line); background: var(--x-seat-free); color: var(--x-navy); font: var(--type-tag); cursor: pointer; transition: transform var(--dur-quick) var(--ease-out); }
       .x-grid--sl .x-seat { min-height: 84px; border-radius: 10px; }
       .x-grid--sl .x-seat::before { content: ""; position: absolute; top: 8px; left: 28%; right: 28%; height: 6px; border-radius: 3px; background: currentColor; opacity: 0.25; }
@@ -823,13 +824,21 @@
           if (cur !== b) {
             cur = b; sel = []; pax = {}; deck = 0;
             var sl = /Sleeper/.test(b.t), R = rng(b.n + state.from + state.to + state.day), all = [];
-            b.decks = [{ n: "Lower", c: "L", cols: 4, rows: 8, sl: 0, p: b.price }, { n: "Upper", c: "U", cols: sl ? 3 : 4, rows: 6, sl: sl, p: sl ? r10(b.price * 1.12) : b.price }];
-            b.decks.forEach(function (d, di) {
-              d.seats = [];
-              for (var i = 1; i <= d.rows * d.cols; i++) { var s = { id: d.c + i, d: di, p: d.p, lady: di ? i === 4 : i === 5 || i === 6 }; d.seats.push(s); all.push(s); }
-            });
+            if (sl) {
+              // 2+1 sleeper: single berth on the left, double berth on the right, 6 rows on each deck
+              b.decks = [{ n: "Lower", c: "L", sl: 1, p: r10(b.price * 1.1) }, { n: "Upper", c: "U", sl: 1, p: b.price }];
+              b.decks.forEach(function (d, di) {
+                d.seats = []; var k = 0;
+                for (var r = 1; r <= 6; r++) [1, 3, 4].forEach(function (col) { k++; var s = { id: d.c + k, d: di, p: d.p, row: r, col: col, lady: k === 1 }; d.seats.push(s); all.push(s); });
+              });
+            } else {
+              // 2+2 seater: one deck, 10 rows plus a 5-seat back row
+              var d0 = { n: "Seater", c: "", sl: 0, p: b.price, seats: [] }, k = 0;
+              for (var r = 1; r <= 11; r++) (r < 11 ? [1, 2, 4, 5] : [1, 2, 3, 4, 5]).forEach(function (col) { k++; var s = { id: String(k), d: 0, p: d0.p, row: r, col: col, lady: k === 1 || k === 2 }; d0.seats.push(s); all.push(s); });
+              b.decks = [d0];
+            }
             for (var i = all.length - 1; i > 0; i--) { var j = Math.floor(R() * (i + 1)), t = all[i]; all[i] = all[j]; all[j] = t; }
-            if (b.seats >= 4) { var l6 = b.decks[0].seats[5]; all.splice(all.indexOf(l6), 1); all.unshift(l6); }
+            if (b.seats >= 4) { var l6 = b.decks[0].seats.filter(function (x) { return x.lady; })[0]; all.splice(all.indexOf(l6), 1); all.unshift(l6); }
             all.forEach(function (s, i) { s.booked = i >= b.seats; });
             var arr = b.dep + b.dur;
             spots("#x-board", "board", state.from, function (i) { return b.dep + i * 20; }, "Pickup spot");
@@ -848,12 +857,12 @@
         function renderDeck() {
           var d = cur.decks[deck], g = $("#x-grid");
           g.className = "x-grid" + (d.sl ? " x-grid--sl" : "");
+          $("#x-decks").hidden = cur.decks.length < 2;
           g.innerHTML = d.seats.map(function (s, i) {
-            var c = i % d.cols, aisle = c === (d.cols === 4 ? 2 : 1) ? '<span aria-hidden="true"></span>' : "";
-            return aisle + '<button type="button" class="x-seat' + (s.lady ? " is-lady" : "") + '" data-s="' + i + '" aria-pressed="' + (sel.indexOf(s) > -1) + '"' + (s.booked ? " disabled" : "") +
+            return '<button type="button" style="grid-row:' + s.row + ";grid-column:" + s.col + '" class="x-seat' + (s.lady ? " is-lady" : "") + '" data-s="' + i + '" aria-pressed="' + (sel.indexOf(s) > -1) + '"' + (s.booked ? " disabled" : "") +
               ' aria-label="' + (d.sl ? "Berth " : "Seat ") + s.id + ", " + inr(s.p) + (s.booked ? ", booked" : s.lady ? ", women only" : "") + '">' + s.id + "</button>";
           }).join("");
-          $("#x-dinfo").textContent = d.n + " deck · " + (d.sl ? "sleeper " : "seater ") + inr(d.p);
+          $("#x-dinfo").textContent = d.sl ? d.n + " deck · 2+1 sleeper · " + inr(d.p) : "2+2 seater · " + d.seats.length + " seats · " + inr(d.p);
           $("#x-wheel").style.visibility = deck ? "hidden" : "visible";
           tabs();
         }
