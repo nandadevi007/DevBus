@@ -529,7 +529,7 @@
                 <div class="x-note"><i></i><p>New franchise counter live in Hubballi, first 14 bookings in<small>2 hr ago · Franchise</small></p></div>
               </div>
             </div>
-            <div class="x-me"><span class="x-avatar">DT</span><div><span>Dev T.</span><small>Founder</small></div></div>
+            <div class="x-me"><span class="x-avatar">DT</span><div><span>Dev T.</span><small>Co-Founder &amp; COO</small></div></div>
           </header>
 
           <section class="x-view" id="view-dash">
@@ -2485,7 +2485,7 @@ Track your bus live in the DevBus app.</p>
         var MODS = ["Dashboard", "Bookings", "Operators", "Routes & Pricing", "Refunds", "Franchise", "Marketing", "Offices", "Settings"], LV = ["Edit", "View", "None"];
         var PERM = ["000000000", "100011212", "111100212", "102202222", "112121022", "111210202"];
         var TABN = { team: "Team & roles", biz: "Business & tax", pay: "Payments & payouts", pol: "Policies", ntf: "Notifications", sec: "Security & audit", app: "Appearance" };
-        var TM = [["Dev T.", "dev", 0, 0, "Now", 1, "Active"], ["Arjun Menon", "arjun", 1, 1, "12 min ago", 1, "Active"], ["Priya Iyer", "priya", 2, 1, "1 hr ago", 1, "Active"], ["Shreya Rao", "shreya", 5, 1, "Today, 08:10", 1, "Active"], ["Rohan Kulkarni", "rohan", 3, 1, "Yesterday", 0, "Active"], ["Neha Reddy", "neha", 4, 1, "2 days ago", 1, "Active"], ["Naveen Kumar", "naveen", 5, 2, "3 days ago", 0, "Active"], ["Kavya Hegde", "kavya", 5, 3, "Not yet", 0, "Invited"], ["Sameer Khan", "sameer", 3, 2, fdate(dd(-26)), 0, "Disabled"]]
+        var TM = [["Supreeth Thakur", "supreeth", 0, 0, "Yesterday", 1, "Active"], ["Dev T.", "dev", 0, 0, "Now", 1, "Active"], ["Arjun Menon", "arjun", 1, 1, "12 min ago", 1, "Active"], ["Priya Iyer", "priya", 2, 1, "1 hr ago", 1, "Active"], ["Shreya Rao", "shreya", 5, 1, "Today, 08:10", 1, "Active"], ["Rohan Kulkarni", "rohan", 3, 1, "Yesterday", 0, "Active"], ["Neha Reddy", "neha", 4, 1, "2 days ago", 1, "Active"], ["Naveen Kumar", "naveen", 5, 2, "3 days ago", 0, "Active"], ["Kavya Hegde", "kavya", 5, 3, "Not yet", 0, "Invited"], ["Sameer Khan", "sameer", 3, 2, fdate(dd(-26)), 0, "Disabled"]]
           .map(function (m) { return { n: m[0], e: m[1][0] + "•••@devbus.in", r: m[2], h: m[3], la: m[4], fa: m[5], st: m[6] }; });
         var MCL = { Active: "live", Invited: "kyc", Disabled: "paused" };
         var AU = [[6, "Priya Iyer", "Approved 3 refunds above the auto-approve limit", "Refunds"], [22, "Arjun Menon", "Raised weekend fares, Bengaluru → Goa", "Routes & Pricing"], [48, "Shreya Rao", "Marked CCTV done · DevHub Hubballi", "Offices"], [75, "Neha Reddy", "Launched weekend offer on Goa routes", "Marketing"], [130, "Dev T.", "Changed Support access to Refunds: Edit", "Settings"], [190, "Rohan Kulkarni", "Cancelled a booking on customer request", "Bookings"], [260, "Arjun Menon", "Updated bus KA-19-AA-8047 details", "Operators"], [400, "Priya Iyer", "Ran weekly operator settlement", "Operators"], [600, "Naveen Kumar", "Added staff · DevHub Mysuru", "Offices"], [1300, "Dev T.", "Invited Kavya Hegde as Hub manager", "Settings"]]
@@ -2614,7 +2614,8 @@ Track your bus live in the DevBus app.</p>
           o.lv = o.lv || [12 - i % 5, 12 - i % 3, 15 - i % 6]; o.em = o.em || { n: ["Spouse", "Father", "Mother", "Brother"][i % 4], p: "+91 9" + String(8100 + i * 211).slice(0, 4) + " •••" + String(11 + (i * 53) % 87) };
           o.blood = ["O+", "B+", "A+", "AB+", "O-"][i % 5]; o.dob = new Date(1984 + i % 15, i % 12, 1 + i % 27); EMP.push(o); return o; };
         var SDEPT = [0, 1, 2, 3, 4, 1];
-        TM.forEach(function (m) { if (m.n === "Dev T.") return addE({ n: "Dev Thakur", role: "Founder & CEO", dept: 0, hub: "Bengaluru HQ", mgr: "Board", ctc: 0, join: dd(-420) });
+        TM.forEach(function (m) { if (m.n === "Supreeth Thakur") return addE({ n: "Supreeth Thakur", role: "Founder & CEO", dept: 0, hub: "Bengaluru HQ", mgr: "Board", ctc: 0, join: dd(-420) });
+          if (m.n === "Dev T.") return addE({ n: "Dev Thakur", role: "Co-Founder & COO", dept: 0, hub: "Bengaluru HQ", mgr: "Supreeth Thakur", ctc: 0, join: dd(-420) });
           addE({ n: m.n, role: SROLE[m.r], dept: SDEPT[m.r], hub: m.h ? SHUB[m.h] : "Bengaluru HQ", mgr: "Dev Thakur", ctc: [0, 1500000, 1100000, 520000, 960000, 900000][m.r], st: m.st === "Invited" ? "Joining" : m.st === "Disabled" ? "Exited" : "Active", join: m.st === "Invited" ? dd(9) : null }); });
         addE({ n: "Vikram Rao", role: "Tech lead", dept: 6, hub: "Bengaluru HQ", mgr: "Dev Thakur", ctc: 2400000 });
         HUB.forEach(function (h) { var mg = h.staff.filter(function (x) { return x.r === 0; })[0];
