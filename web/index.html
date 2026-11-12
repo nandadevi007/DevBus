@@ -169,6 +169,8 @@
       .x-seats.is-low { color: var(--fill-system-red); }
       .x-bus__foot .x-acts { margin-left: auto; display: flex; gap: 8px; }
       .x-check { display: flex; align-items: center; gap: 10px; padding: 12px 14px; border-radius: var(--r-m); background: var(--fill-tertiary); font: var(--type-small); animation: x-rise 300ms var(--ease-out); }
+      .x-check[hidden] { display: none; }
+      .x-bus[data-card] { cursor: pointer; }
       .x-check svg.i { color: var(--fill-system-green); }
       .x-check s { color: var(--text-secondary); text-decoration: none; }
       .x-skel { height: 196px; border-radius: var(--r-l); background: linear-gradient(90deg, var(--fill-tertiary) 30%, var(--x-surface) 50%, var(--fill-tertiary) 70%) 0 0 / 300% 100%; animation: x-shim 1.1s linear infinite; }
@@ -629,7 +631,7 @@
           <a href="#top" data-toast="Operator onboarding opening soon">Operator Partners</a>
           <a href="#top" data-toast="Support is available 24x7">Support 24x7</a>
         </nav>
-        <p>Bengaluru 560064 · © 2026 DevBus · Travel that keeps its word.</p>
+        <p>Intercity buses across India · © 2026 DevBus · Travel that keeps its word.</p>
       </footer>
     </div>
     <div class="x-bar" id="x-bar" hidden>
@@ -788,6 +790,7 @@
         var current = [];
         function search() {
           if (state.from === state.to) { toast("Pick two different cities"); return; }
+          clearTimeout(tt); toastEl.classList.remove("is-on");
           var R = route(state.from, state.to);
           current = BUSES.map(function (b) {
             var d = Math.round((R[2] * b.m) / 5) * 5, price = r10(R[0] + b.p * (R[1] - R[0]));
@@ -798,7 +801,7 @@
           show("results");
           $("#x-list").innerHTML = '<div class="x-skel"></div><div class="x-skel"></div><div class="x-skel"></div>';
           $("#x-list").setAttribute("aria-busy", "true");
-          setTimeout(render, reduce ? 150 : 750);
+          setTimeout(render, reduce ? 50 : 250);
         }
 
         function render() {
@@ -806,7 +809,7 @@
           var list = current.slice().sort(function (a, b) { return k === "safe" ? b.s - a.s : a[k] - b[k]; });
           $("#x-list").innerHTML = list.map(function (b, i) {
             var nd = b.arr >= 1440 ? "<sup>+1</sup>" : "";
-            return '<article class="x-bus" style="--i:' + i + '">' +
+            return '<article class="x-bus" data-card="' + current.indexOf(b) + '" style="--i:' + i + '">' +
               '<div class="x-bus__top"><div><h3>' + b.n + '</h3><p class="x-bus__type">' + b.t + "</p></div>" +
               '<span class="x-rating">' + ico("star") + b.r.toFixed(1) + "</span></div>" +
               '<div class="x-times"><div><b>' + hm(b.dep) + "</b><small>" + state.from + '</small></div><p class="x-dur"><span>' + dur(b.dur) + "</span></p><div><b>" + hm(b.arr) + nd + "</b><small>" + state.to + "</small></div></div>" +
@@ -817,7 +820,7 @@
               '<div class="x-bus__foot"><div><span class="x-price">' + inr(b.price) + '</span><span class="x-seats' + (b.seats <= 5 ? " is-low" : "") + '">' + b.seats + (b.seats === 1 ? " seat" : " seats") + " left</span></div>" +
               '<div class="x-acts"><button class="x-ghost" type="button" aria-expanded="false" data-check>Price check</button>' +
               '<button class="x-cta" type="button" data-bus="' + current.indexOf(b) + '">Select seats</button></div></div>' +
-              '<p class="x-check" hidden>' + ico("check") + "<span><b>DevBus " + inr(b.price) + "</b> <s>· other apps " + inr(b.lo) + "–" + inr(b.hi) + " (indicative)</s></span></p>" +
+              '<p class="x-check" hidden>' + ico("check") + "<span><b>" + inr(b.price) + " + 5% GST " + inr(Math.round(b.price * 0.05)) + "</b> <s>· convenience fee waived</s></span></p>" +
               "</article>";
           }).join("");
           $("#x-list").removeAttribute("aria-busy");
@@ -825,7 +828,8 @@
 
         $("#x-list").addEventListener("click", function (e) {
           var sb = e.target.closest("[data-bus]"); if (sb) { openSeats(current[+sb.dataset.bus]); return; }
-          var b = e.target.closest("[data-check]"); if (!b) return;
+          var b = e.target.closest("[data-check]");
+          if (!b) { var card = e.target.closest("[data-card]"); if (card && !e.target.closest("button, a, .x-check")) openSeats(current[+card.dataset.card]); return; }
           var p = b.closest(".x-bus").querySelector(".x-check"), open = p.hidden;
           p.hidden = !open; b.setAttribute("aria-expanded", open);
         });
@@ -873,7 +877,7 @@
             all.forEach(function (s, i) { s.booked = i >= b.seats; });
             var arr = b.dep + b.dur;
             spots("#x-board", "board", state.from, function (i) { return b.dep + i * 20; }, "Pickup spot");
-            spots("#x-drop", "drop", state.to, function (i) { return arr - (2 - i) * 20; }, "Drop spot");
+            spots("#x-drop", "drop", state.to, function (i) { return arr - (2 - i) * 20; }, function (i) { return i === 2 ? "Final stop · scheduled arrival" : "Drop spot · before final stop"; });
             var rs = restStops(b);
             $("#x-rest").innerHTML = rs.length ? rs.map(function (r) { return "<li>" + ico(r.k) + "<div><b>" + hm(r.t) + " · " + r.n + "</b><small>" + r.m + " min · " + r.d + "</small></div></li>"; }).join("") : "<li>" + ico("wc") + "<div><b>Non-stop journey</b><small>Under 2.5 hours. You can still request a washroom stop from live tracking.</small></div></li>";
           }
@@ -884,7 +888,7 @@
         }
         function spots(el, name, city, time, tag) {
           $(el).innerHTML = pts(city).map(function (p, i) {
-            return '<label class="x-spot"><input type="radio" name="' + name + '" value="' + i + '"' + (i ? "" : " checked") + " /><b>" + hm(time(i)) + " · " + p[0] + "</b><em>" + tag + "</em><small>" + ico("pin") + p[1] + "</small></label>";
+            return '<label class="x-spot"><input type="radio" name="' + name + '" value="' + i + '"' + (i ? "" : " checked") + " /><b>" + hm(time(i)) + " · " + p[0] + "</b><em>" + (typeof tag === "function" ? tag(i) : tag) + "</em><small>" + ico("pin") + p[1] + "</small></label>";
           }).join("");
         }
         function unit() { return cur && cur.decks[0].sl ? "berth" : "seat"; }
