@@ -92,6 +92,11 @@
       .x-field label { font: var(--type-caption); color: var(--text-secondary); }
       .x-field select { appearance: none; border: 0; background: transparent; color: var(--text-primary); font: var(--weight-bold) var(--size-heading)/1.2 var(--sans); padding: 0; min-height: 30px; cursor: pointer; width: 100%; }
       .x-field input { border: 0; background: transparent; color: var(--text-primary); font: var(--weight-bold) var(--size-heading)/1.2 var(--sans); padding: 0; min-height: 30px; width: 100%; outline: none; text-overflow: ellipsis; }
+      .x-sugg { list-style: none; margin: 0; padding: 6px; border-radius: var(--r-m); background: var(--fill-tertiary); display: grid; grid-template-columns: repeat(auto-fill, minmax(150px, 1fr)); gap: 4px; }
+      .x-sugg[hidden] { display: none; }
+      .x-sugg li { padding: 10px 12px; min-height: 44px; display: flex; align-items: center; border-radius: 10px; cursor: pointer; color: var(--text-primary); font-weight: 600; }
+      .x-sugg li:hover, .x-sugg li[aria-selected="true"] { background: var(--fill-primary); color: var(--text-primary-on); }
+      .x-sugg .x-sempty { cursor: default; color: var(--text-secondary); font-weight: 400; }
       .x-field input::placeholder { color: var(--text-secondary); font-weight: var(--weight-regular); }
       .x-field:focus-within { box-shadow: 0 0 0 2px var(--fill-primary); }
       .x-field select option { color: var(--text-primary); background: var(--x-surface); }
@@ -391,10 +396,11 @@
                 <button class="x-mode" type="button" aria-pressed="false" data-toast="Flights are coming soon"><svg class="i"><use href="#i-plane" /></svg>Flight <small>Coming soon</small></button>
               </div>
               <div class="x-od">
-                <div class="x-field"><label for="x-from">From</label><input id="x-from" list="x-cities" autocomplete="off" spellcheck="false" placeholder="Leaving from" /></div>
+                <div class="x-field"><label for="x-from">From</label><input id="x-from" role="combobox" aria-autocomplete="list" aria-controls="x-sugg" aria-expanded="false" autocomplete="off" spellcheck="false" placeholder="Leaving from" /></div>
                 <button class="x-swap" type="button" id="x-swap" aria-label="Swap From and To"><svg class="i"><use href="#i-swap" /></svg></button>
-                <div class="x-field"><label for="x-to">To</label><input id="x-to" list="x-cities" autocomplete="off" spellcheck="false" placeholder="Going to" /><datalist id="x-cities"></datalist></div>
+                <div class="x-field"><label for="x-to">To</label><input id="x-to" role="combobox" aria-autocomplete="list" aria-controls="x-sugg" aria-expanded="false" autocomplete="off" spellcheck="false" placeholder="Going to" /></div>
               </div>
+              <ul class="x-sugg" id="x-sugg" role="listbox" aria-label="Cities" hidden></ul>
               <div class="x-dates" role="group" aria-label="Date of travel" id="x-dates"></div>
               <button class="x-cta x-cta--wide" type="submit">Search buses</button>
             </form>
@@ -666,8 +672,32 @@
 
         // search form
         var fromS = $("#x-from"), toS = $("#x-to");
-        $("#x-cities").innerHTML = CITIES.map(function (c) { return '<option value="' + c + '"></option>'; }).join("");
-        var findCity = function (v) { v = String(v).trim().toLowerCase(); for (var i = 0; i < CITIES.length; i++) if (CITIES[i].toLowerCase() === v) return CITIES[i]; return null; };
+        
+        var matches = function (v) { v = String(v).trim().toLowerCase(); if (!v) return CITIES.slice(0, 8); var a = [], b = []; CITIES.forEach(function (c) { var l = c.toLowerCase(); if (l.indexOf(v) === 0) a.push(c); else if (l.indexOf(v) > 0) b.push(c); }); return a.concat(b).slice(0, 8); };
+        var findCity = function (v) { var l = String(v).trim().toLowerCase(); if (!l) return null; for (var i = 0; i < CITIES.length; i++) if (CITIES[i].toLowerCase() === l) return CITIES[i]; return matches(v)[0] || null; };
+        var sugg = $("#x-sugg"), sField = null, sIdx = 0;
+        function drawSugg() {
+          var m = matches(sField.value); sIdx = Math.min(sIdx, m.length - 1);
+          if (!m.length) { sugg.innerHTML = '<li class="x-sempty">No city found</li>'; }
+          else sugg.innerHTML = m.map(function (c, i) { return '<li role="option" data-city="' + c + '" aria-selected="' + (i === sIdx) + '">' + c + "</li>"; }).join("");
+          sugg.hidden = false; sField.setAttribute("aria-expanded", "true");
+        }
+        function closeSugg() { sugg.hidden = true; if (sField) sField.setAttribute("aria-expanded", "false"); }
+        function choose(c) { if (!sField || !c) return; if (sField === fromS) state.from = c; else state.to = c; syncForm(); closeSugg(); }
+        sugg.addEventListener("mousedown", function (e) { var li = e.target.closest("[data-city]"); if (li) { e.preventDefault(); choose(li.dataset.city); } });
+        [fromS, toS].forEach(function (s) {
+          s.addEventListener("focus", function () { sField = s; sIdx = 0; s.select(); drawSugg(); });
+          s.addEventListener("input", function () { sField = s; sIdx = 0; drawSugg(); });
+          s.addEventListener("keydown", function (e) {
+            if (sugg.hidden) return;
+            var n = sugg.querySelectorAll("[data-city]").length;
+            if (e.key === "ArrowDown") { e.preventDefault(); sIdx = (sIdx + 1) % n; drawSugg(); }
+            else if (e.key === "ArrowUp") { e.preventDefault(); sIdx = (sIdx - 1 + n) % n; drawSugg(); }
+            else if (e.key === "Enter") { var li = sugg.querySelectorAll("[data-city]")[sIdx]; if (li) { e.preventDefault(); choose(li.dataset.city); } }
+            else if (e.key === "Escape") { closeSugg(); }
+          });
+          s.addEventListener("blur", function () { setTimeout(function () { if (document.activeElement !== fromS && document.activeElement !== toS) closeSugg(); }, 120); });
+        });
         [fromS, toS].forEach(function (s) { s.addEventListener("focus", function () { s.select(); }); });
         function syncForm() { fromS.value = state.from; toS.value = state.to; $("#x-rf").textContent = state.from; $("#x-rt").textContent = state.to; }
         fromS.addEventListener("change", function () { var c = findCity(fromS.value); if (c) state.from = c; else if (fromS.value.trim()) toast("Pick a city from the list"); syncForm(); });
@@ -783,7 +813,7 @@
           Hyderabad: [["Lakdi-ka-pul", "Opposite Ravindra Bharathi"], ["Ameerpet", "Below Ameerpet metro"], ["Miyapur", "X Roads, near metro station"]],
           Goa: [["Panaji", "Kadamba Bus Stand, Bay 3"], ["Mapusa", "Mapusa bus stand entrance"], ["Margao", "KTC bus stand, Margao"]]
         };
-        function pts(c) { return POINTS[c] || [[c + " Bus Stand", "Main bus stand, departure bays"], [c + " Bypass", "Highway bus stop at the bypass junction"], [c + " Railway Station", "Bus pickup bay outside the station"]]; }
+        function pts(c) { return POINTS[c] || [[c + " Bus Stand", "Main bus stand, private bus bays"], [c + " Bypass", "Highway bus stop at the bypass junction"], [c + " Railway Station", "Bus bay outside the station"]]; }
         var MAX = 6, cur = null, sel = [], deck = 0, pax = {};
         var esc = function (s) { return String(s).replace(/[&<>"']/g, function (c) { return "&#" + c.charCodeAt(0) + ";"; }); };
         function rng(s) { var h = 2166136261; for (var i = 0; i < s.length; i++) h = Math.imul(h ^ s.charCodeAt(i), 16777619); return function () { h = Math.imul(h ^ (h >>> 15), 2246822507); h = Math.imul(h ^ (h >>> 13), 3266489909); return ((h ^= h >>> 16) >>> 0) / 4294967296; }; }
