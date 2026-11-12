@@ -306,6 +306,16 @@
       .x-ava { display: grid; place-items: center; width: 44px; height: 44px; border-radius: 50%; background: var(--fill-primary); color: var(--text-primary-on); font: var(--type-body-strong); font-weight: var(--weight-bold); flex: none; }
       .x-sheet { width: min(560px, 100%); max-width: 100%; max-height: 92vh; margin: auto auto 0; padding: 20px var(--gutter) calc(20px + env(safe-area-inset-bottom, 0px)); border: 0; border-radius: var(--r-l) var(--r-l) 0 0; background: var(--x-surface); color: var(--text-primary); box-shadow: var(--hark-shadow); }
       .x-sheet[open] { display: grid; gap: 14px; animation: x-up 320ms var(--ease-out); }
+      .x-in-head { display: flex; align-items: center; justify-content: space-between; gap: 12px; }
+      .x-in-body { display: grid; gap: 12px; overflow-y: auto; max-height: 70vh; }
+      .x-in-body p { color: var(--text-secondary); }
+      .x-in-list { list-style: none; margin: 0; padding: 0; display: grid; gap: 8px; }
+      .x-in-list li { display: flex; gap: 10px; align-items: flex-start; padding: 12px 14px; border-radius: var(--r-m); border: 1.5px solid var(--x-line); }
+      .x-in-list li svg.i { flex: none; width: 18px; height: 18px; margin-top: 2px; color: var(--fill-system-green); }
+      .x-in-list b { display: block; }
+      .x-in-list small { color: var(--text-secondary); font: var(--type-small); }
+      .x-in-form { display: grid; gap: 8px; }
+      .x-in-form select, .x-in-form textarea { width: 100%; border: 0; outline: 0; background: transparent; color: var(--text-primary); font: inherit; resize: vertical; }
       .x-sheet::backdrop { background: #0b1f3a99; }
       .x-sheet h2 { font: var(--type-heading); }
       .x-sheet .x-row2 > * { min-height: 48px; }
@@ -626,10 +636,10 @@
       <footer class="foot">
         <a class="x-logowrap x-foot-logo" href="#top" data-go="home" aria-label="DevBus home"><svg class="x-logo x-logo--pri" aria-hidden="true"><use href="#logo-pri" /></svg><svg class="x-logo x-logo--rev" aria-hidden="true"><use href="#logo-rev" /></svg></a>
         <nav aria-label="Company">
-          <a href="#top" data-toast="About DevBus opening soon">About</a>
-          <a href="#top" data-toast="Franchise enquiries opening soon">Become a Franchise Partner</a>
-          <a href="#top" data-toast="Operator onboarding opening soon">Operator Partners</a>
-          <a href="#top" data-toast="Support is available 24x7">Support 24x7</a>
+          <a href="#about" data-info="about">About</a>
+          <a href="#franchise" data-info="franchise">Become a Franchise Partner</a>
+          <a href="#operators" data-info="operators">Operator Partners</a>
+          <a href="#support" data-info="support">Support 24x7</a>
         </nav>
         <p>Intercity buses across India · © 2026 DevBus · Travel that keeps its word.</p>
       </footer>
@@ -644,6 +654,10 @@
       <div class="breakdown"><dl id="x-sh-dl"></dl></div>
       <p class="fineprint">Free cancellation till 6 hrs before departure. The refund goes back to the way you paid.</p>
       <div class="x-row2"><button class="x-ghost" type="button" id="x-sh-no">Keep ticket</button><button class="x-cta x-solid" type="button" id="x-sh-yes">Cancel &amp; refund</button></div>
+    </dialog>
+    <dialog class="x-sheet" id="x-info" aria-labelledby="x-in-t">
+      <div class="x-in-head"><h2 id="x-in-t"></h2><button class="x-icon-btn" type="button" id="x-in-x" aria-label="Close"><svg class="i" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M6 6l12 12M18 6 6 18"/></svg></button></div>
+      <div class="x-in-body" id="x-in-b"></div>
     </dialog>
     <div class="x-toast" id="x-toast" role="status" aria-live="polite"></div>
     <script src="hark.js"></script>
@@ -1111,6 +1125,51 @@
           show("ticket"); confetti();
         }
         $("#x-go-track").addEventListener("click", function () { show("track"); });
+
+        // footer info sheets
+        var info = $("#x-info");
+        var li = function (t, d) { return "<li>" + ico("check") + "<div><b>" + t + "</b><small>" + d + "</small></div></li>"; };
+        var fld = function (id, label, input) { return '<div class="x-field"><label for="' + id + '">' + label + "</label>" + input + "</div>"; };
+        var INFO = {
+          about: ["About DevBus", "<p>DevBus books intercity buses across India, with trains and flights to follow. We compete on trust, not cashback.</p><ul class=\"x-in-list\">" +
+            li("DevSafe score", "Every bus is rated on driver record, on-time history, GPS and vehicle age.") +
+            li("Instant refunds", "Cancel and the money goes straight back to the way you paid.") +
+            li("Boarding precision", "Exact pickup spots with landmarks, plus live tracking to your stop.") +
+            li("Women-friendly travel", "Women-only seats and berths, and help from DevSafe support on every trip.") + "</ul><p>Based in Bengaluru, serving travellers across India.</p>"],
+          franchise: ["Become a DevPoint partner", "<p>Run a DevBus counter in your town. Book seats for walk-in customers from a prepaid wallet and earn on every ticket.</p><ul class=\"x-in-list\">" +
+            li("No royalty", "Choose from three counter tiers: DevPoint Lite, DevPoint and DevPoint Plus.") +
+            li("Earn on every ticket", "A share of DevBus commission on bus, flight and rail bookings.") +
+            li("Training and support", "We set up your counter, train your staff and back you with a regional manager.") +
+            '</ul><a class="x-cta" href="../partner/#apply" style="text-decoration:none">Apply on the DevPoint portal</a>'],
+          operators: ["Partner with DevBus", "<p>Bus operators: sell your seats to riders across India, with weekly settlements and the DevSafe badge.</p>" +
+            '<form class="x-in-form" id="x-op-f" novalidate>' +
+            fld("x-op-n", "Your name", '<input id="x-op-n" required autocomplete="name" placeholder="Full name" />') +
+            fld("x-op-c", "Travels or company name", '<input id="x-op-c" required placeholder="e.g. Sri Durga Travels" />') +
+            fld("x-op-p", "Mobile", '<input id="x-op-p" required type="tel" inputmode="numeric" maxlength="10" placeholder="10-digit number" />') +
+            fld("x-op-b", "Fleet size", '<select id="x-op-b"><option>1 to 5 buses</option><option>6 to 20 buses</option><option>21 to 50 buses</option><option>More than 50 buses</option></select>') +
+            fld("x-op-r", "Main routes", '<input id="x-op-r" placeholder="e.g. Hubballi to Pune, Vijayapura to Bengaluru" />') +
+            '<button class="x-cta" type="submit">Request a call back</button></form>'],
+          support: ["Support, 24x7", "<p>We're here day and night, including while you're on the bus.</p><ul class=\"x-in-list\">" +
+            li("On a trip right now?", "Open Track my bus from your ticket to call the driver or request a washroom stop.") +
+            li("Cancel or refund", "Cancel from your ticket. Refunds go back instantly to the way you paid.") +
+            li("Bus late or not arrived", "Tell us and we'll call the operator. If the bus doesn't come, you get a full refund.") + "</ul>" +
+            '<form class="x-in-form" id="x-sup-f" novalidate>' +
+            fld("x-sup-p", "Mobile number", '<input id="x-sup-p" required type="tel" inputmode="numeric" maxlength="10" placeholder="10-digit number" />') +
+            fld("x-sup-k", "PNR (optional)", '<input id="x-sup-k" placeholder="e.g. DB4K7Q2P9X" />') +
+            fld("x-sup-m", "How can we help?", '<textarea id="x-sup-m" rows="3" placeholder="Tell us what happened"></textarea>') +
+            '<button class="x-cta" type="submit">Call me back</button></form>']
+        };
+        function openInfo(k) { if (!INFO[k]) return; $("#x-in-t").textContent = INFO[k][0]; $("#x-in-b").innerHTML = INFO[k][1]; if (!info.open) info.showModal(); }
+        document.addEventListener("click", function (e) { var t = e.target.closest("[data-info]"); if (t) { e.preventDefault(); openInfo(t.dataset.info); } });
+        $("#x-in-x").addEventListener("click", function () { info.close(); });
+        info.addEventListener("click", function (e) { if (e.target === info) { var r = info.getBoundingClientRect(); if (e.clientX < r.left || e.clientX > r.right || e.clientY < r.top || e.clientY > r.bottom) info.close(); } });
+        info.addEventListener("submit", function (e) {
+          e.preventDefault(); var f = e.target, ph = f.querySelector('input[type="tel"]'), ok = true;
+          f.querySelectorAll("[required]").forEach(function (x) { var bad = !x.value.trim() || (x.type === "tel" && !/^[6-9]\d{9}$/.test(x.value.trim())); x.closest(".x-field").toggleAttribute("data-bad", bad); if (bad) ok = false; });
+          if (!ok) { toast("Please fill the highlighted fields"); return; }
+          info.close(); toast(f.id === "x-op-f" ? "Thanks! Our operator team will call you within one working day." : "Got it. Our support team will call +91 " + ph.value.trim() + " shortly.");
+        });
+        if (INFO[location.hash.slice(1)]) openInfo(location.hash.slice(1));
 
         // cancel
         var sheet = $("#x-sheet");

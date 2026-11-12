@@ -784,6 +784,7 @@
           panel("bk", "6"); $$("#trail li").forEach((l) => (l.className = "done"));
           toast(`Booked · you earn ${inr(t.earn)}`);
         }
+        if (location.hash === "#apply") view("v-apply");
       })();
     </script>
   </body>
