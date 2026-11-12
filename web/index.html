@@ -467,7 +467,7 @@
               <div class="x-deck__top"><span id="x-dinfo"></span><span id="x-wheel"><svg class="i" aria-hidden="true"><use href="#i-wheel" /></svg>Driver</span></div>
               <div class="x-grid" id="x-grid"></div>
             </div>
-            <p class="fineprint">Up to 6 seats per booking.</p>
+            <p class="fineprint" id="x-limit">Up to 6 seats per booking.</p>
           </section>
           <section class="x-card">
             <h2 class="x-h"><svg class="i" aria-hidden="true"><use href="#i-pin" /></svg>Boarding point<small id="x-bfrom"></small></h2>
@@ -854,7 +854,9 @@
             return '<label class="x-spot"><input type="radio" name="' + name + '" value="' + i + '"' + (i ? "" : " checked") + " /><b>" + hm(time(i)) + " · " + p[0] + "</b><em>" + tag + "</em><small>" + ico("pin") + p[1] + "</small></label>";
           }).join("");
         }
+        function unit() { return cur && cur.decks[0].sl ? "berth" : "seat"; }
         function renderDeck() {
+          $("#x-limit").textContent = "Up to 6 " + unit() + "s per booking.";
           var d = cur.decks[deck], g = $("#x-grid");
           g.className = "x-grid" + (d.sl ? " x-grid--sl" : "");
           $("#x-decks").hidden = cur.decks.length < 2;
@@ -877,8 +879,8 @@
           var btn = e.target.closest("[data-s]"); if (!btn || btn.disabled) return;
           var s = cur.decks[deck].seats[+btn.dataset.s], k = sel.indexOf(s);
           if (k > -1) sel.splice(k, 1);
-          else if (sel.length >= MAX) { toast("You can book up to " + MAX + " seats at a time"); return; }
-          else { sel.push(s); if (s.lady) toast("Seat " + s.id + " is reserved for women"); }
+          else if (sel.length >= MAX) { toast("You can book up to " + MAX + " " + unit() + "s at a time"); return; }
+          else { sel.push(s); if (s.lady) toast((cur.decks[0].sl ? "Berth " : "Seat ") + s.id + " is reserved for women"); }
           btn.setAttribute("aria-pressed", k < 0); tabs(); bar();
         });
 
@@ -888,7 +890,7 @@
           var on = view === "seats" || view === "pax" || view === "pay", btn = $("#x-bar-btn"), ids = sel.map(function (s) { return s.id; }).join(", ");
           $("#x-bar").hidden = !on; document.body.classList.toggle("x-has-bar", on);
           if (view === "seats") {
-            $("#x-bar-l").textContent = sel.length ? plural(sel.length, "seat") + " · " + ids : "Pick your seats";
+            $("#x-bar-l").textContent = sel.length ? plural(sel.length, unit()) + " · " + ids : (cur && cur.decks[0].sl ? "Pick your berths" : "Pick your seats");
             $("#x-bar-t").textContent = inr(fare().b); btn.textContent = "Continue"; btn.setAttribute("aria-disabled", !sel.length);
           } else if (view === "pax") {
             $("#x-bar-l").textContent = ids + " · incl. GST"; $("#x-bar-t").textContent = plural(sel.length, "traveller");
@@ -924,7 +926,7 @@
               }).join("") + "</div></article>";
           }).join("");
           var f = fare();
-          $("#x-fare").innerHTML = '<div class="row"><dt>Base fare <small>' + plural(sel.length, "seat") + "</small></dt><dd>" + inr(f.b) + '</dd></div><div class="row"><dt>GST <small>5%</small></dt><dd>' + inr(f.g) +
+          $("#x-fare").innerHTML = '<div class="row"><dt>Base fare <small>' + plural(sel.length, unit()) + "</small></dt><dd>" + inr(f.b) + '</dd></div><div class="row"><dt>GST <small>5%</small></dt><dd>' + inr(f.g) +
             '</dd></div><div class="row"><dt>Convenience fee</dt><dd><s>₹49</s>₹0 launch offer</dd></div><div class="row row--total"><dt>Total</dt><dd>' + inr(f.t) + "</dd></div>";
           show("pax");
         }
@@ -979,7 +981,7 @@
         }
         function openPay() {
           var f = fare();
-          $("#x-paysub").textContent = cur.n + " · " + plural(sel.length, "seat");
+          $("#x-paysub").textContent = cur.n + " · " + plural(sel.length, unit());
           $("#x-paysum").innerHTML = '<div class="row"><dt>' + state.from + " → " + state.to + "<small>" + dayLabel(state.day) + " · " + chosen("board") + "</small></dt><dd>" + sel.map(function (s) { return s.id; }).join(", ") +
             '</dd></div><div class="row"><dt>Fare + GST <small>Convenience fee waived</small></dt><dd>' + inr(f.b) + " + " + inr(f.g) + '</dd></div><div class="row row--total"><dt>Total</dt><dd>' + inr(f.t) + "</dd></div>";
           if (!holdT) startHold();
