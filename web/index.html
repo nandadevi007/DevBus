@@ -665,7 +665,8 @@
           if (!custom) din.value = "";
         }
         dates.addEventListener("click", function (e) { var b = e.target.closest("[data-day]"); if (!b) return; markDay(+b.dataset.day); });
-        pick.addEventListener("click", function (e) { if (e.target !== din && din.showPicker) { e.preventDefault(); try { din.showPicker(); } catch (_) { din.focus(); } } });
+        function openPick(e) { if (!din.showPicker) return; if (e) e.preventDefault(); try { din.showPicker(); } catch (_) { din.focus(); } }
+        pick.addEventListener("click", openPick);
         din.addEventListener("change", function () {
           if (!din.value) return;
           var p = din.value.split("-"), t = new Date(+p[0], +p[1] - 1, +p[2]), n = new Date(); n.setHours(0, 0, 0, 0);
