@@ -98,9 +98,18 @@
       .x-swap.is-spun { rotate: 180deg; }
       .x-dates { display: flex; gap: 8px; flex-wrap: wrap; }
       .x-chip { display: inline-flex; align-items: center; gap: 6px; min-height: var(--tap); padding: 0 14px; border-radius: var(--r-pill); border: 1px solid var(--stroke-primary); background: transparent; color: var(--text-primary); font: var(--type-label); cursor: pointer; transition: background var(--dur-quick) ease; }
-      .x-pick { position: relative; }
-      .x-pick input { position: absolute; inset: 0; width: 100%; height: 100%; opacity: 0; cursor: pointer; border: 0; }
+      .x-pickwrap { position: relative; }
       .x-pick[aria-pressed="true"] { border-color: var(--fill-primary); background: var(--fill-primary); color: var(--text-primary-on); }
+      .x-cal { position: absolute; z-index: 30; top: calc(100% + 8px); left: 0; width: 296px; max-width: calc(100vw - 32px); padding: 12px; border-radius: 14px; background: var(--x-surface); color: var(--text-primary); border: 1px solid var(--stroke-primary); box-shadow: 0 12px 32px #0a0a0a33; }
+      .x-calhd { display: flex; align-items: center; justify-content: space-between; margin-bottom: 8px; }
+      .x-calnav { width: 36px; height: 36px; border-radius: 10px; border: 1px solid var(--stroke-primary); background: transparent; color: inherit; font-size: 20px; cursor: pointer; }
+      .x-calnav:disabled { opacity: .35; cursor: default; }
+      .x-calgrid { display: grid; grid-template-columns: repeat(7, 1fr); gap: 2px; text-align: center; }
+      .x-calw { font-size: 12px; color: var(--text-secondary); padding: 4px 0; }
+      .x-calday { height: 38px; border: 0; border-radius: 10px; background: transparent; color: inherit; font: inherit; cursor: pointer; }
+      .x-calday:hover:not(:disabled) { background: var(--hover-wash); }
+      .x-calday:disabled { color: var(--text-secondary); opacity: .45; cursor: default; }
+      .x-calday[aria-pressed="true"] { background: var(--fill-primary); color: var(--text-primary-on); font-weight: 700; }
       .x-chip small { color: var(--text-secondary); font-weight: var(--weight-regular); }
       .x-chip:hover { background: var(--hover-wash); }
       .x-chip[aria-pressed="true"] { border-color: var(--fill-primary); background: var(--fill-primary); color: var(--text-primary-on); }
@@ -653,27 +662,38 @@
         toS.addEventListener("change", function () { state.to = toS.value; syncForm(); });
         $("#x-swap").addEventListener("click", function () { var f = state.from; state.from = state.to; state.to = f; this.classList.toggle("is-spun"); syncForm(); });
         var dates = $("#x-dates");
-        var iso = function (d) { var x = new Date(); x.setDate(x.getDate() + d); return x.getFullYear() + "-" + String(x.getMonth() + 1).padStart(2, "0") + "-" + String(x.getDate()).padStart(2, "0"); };
         dates.innerHTML = ["Today", "Tomorrow"].map(function (l, i) { return '<button class="x-chip" type="button" data-day="' + i + '" aria-pressed="' + (i === 0) + '">' + l + " <small>" + dayLabel(i) + "</small></button>"; }).join("") +
-          '<label class="x-chip x-pick" aria-pressed="false"><svg class="i" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="3" y="5" width="18" height="16" rx="2"/><path d="M16 3v4M8 3v4M3 10h18"/></svg><span>Pick a date</span><input type="date" id="x-date" aria-label="Pick a travel date" min="' + iso(0) + '" max="' + iso(90) + '"></label>';
-        var pick = dates.querySelector(".x-pick"), din = $("#x-date");
+          '<div class="x-pickwrap"><button class="x-chip x-pick" type="button" aria-pressed="false" aria-haspopup="dialog" aria-expanded="false"><svg class="i" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="3" y="5" width="18" height="16" rx="2"/><path d="M16 3v4M8 3v4M3 10h18"/></svg><span>Pick a date</span></button><div class="x-cal" role="dialog" aria-label="Choose travel date" hidden></div></div>';
+        var pick = dates.querySelector(".x-pick"), cal = dates.querySelector(".x-cal"), MAXD = 90, calM = 0;
+        var t0 = function () { var n = new Date(); n.setHours(0, 0, 0, 0); return n; };
         function markDay(d) {
           state.day = d;
           dates.querySelectorAll("[data-day]").forEach(function (x) { x.setAttribute("aria-pressed", +x.dataset.day === d); });
           var custom = d > 1; pick.setAttribute("aria-pressed", custom);
-          pick.querySelector("span").innerHTML = custom ? dayLabel(d) : "Pick a date";
-          if (!custom) din.value = "";
+          pick.querySelector("span").textContent = custom ? dayLabel(d) : "Pick a date";
         }
-        dates.addEventListener("click", function (e) { var b = e.target.closest("[data-day]"); if (!b) return; markDay(+b.dataset.day); });
-        function openPick(e) { if (!din.showPicker) return; if (e) e.preventDefault(); try { din.showPicker(); } catch (_) { din.focus(); } }
-        pick.addEventListener("click", openPick);
-        din.addEventListener("change", function () {
-          if (!din.value) return;
-          var p = din.value.split("-"), t = new Date(+p[0], +p[1] - 1, +p[2]), n = new Date(); n.setHours(0, 0, 0, 0);
-          var d = Math.round((t - n) / 864e5);
-          if (d < 0 || d > 90) { toast("Pick a date in the next 90 days"); din.value = ""; return; }
-          markDay(d);
+        function drawCal() {
+          var base = t0(), first = new Date(base.getFullYear(), base.getMonth() + calM, 1), last = new Date(base); last.setDate(last.getDate() + MAXD);
+          var lastM = (last.getFullYear() - base.getFullYear()) * 12 + last.getMonth() - base.getMonth();
+          var h = '<div class="x-calhd"><button type="button" class="x-calnav" data-m="-1" aria-label="Previous month"' + (calM <= 0 ? " disabled" : "") + '>‹</button><b>' + first.toLocaleDateString("en-IN", { month: "long", year: "numeric" }) + '</b><button type="button" class="x-calnav" data-m="1" aria-label="Next month"' + (calM >= lastM ? " disabled" : "") + '>›</button></div><div class="x-calgrid">';
+          ["S", "M", "T", "W", "T", "F", "S"].forEach(function (w) { h += '<span class="x-calw">' + w + "</span>"; });
+          for (var i = 0; i < first.getDay(); i++) h += "<span></span>";
+          var dim = new Date(first.getFullYear(), first.getMonth() + 1, 0).getDate();
+          for (var dd = 1; dd <= dim; dd++) {
+            var dt = new Date(first.getFullYear(), first.getMonth(), dd), off = Math.round((dt - base) / 864e5), ok = off >= 0 && off <= MAXD;
+            h += '<button type="button" class="x-calday" data-off="' + off + '"' + (ok ? "" : " disabled") + (off === state.day ? ' aria-pressed="true"' : "") + ' aria-label="' + dt.toDateString() + '">' + dd + "</button>";
+          }
+          cal.innerHTML = h + "</div>";
+        }
+        function openCal(on) { cal.hidden = !on; pick.setAttribute("aria-expanded", on); if (on) { var d = new Date(t0()); d.setDate(d.getDate() + state.day); calM = (d.getFullYear() - t0().getFullYear()) * 12 + d.getMonth() - t0().getMonth(); drawCal(); } }
+        dates.addEventListener("click", function (e) {
+          var b = e.target.closest("[data-day]"); if (b) { markDay(+b.dataset.day); openCal(false); return; }
+          if (e.target.closest(".x-pick")) { openCal(cal.hidden); return; }
+          var n = e.target.closest(".x-calnav"); if (n) { calM += +n.dataset.m; drawCal(); return; }
+          var c = e.target.closest(".x-calday"); if (c && !c.disabled) { markDay(+c.dataset.off); openCal(false); }
         });
+        document.addEventListener("click", function (e) { if (!cal.hidden && !e.target.closest(".x-pickwrap")) openCal(false); });
+        document.addEventListener("keydown", function (e) { if (e.key === "Escape" && !cal.hidden) { openCal(false); pick.focus(); } });
         var pop = $(".x-popular");
         ["Mysuru", "Chennai", "Hyderabad", "Goa"].forEach(function (c) {
           var b = document.createElement("button"); b.type = "button"; b.className = "x-chip"; b.textContent = "Bengaluru → " + c;
