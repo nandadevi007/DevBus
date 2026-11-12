@@ -1,0 +1,790 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>DevPoint Partner Portal · DevBus</title>
+    <link rel="icon" type="image/svg+xml" href="favicon.svg" />
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link
+      rel="stylesheet"
+      href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap"
+    />
+    <link rel="stylesheet" href="hark.css" />
+    <link rel="stylesheet" href="hark-hero.css" />
+    <style>
+      :root{
+        /* DevBus brand */
+        --x-navy:#0B1F3A;--x-on-navy:light-dark(#FFFFFF,#F2F5F9);--x-on-navy-2:light-dark(#A8B3C2,#9AA7B8);
+        --x-bg:light-dark(#F6F7F9,#0A0A0A);--x-surface:light-dark(#FFFFFF,#14181F);--x-raised:light-dark(#FFFFFF,#1C222B);
+        --x-line:light-dark(#DDE2E9,#2A323E);--x-dis:light-dark(#A8B3C2,#5B6B80);
+        --x-dark:light-dark(#0B1F3A,#14181F);--x-dark-2:light-dark(#0B1F3A,#1C222B);
+        --x-acc:light-dark(#D9480F,#E8590C);--x-acc-text:light-dark(#B93A0A,#E8590C);--x-tint:color-mix(in srgb,#D9480F 8%,transparent);
+        --x-ok:#1F8A4C;--x-warn:#C98A00;--x-err:#C92A2A;--x-info:#1C6DD0;
+        --x-seat-av:#9AA7B8;--x-seat-sel:#D9480F;--x-seat-bk:#CBD2DC;--x-seat-lad:#D6336C;
+        /* library tokens, remapped to DevBus */
+        --text-primary:light-dark(#0B1F3A,#F2F5F9);--text-secondary:light-dark(#5B6B80,#9AA7B8);--text-tertiary:light-dark(#A8B3C2,#5B6B80);
+        --text-primary-on:light-dark(#FFFFFF,#0A0A0A);--text-secondary-on:light-dark(#A8B3C2,#5B6B80);
+        --fill-primary:light-dark(#0B1F3A,#F2F5F9);--fill-primary-on:light-dark(#F6F7F9,#0A0A0A);--fill-tertiary:light-dark(#EDF0F4,#1C222B);
+        --fill-system-green:#1F8A4C;--fill-system-orange:#C98A00;--fill-system-red:#C92A2A;--stroke-system-orange:#C98A0026;
+        --stroke-primary:light-dark(#DDE2E9,#2A323E);--stroke-secondary:light-dark(#E8ECF1,#222933);
+        --hover-wash:light-dark(#0B1F3A0d,#F2F5F90f);--hark-shadow:0 8px 32px rgb(11 31 58 / .12);
+        --sans:"Inter",-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif;--weight-bold:700;
+        --type-heading:700 var(--size-heading)/var(--lh) var(--sans);--type-title:700 var(--size-title)/var(--lh) var(--sans);--type-display:700 var(--size-display)/1.15 var(--sans);
+      }
+      body{background:var(--x-bg);font-family:var(--sans)}
+      h1,h2,h3{font-weight:700}
+      .x-lg{display:block;height:auto;aspect-ratio:408/92}
+      .x-lg--d{display:none}
+      :root[data-theme=dark] .x-lg--l{display:none}:root[data-theme=dark] .x-lg--d{display:block}
+      @media (prefers-color-scheme:dark){:root:not([data-theme=light]) .x-lg--l{display:none}:root:not([data-theme=light]) .x-lg--d{display:block}}
+      .x-mark{display:inline-grid;place-items:center;width:40px;height:40px;border-radius:10px;background:#FFFFFF;box-shadow:inset 0 0 0 1px var(--x-line)}
+      .x-mark svg{width:26px;height:auto;aspect-ratio:94/100}
+      .x-foot__brand{display:inline-flex;align-items:center;gap:12px}
+      .x-foot__brand .x-lg{width:96px}
+      [hidden]{display:none!important}
+      .page.x-app{max-width:1200px;padding-block:12px 48px}
+      .x-view,.x-panel{animation:x-in .45s var(--ease-out) both}
+      @keyframes x-in{from{opacity:0;transform:translateY(8px)}}
+      @media (prefers-reduced-motion:reduce){*,*::before,*::after{animation:none!important;transition:none!important}}
+      /* top bar */
+      .x-top{position:sticky;top:12px;z-index:20;display:flex;align-items:center;gap:8px;padding:6px 6px 6px 14px;border-radius:var(--r-pill);background:var(--mat-inverse);-webkit-backdrop-filter:var(--hark-blur);backdrop-filter:var(--hark-blur);border:1px solid var(--stroke-primary-on);color:var(--text-primary-on);box-shadow:var(--hark-shadow)}
+      .x-top{background:var(--x-dark);color:var(--x-on-navy);border-color:light-dark(#0B1F3A,#2A323E)}
+      .x-top :focus-visible{outline-color:var(--x-on-navy)}
+      .x-top .x-logo small,.x-top .x-counter{color:var(--x-on-navy-2)}
+      .x-top .x-counter b{color:var(--x-on-navy)}
+      .x-top .x-wal,.x-top .x-ghost:hover,.x-theme:hover{background:#FFFFFF1a}
+      .x-top .x-ghost{border-color:#FFFFFF33}
+      .x-theme{flex:none;display:grid;place-items:center;width:var(--tap);height:var(--tap);border:0;border-radius:50%;background:none;color:var(--x-on-navy);cursor:pointer}
+      .x-theme::before{content:"";width:14px;height:14px;border-radius:50%;box-shadow:inset 0 0 0 1.5px currentColor;background:linear-gradient(to right,light-dark(currentColor,transparent) 50%,light-dark(transparent,currentColor) 50%)}
+      .x-seg button{min-height:48px!important}
+      .x-pw button{top:2px!important;bottom:2px!important;min-width:var(--tap)}
+      .x-sp{flex:1}
+      .x-logo{display:inline-flex;align-items:center;gap:12px;white-space:nowrap}
+      .x-logo .x-lg{width:112px}
+      .x-logo small{font:var(--type-tag);color:var(--text-secondary-on);padding-left:12px;border-left:1px solid #FFFFFF33}
+      .x-counter{font:var(--type-small);color:var(--text-secondary-on);white-space:nowrap;overflow:hidden;text-overflow:ellipsis;min-width:0}
+      .x-counter b{color:var(--text-primary-on);font-weight:var(--weight-medium)}
+      .x-wal,.x-ghost{display:inline-flex;align-items:center;gap:8px;min-height:36px;padding:0 14px;border-radius:var(--r-pill);font:var(--type-label);white-space:nowrap;font-variant-numeric:tabular-nums}
+      .x-wal{background:var(--hover-wash-primary-on)}
+      .x-wal::before{content:"₹";display:grid;place-items:center;width:18px;height:18px;border-radius:50%;background:#FFFFFF1f;font:var(--weight-bold) 11px/1 var(--sans)}
+      .x-ghost{border:1px solid var(--stroke-primary-on);background:none;color:inherit;cursor:pointer}
+      .x-ghost:hover{background:var(--hover-wash-primary-on)}
+      @media (max-width:760px){.x-counter{display:none}}
+      @media (max-width:599px){.x-logo small{display:none}.x-logo .x-lg{width:92px}.x-wal,.x-ghost{min-height:var(--tap);padding:0 12px}}
+      /* surfaces */
+      .x-box{background:var(--x-surface);border:1px solid var(--x-line);border-radius:var(--r-l);padding:clamp(18px,3vw,32px);min-width:0}
+      .x-eye{font:var(--type-label);color:var(--text-secondary)}
+      .x-h{font:var(--type-title);letter-spacing:-.01em}
+      .x-h3{font:var(--type-heading)}
+      .x-stack{display:grid;gap:20px;align-content:start}
+      .x-headrow{display:flex;flex-wrap:wrap;align-items:end;justify-content:space-between;gap:12px}
+      /* auth */
+      .x-auth{display:grid;grid-template-columns:1.1fr 1fr;gap:16px;min-height:calc(100vh - 100px)}
+      .x-brand{position:relative;overflow:hidden;border-radius:var(--r-xl);background:var(--x-dark);border:1px solid light-dark(#0B1F3A,#2A323E);color:var(--x-on-navy);padding:clamp(24px,4vw,48px);display:flex;flex-direction:column;justify-content:space-between;gap:40px}
+      .x-brand .x-lg{width:168px;margin:0 0 12px -4px}
+      .x-brand h1{font:var(--type-display);letter-spacing:-.03em;max-width:13ch}
+      .x-brand h1 em{font-style:normal;text-decoration:underline;text-decoration-color:#D9480F;text-decoration-thickness:4px;text-underline-offset:8px}
+      .x-brand p{color:var(--x-on-navy-2);max-width:40ch;font-size:var(--size-prose)}
+      .x-brand .x-eye{color:var(--x-on-navy-2)}
+      .x-brand ul{list-style:none;margin:0;padding:0;display:grid;gap:12px;font:var(--type-label)}
+      .x-brand li{display:flex;gap:10px;align-items:center}
+      .x-brand li::before{content:"✓";display:grid;place-items:center;flex:none;width:20px;height:20px;border-radius:50%;background:#FFFFFF1a;font:var(--weight-bold) 11px/1 var(--sans)}
+      .x-card{display:flex;flex-direction:column;justify-content:center;gap:24px;border-radius:var(--r-xl);padding:clamp(20px,4vw,48px)}
+      @media (max-width:899px){.x-auth{grid-template-columns:1fr;min-height:0}.x-brand{gap:24px}.x-brand ul{display:none}}
+      /* forms */
+      .x-f{display:grid;gap:16px}
+      .x-row{display:grid;grid-template-columns:repeat(auto-fit,minmax(200px,1fr));gap:16px}
+      .x-fld{display:grid;gap:6px;align-content:start;font:var(--type-label)}
+      .x-fld>span{color:var(--text-secondary)}
+      .x-fld input,.x-fld select,.x-in{box-sizing:border-box;width:100%;min-height:48px;padding:0 14px;border-radius:var(--r-s);border:1px solid var(--stroke-primary);background:var(--x-surface);color:var(--text-primary);font:var(--type-body);font-size:16px;transition:border-color var(--dur-quick),box-shadow var(--dur-quick)}
+      .x-fld input[type=file]{padding:11px 14px;font-size:var(--size-small)}
+      .x-fld input:focus,.x-fld select:focus,.x-in:focus{outline:none;border-color:var(--x-info);box-shadow:0 0 0 3px color-mix(in srgb,var(--x-info) 22%,transparent)}
+      .x-fld input:disabled,.x-fld select:disabled{color:var(--x-dis)}
+      .x-fld.is-bad input,.x-fld.is-bad select{border-color:var(--x-err)}
+      .x-err{display:flex;align-items:center;gap:6px;font:var(--type-caption);font-style:normal;color:var(--x-err)}
+      .x-err::before{content:"!";display:grid;place-items:center;flex:none;width:14px;height:14px;border-radius:50%;background:var(--x-err);color:#FFFFFF;font:var(--weight-bold) 10px/1 var(--sans)}
+      .x-err:empty{display:none}
+      .x-hint{font:var(--type-caption);color:var(--text-secondary)}
+      .x-pw{position:relative}
+      .x-pw input{padding-right:72px}
+      .x-pw button{position:absolute;right:4px;top:4px;bottom:4px;padding:0 12px;border:0;border-radius:10px;background:none;color:var(--text-primary);font:var(--type-tag);cursor:pointer}
+      .x-pw button:hover{background:var(--hover-wash)}
+      .x-otp{display:grid;grid-template-columns:repeat(6,minmax(0,56px));gap:8px}
+      .x-otp .x-in{padding:0;min-height:58px;text-align:center;font:var(--type-figure);font-variant-numeric:tabular-nums}
+      .x-acts{display:flex;flex-wrap:wrap;align-items:center;gap:12px 16px}
+      .x-cta,.x-sec{display:inline-flex;align-items:center;justify-content:center;gap:8px;min-height:52px;padding:0 26px;border:0;border-radius:var(--r-pill);font:var(--type-body-strong);cursor:pointer;text-decoration:none;transition:transform var(--dur-quick) var(--ease-out),filter var(--dur-quick),box-shadow var(--dur-quick)}
+      /* button fill: the accessible burnt orange, so white text clears WCAG AA (5.7:1 light, 5.0:1 dark) */
+      .x-cta{background:light-dark(#B93A0A,#C4450C);color:#FFFFFF;font-weight:600}
+      .x-cta:hover{filter:brightness(.94);box-shadow:0 6px 18px color-mix(in srgb,#D9480F 25%,transparent)}
+      .x-bus .x-cta{background:none;color:var(--text-primary);box-shadow:inset 0 0 0 1.5px var(--text-primary)}
+      .x-bus .x-cta:hover{filter:none;background:var(--hover-wash)}
+      .x-sec{background:var(--fill-tertiary);color:var(--text-primary)}
+      .x-sec:hover{box-shadow:inset 0 0 0 100px var(--hover-wash)}
+      .x-cta:active,.x-sec:active{transform:scale(.98)}
+      .x-cta:disabled{background:light-dark(#E6EAF0,#1C222B);color:var(--x-dis);cursor:not-allowed;filter:none;box-shadow:none;transform:none}
+      .x-txt{display:inline-flex;align-items:center;min-height:var(--tap);padding:0;border:0;background:none;color:var(--text-primary);font:var(--type-label);text-decoration:underline;text-decoration-color:var(--stroke-primary);text-underline-offset:3px;cursor:pointer}
+      .x-txt:hover{text-decoration-color:currentColor}
+      .x-txt:disabled{color:var(--x-dis);text-decoration:none;cursor:default}
+      .x-seg{display:flex;width:fit-content;max-width:100%;padding:4px;border-radius:var(--r-pill);background:var(--fill-tertiary)}
+      .x-seg button{min-height:40px;padding:0 16px;border:0;border-radius:var(--r-pill);background:none;color:var(--text-secondary);font:var(--type-label);cursor:pointer;white-space:nowrap}
+      .x-seg button[aria-selected=true]{background:var(--x-surface);color:var(--text-primary);box-shadow:0 1px 4px rgb(11 31 58 / .14)}
+      /* apply */
+      .x-prog{display:grid;grid-template-columns:repeat(4,1fr);gap:6px}
+      .x-prog i{position:relative;height:4px;border-radius:4px;overflow:hidden;background:var(--fill-tertiary)}
+      .x-prog i::after{content:"";position:absolute;inset:0;background:var(--text-primary);transform:scaleX(0);transform-origin:left;transition:transform .6s var(--ease-out)}
+      .x-prog i.on::after{transform:none}
+      .x-tiers{display:grid;grid-template-columns:repeat(auto-fit,minmax(190px,1fr));gap:10px}
+      .x-tier{position:relative;display:grid;gap:6px;padding:18px;border-radius:var(--r-m);border:1px solid var(--stroke-primary);cursor:pointer;transition:border-color var(--dur-quick),background var(--dur-quick)}
+      .x-tier input{position:absolute;opacity:0;pointer-events:none}
+      .x-tier:hover{border-color:var(--text-secondary)}
+      .x-tier:has(input:checked){border-color:var(--x-acc);box-shadow:inset 0 0 0 1px var(--x-acc);background:var(--x-tint)}
+      .x-tier:has(input:checked) b::after{content:" · Selected";color:var(--x-acc-text)}
+      .x-tier:has(input:focus-visible){outline:2px solid var(--fill-primary);outline-offset:3px}
+      .x-tier b{font:var(--type-label)}
+      .x-tier strong{font:var(--type-figure);font-variant-numeric:tabular-nums}
+      .x-tier small{color:var(--text-secondary);font-size:var(--size-meta)}
+      .x-dl{display:grid;grid-template-columns:minmax(120px,200px) minmax(0,1fr);margin:0}
+      .x-dl dt,.x-dl dd{margin:0;padding:12px 0;border-bottom:1px solid var(--stroke-secondary)}
+      .x-dl dt{color:var(--text-secondary);font:var(--type-small)}
+      .x-dl dd{font:var(--type-body-strong);overflow-wrap:anywhere}
+      .x-done{display:grid;place-items:center;width:56px;height:56px;border-radius:50%;background:var(--x-ok);color:#FFFFFF;font-size:26px}
+      /* home */
+      .x-home{display:grid;grid-template-columns:minmax(0,1.15fr) minmax(0,1fr);gap:16px}
+      .x-wallet{position:relative;overflow:hidden;border:1px solid light-dark(#0B1F3A,#2A323E);background:var(--x-dark-2);color:var(--x-on-navy);display:grid;gap:24px;align-content:space-between}
+      .x-wallet .x-eye{color:var(--x-on-navy-2)}
+      .x-big{font:var(--type-display);letter-spacing:-.03em;font-variant-numeric:tabular-nums}
+      .x-new{grid-column:1/-1;min-height:76px;font-size:18px;border-radius:var(--r-l)}
+      .x-new span{font-size:24px;line-height:1}
+      @media (max-width:760px){.x-home{grid-template-columns:minmax(0,1fr)}}
+      /* booking */
+      .x-trail{display:flex;gap:6px;list-style:none;margin:0;padding:0;overflow-x:auto;scrollbar-width:none}
+      .x-trail li{flex:none;padding:6px 12px;border-radius:var(--r-pill);background:var(--fill-tertiary);color:var(--text-secondary);font:var(--type-tag)}
+      .x-trail li.done{color:var(--text-primary)}
+      .x-trail li.on{background:var(--fill-primary);color:var(--text-primary-on)}
+      .x-route{display:grid;grid-template-columns:1fr auto 1fr 1fr;gap:12px;align-items:end}
+      .x-swap{width:48px;height:48px;border-radius:50%;border:1px solid var(--stroke-primary);background:var(--x-surface);color:var(--text-primary);font-size:18px;cursor:pointer;transition:transform .3s var(--ease-out)}
+      .x-swap:hover{transform:rotate(180deg)}
+      @media (max-width:760px){.x-route{grid-template-columns:1fr auto}.x-route>.x-fld:first-child{grid-column:1/-1}.x-route>.x-swap{order:3;align-self:end}.x-route>.x-fld:nth-child(3){order:2}.x-route>.x-fld:last-child{grid-column:1/-1;order:4}}
+      .x-buses{display:grid}
+      .x-bus{display:grid;grid-template-columns:minmax(0,1.3fr) minmax(0,1.6fr) auto auto;gap:12px 24px;align-items:center;padding:18px 0;border-bottom:1px solid var(--stroke-secondary)}
+      .x-bus:last-child{border-bottom:0}
+      .x-bus h3{font:var(--type-body-strong)}
+      .x-bus small{display:block;color:var(--text-secondary);font:var(--type-caption);margin-top:2px}
+      .x-time{display:flex;align-items:center;gap:10px;font:var(--type-heading);font-variant-numeric:tabular-nums}
+      .x-time i{flex:1;min-width:40px;position:relative;height:1px;background:var(--stroke-primary);font:var(--type-caption);font-style:normal;color:var(--text-secondary)}
+      .x-time i span{position:absolute;left:50%;top:-18px;transform:translateX(-50%);white-space:nowrap}
+      .x-score{display:inline-flex;align-items:center;gap:6px;margin-top:6px;padding:2px 8px;border-radius:var(--r-pill);background:var(--fill-tertiary);font:var(--type-tag)}
+      .x-score::before{content:"★";font-size:10px;color:var(--text-primary)}
+      .x-fare{font:var(--type-heading);text-align:right;font-variant-numeric:tabular-nums}
+      .x-bus .x-cta{min-height:44px;padding:0 18px;font:var(--type-label)}
+      @media (max-width:760px){.x-bus{grid-template-columns:minmax(0,1fr) auto}.x-time{grid-column:1/-1;order:-1}}
+      .x-seats{display:grid;grid-template-columns:auto minmax(0,1fr);gap:clamp(20px,4vw,48px);align-items:start}
+      @media (max-width:760px){.x-seats{grid-template-columns:minmax(0,1fr)}.x-deck{justify-self:center}}
+      .x-deck{display:grid;grid-template-columns:repeat(2,44px) 24px repeat(2,44px);gap:8px;padding:18px;border:1px solid var(--stroke-primary);border-radius:28px 28px var(--r-m) var(--r-m);width:fit-content}
+      .x-deck>p{grid-column:1/-1;text-align:right;font:var(--type-caption);color:var(--text-secondary);padding-bottom:6px;border-bottom:1px dashed var(--stroke-primary);margin-bottom:4px}
+      .x-seat{height:44px;padding:0;border:1.5px solid var(--x-seat-av);border-radius:10px 10px 6px 6px;background:light-dark(#FFFFFF,#14181F);color:var(--text-primary);font:var(--type-tag);cursor:pointer;transition:transform var(--dur-quick) var(--ease-out),background var(--dur-quick)}
+      .x-deck.sl .x-seat{height:64px;border-radius:8px}
+      .x-seat:hover:not(:disabled){border-color:var(--text-primary)}
+      .x-seat.lad{border-color:var(--x-seat-lad);background:color-mix(in srgb,#D6336C 10%,light-dark(#FFFFFF,#14181F));box-shadow:inset 0 -3px 0 var(--x-seat-lad)}
+      .x-seat:disabled{background:var(--x-seat-bk);border-color:var(--x-seat-bk);color:#5B6B80;text-decoration:line-through;cursor:not-allowed;box-shadow:none}
+      .x-seat[aria-pressed=true]{background:var(--x-seat-sel);border-color:var(--x-seat-sel);color:#FFFFFF;font-weight:700;box-shadow:none;transform:scale(1.06)}
+      .x-legend{display:flex;flex-wrap:wrap;gap:8px 16px;font:var(--type-caption);color:var(--text-secondary)}
+      .x-legend span{display:inline-flex;align-items:center;gap:6px}
+      .x-legend i{width:14px;height:14px;border-radius:4px;border:1.5px solid var(--x-seat-av);background:light-dark(#FFFFFF,#14181F)}
+      .x-legend .l{border-color:var(--x-seat-lad);background:color-mix(in srgb,#D6336C 10%,light-dark(#FFFFFF,#14181F))}.x-legend .b{background:var(--x-seat-bk);border-color:var(--x-seat-bk)}.x-legend .s{background:var(--x-seat-sel);border-color:var(--x-seat-sel)}
+      .x-pax{display:grid;grid-template-columns:52px minmax(0,2fr) minmax(70px,.6fr) minmax(0,1fr);gap:12px;align-items:start;padding:14px 0;border-bottom:1px solid var(--stroke-secondary)}
+      .x-tag{display:grid;place-items:center;height:48px;border-radius:var(--r-s);background:var(--fill-tertiary);font:var(--type-label)}
+      .x-tag.lad{background:color-mix(in srgb,#D6336C 10%,transparent);box-shadow:inset 0 0 0 1.5px var(--x-seat-lad)}
+      @media (max-width:599px){.x-pax{grid-template-columns:52px minmax(0,1fr) minmax(0,1fr)}.x-pax>.x-fld:nth-child(2){grid-column:2/-1}.x-pax>.x-fld:nth-child(3){grid-column:1/3}}
+      .x-earn{display:flex;align-items:center;justify-content:space-between;gap:12px;padding:16px 18px;border-radius:var(--r-m);background:var(--x-tint);box-shadow:inset 3px 0 0 #D9480F}
+      .x-earn strong{font:var(--type-heading);color:var(--x-acc-text)}
+      .x-short>span:first-child{display:inline-flex;align-items:center;gap:8px}
+      .x-short>span:first-child::before{content:"⚠";color:var(--x-warn);font-size:16px;line-height:1}
+      .x-short{padding:14px 18px;border-radius:var(--r-m);background:color-mix(in srgb,#C98A00 12%,transparent);box-shadow:inset 3px 0 0 var(--x-warn);display:flex;flex-wrap:wrap;align-items:center;justify-content:space-between;gap:12px;font:var(--type-label)}
+      .x-ticket{overflow:hidden;padding:0}
+      .x-ticket header{display:flex;flex-wrap:wrap;justify-content:space-between;align-items:end;gap:12px;padding:clamp(18px,3vw,28px);background:var(--x-dark-2);color:var(--x-on-navy);border-bottom:4px solid #D9480F}
+      .x-ticket header .x-eye{color:var(--x-on-navy-2)}
+      .x-pnr{font:600 clamp(22px,3vw,30px)/1.2 var(--sans);letter-spacing:.06em;font-variant-numeric:tabular-nums}
+      .x-ticket .x-tb{padding:clamp(18px,3vw,28px);display:grid;gap:20px}
+      .x-toast{position:fixed;left:50%;bottom:24px;z-index:60;display:flex;align-items:center;gap:10px;max-width:calc(100% - 32px);padding:12px 18px;border-radius:var(--r-pill);background:var(--fill-primary);color:var(--text-primary-on);font:var(--type-label);box-shadow:var(--hark-shadow);opacity:0;transform:translate(-50%,16px);transition:opacity .3s var(--ease-out),transform .3s var(--ease-out);pointer-events:none}
+      .x-toast::before{content:"i";display:grid;place-items:center;flex:none;width:16px;height:16px;border-radius:50%;background:var(--x-info);color:#FFFFFF;font:var(--weight-bold) 10px/1 var(--sans)}
+      .x-toast.on{opacity:1;transform:translate(-50%,0)}
+      .x-dlg{box-sizing:border-box;width:min(440px,calc(100% - 32px));padding:clamp(20px,4vw,32px);border:0;border-radius:var(--r-xl);background:var(--x-surface);color:var(--text-primary);box-shadow:var(--hark-shadow)}
+      .x-dlg[open]{animation:x-in .35s var(--ease-out)}
+      .x-dlg::backdrop{background:rgb(11 31 58 / .55);-webkit-backdrop-filter:blur(4px);backdrop-filter:blur(4px)}
+      .x-quick{display:flex;flex-wrap:wrap;gap:8px}
+      .x-quick button{min-height:var(--tap);padding:0 14px;border-radius:var(--r-pill);border:1px solid var(--stroke-primary);background:none;color:var(--text-primary);font:var(--type-label);cursor:pointer}
+      .x-quick button:hover{background:var(--hover-wash)}
+      .x-foot{display:flex;justify-content:space-between;flex-wrap:wrap;gap:8px;font:var(--type-caption);color:var(--text-secondary);padding-top:8px}
+      @media print{body *{visibility:hidden}#ticket,#ticket *{visibility:visible}#ticket{position:absolute;inset:0 auto auto 0;width:100%}#ticket .x-acts{display:none}}
+    </style>
+  </head>
+  <body>
+    <svg width="0" height="0" style="position:absolute;overflow:hidden" aria-hidden="true" focusable="false">
+      <symbol id="x-db-glyph" viewBox="0 0 100 100"><path fill-rule="evenodd" fill="#0B1F3A" d="M14 10 H48 A40 40 0 0 1 48 90 H14 Z M33 24 H66 A5 5 0 0 1 71 29 V45 A3 3 0 0 1 68 48 H31 A3 3 0 0 1 28 45 V29 A5 5 0 0 1 33 24 Z M29.5 71 a6 6 0 1 0 12 0 a6 6 0 1 0 -12 0 Z M58.5 71 a6 6 0 1 0 12 0 a6 6 0 1 0 -12 0 Z"/><rect x="28" y="54" width="44" height="5" rx="1" fill="#D9480F"/></symbol>
+      <symbol id="x-db-glyph-rev" viewBox="0 0 100 100"><path fill-rule="evenodd" fill="#FFFFFF" d="M14 10 H48 A40 40 0 0 1 48 90 H14 Z M33 24 H66 A5 5 0 0 1 71 29 V45 A3 3 0 0 1 68 48 H31 A3 3 0 0 1 28 45 V29 A5 5 0 0 1 33 24 Z M29.5 71 a6 6 0 1 0 12 0 a6 6 0 1 0 -12 0 Z M58.5 71 a6 6 0 1 0 12 0 a6 6 0 1 0 -12 0 Z"/><rect x="28" y="54" width="44" height="5" rx="1" fill="#D9480F"/></symbol>
+      <symbol id="x-db-dev" viewBox="0 0 466 156"><path d="M175.0986328125 106.3740234375C192.3515625 106.3740234375 202.7490234375 95.7099609375 202.7490234375 77.9619140625C202.7490234375 60.2900390625 192.3515625 49.6259765625 175.2890625 49.6259765625H155.1416015625V106.3740234375ZM166.7578125 96.357421875V59.642578125H174.603515625C185.4580078125 59.642578125 191.1708984375 65.279296875 191.1708984375 77.9619140625C191.1708984375 90.720703125 185.4580078125 96.357421875 174.52734375 96.357421875Z M229.5015 107.2119140625C239.40384375 107.2119140625 246.183140625 102.603515625 248.2778671875 95.51953125L237.9184921875 93.5771484375C236.6997421875 96.8525390625 233.690953125 98.6044921875 229.6919296875 98.6044921875C223.940953125 98.6044921875 220.0561875 95.0244140625 219.7895859375 88.0546875H248.925328125V84.85546875C248.925328125 70.306640625 240.0513046875 63.2607421875 228.9302109375 63.2607421875C216.476109375 63.2607421875 208.4780625 72.1728515625 208.4780625 85.3125C208.4780625 98.7568359375 216.476109375 107.2119140625 229.5015 107.2119140625ZM219.8657578125 80.89453125C220.3227890625 75.638671875 223.5981796875 71.8681640625 229.04446875 71.8681640625C234.3384140625 71.8681640625 237.347203125 75.333984375 237.9184921875 80.89453125Z M267.794015625 106.3740234375H280.7813203125L296.5108125 63.7939453125H284.5137421875L277.4297578125 85.8837890625C276.24909375 89.73046875 275.33503125 93.5390625 274.4590546875 97.5C273.5449921875 93.5390625 272.59284375 89.6923828125 271.4121796875 85.8837890625L264.2520234375 63.7939453125H252.102609375Z"/></symbol>
+      <symbol id="x-db-bus" viewBox="0 0 466 156"><path fill="#D9480F" d="M301.897078125 106.3740234375H325.8531328125C338.6500078125 106.3740234375 345.3531328125 99.708984375 345.3531328125 90.720703125C345.3531328125 82.3037109375 339.3355546875 77.2763671875 332.9371171875 76.9716796875V76.400390625C338.764265625 75.10546875 343.1441484375 70.9541015625 343.1441484375 64.212890625C343.1441484375 55.7197265625 336.85996875 49.6259765625 324.4058671875 49.6259765625H301.897078125ZM313.5132890625 96.814453125V81.427734375H323.8726640625C329.6998125 81.427734375 333.3941484375 84.85546875 333.3941484375 89.6162109375C333.3941484375 93.919921875 330.385359375 96.814453125 323.5679765625 96.814453125ZM313.5132890625 73.4677734375V59.109375H322.920515625C328.3668046875 59.109375 331.37559375 61.927734375 331.37559375 66.0791015625C331.37559375 70.6494140625 327.6812578125 73.4677734375 322.692 73.4677734375Z M366.96400781250003 106.9072265625C373.43861718750003 106.9072265625 377.78041406250003 103.5556640625 380.17982812500003 97.5380859375L380.33217187500003 106.3740234375H391.14857812500003V63.7939453125H379.68471093750003V88.435546875C379.68471093750003 94.072265625 376.25697656250003 97.34765625 371.42006250000003 97.34765625C366.62123437500003 97.34765625 363.72670312500003 94.1865234375 363.72670312500003 88.892578125V63.7939453125H352.30092187500003V90.873046875C352.30092187500003 100.8515625 358.12807031250003 106.9072265625 366.96400781250003 106.9072265625Z M416.83464843750005 107.2119140625C427.99382812500005 107.2119140625 435.87761718750005 101.61328125 435.87761718750005 93.234375C435.87761718750005 87.1787109375 431.91667968750005 83.408203125 423.69011718750005 81.732421875L416.03484375000005 80.208984375C411.99773437500005 79.37109375 410.55046875000005 77.8857421875 410.55046875000005 75.7529296875C410.55046875000005 73.201171875 413.44500000000005 71.44921875 417.17742187500005 71.44921875C421.32878906250005 71.44921875 423.72820312500005 73.505859375 424.64226562500005 76.400390625L434.77312500000005 74.6103515625C433.17351562500005 67.6787109375 427.11785156250005 63.2607421875 417.02507812500005 63.2607421875C406.24675781250005 63.2607421875 399.12468750000005 68.2880859375 399.12468750000005 76.4765625C399.12468750000005 82.8369140625 403.16179687500005 86.8740234375 411.38835937500005 88.5498046875L418.73894531250005 90.0732421875C422.47136718750005 90.8349609375 424.22332031250005 92.2060546875 424.22332031250005 94.453125C424.22332031250005 97.0048828125 421.51921875000005 98.8330078125 417.17742187500005 98.8330078125C412.49285156250005 98.8330078125 409.75066406250005 96.890625 408.64617187500005 92.8916015625L398.02019531250005 94.7197265625C399.50554687500005 102.6416015625 406.55144531250005 107.2119140625 416.83464843750005 107.2119140625Z"/></symbol>
+      <symbol id="x-logo-pri" viewBox="36 32 408 92"><use href="#x-db-glyph" x="28" y="28" width="100" height="100"/><use href="#x-db-dev" fill="#0B1F3A" width="466" height="156"/><use href="#x-db-bus" width="466" height="156"/></symbol>
+      <symbol id="x-logo-rev" viewBox="36 32 408 92"><use href="#x-db-glyph-rev" x="28" y="28" width="100" height="100"/><use href="#x-db-dev" fill="#FFFFFF" width="466" height="156"/><use href="#x-db-bus" width="466" height="156"/></symbol>
+    </svg>
+    <div class="page x-app" id="top">
+      <header class="x-top">
+        <span class="x-logo"><svg class="x-lg" viewBox="0 0 408 92" role="img" aria-label="DevBus"><use href="#x-logo-rev"/></svg><small>DevPoint</small></span>
+        <span class="x-counter" id="who" hidden><b>Mysuru DevPoint</b> · Ravi Kumar</span>
+        <span class="x-sp"></span>
+        <span class="x-wal" id="wal" hidden aria-live="polite"></span>
+        <button class="x-theme" id="theme-btn" type="button" aria-label="Switch to dark theme"></button>
+        <button class="x-ghost" id="out" type="button" hidden>Sign out</button>
+      </header>
+
+      <main class="main">
+        <!-- SIGN IN -->
+        <section class="x-view x-auth" id="v-auth" aria-label="Sign in">
+          <div class="x-brand">
+            <div class="x-stack">
+              <svg class="x-lg" viewBox="0 0 408 92" role="img" aria-label="DevBus"><use href="#x-logo-rev"/></svg>
+              <p class="x-eye">DevPoint Partner Portal</p>
+              <h1>Travel that <em>keeps its word.</em></h1>
+              <p>Book DevBus seats for walk-in customers, run your counter wallet and track what you earn.</p>
+            </div>
+            <ul>
+              <li>Book any DevBus route in under a minute</li>
+              <li>Earn 75% of DevBus bus commission, 80% on Plus</li>
+              <li>Top up your wallet by UPI</li>
+            </ul>
+          </div>
+
+          <div class="x-box x-card">
+            <div class="x-stack" style="gap:8px">
+              <p class="x-eye">Counter sign in</p>
+              <h2 class="x-h" id="lt">Sign in to your counter</h2>
+            </div>
+            <div class="x-seg" role="tablist" id="seg">
+              <button type="button" role="tab" aria-selected="true" data-p="login:pass">Password</button>
+              <button type="button" role="tab" aria-selected="false" data-p="login:otp1">Sign in with OTP</button>
+            </div>
+
+            <form class="x-f x-panel" data-g="login" data-n="pass" id="f-pass" novalidate>
+              <label class="x-fld"><span>Mobile or partner ID</span><input name="id" data-v="id" data-up autocomplete="username" placeholder="98450 12345 or DP-MYS-0142" /><em class="x-err"></em></label>
+              <label class="x-fld"><span>Password</span>
+                <div class="x-pw"><input type="password" data-v="pass" autocomplete="current-password" /><button type="button" class="x-eyebtn" aria-label="Show password">Show</button></div>
+                <em class="x-err"></em></label>
+              <div class="x-acts"><button class="x-cta">Sign in</button><button type="button" class="x-txt" data-p="login:fp1">Forgot password?</button></div>
+            </form>
+
+            <form class="x-f x-panel" data-g="login" data-n="otp1" id="f-otp1" novalidate hidden>
+              <label class="x-fld"><span>Registered mobile</span><input name="m" data-v="mobile" data-num inputmode="numeric" maxlength="10" autocomplete="tel-national" placeholder="10-digit mobile" /><em class="x-err"></em></label>
+              <div class="x-acts"><button class="x-cta">Send OTP</button></div>
+            </form>
+
+            <form class="x-f x-panel" data-g="login" data-n="otp2" id="f-otp2" novalidate hidden>
+              <p class="x-hint" data-sent></p>
+              <div class="x-otp" aria-label="One-time password"></div><em class="x-err"></em>
+              <div class="x-acts"><button class="x-cta">Verify and sign in</button><button type="button" class="x-txt x-resend"></button><button type="button" class="x-txt" data-p="login:otp1">Change number</button></div>
+            </form>
+
+            <form class="x-f x-panel" data-g="login" data-n="fp1" id="f-fp1" novalidate hidden>
+              <p class="x-hint">We'll send a one-time password to your registered mobile.</p>
+              <label class="x-fld"><span>Registered mobile</span><input data-v="mobile" data-num inputmode="numeric" maxlength="10" placeholder="10-digit mobile" /><em class="x-err"></em></label>
+              <div class="x-acts"><button class="x-cta">Send OTP</button><button type="button" class="x-txt" data-p="login:pass">Back to sign in</button></div>
+            </form>
+
+            <form class="x-f x-panel" data-g="login" data-n="fp2" id="f-fp2" novalidate hidden>
+              <p class="x-hint" data-sent></p>
+              <div class="x-otp" aria-label="One-time password"></div><em class="x-err"></em>
+              <div class="x-acts"><button class="x-cta">Verify</button><button type="button" class="x-txt x-resend"></button></div>
+            </form>
+
+            <form class="x-f x-panel" data-g="login" data-n="fp3" id="f-fp3" novalidate hidden>
+              <label class="x-fld"><span>New password</span><div class="x-pw"><input type="password" name="np" data-v="newpass" autocomplete="new-password" /><button type="button" class="x-eyebtn" aria-label="Show password">Show</button></div><em class="x-err"></em></label>
+              <label class="x-fld"><span>Confirm new password</span><input type="password" name="cp" data-v="match" autocomplete="new-password" /><em class="x-err"></em></label>
+              <div class="x-acts"><button class="x-cta">Save password</button><button type="button" class="x-txt" data-p="login:pass">Cancel</button></div>
+            </form>
+
+            <p class="x-hint" style="font-size:var(--size-small)">New counter? <button type="button" class="x-txt" data-go="v-apply">Become a partner</button></p>
+          </div>
+        </section>
+
+        <!-- BECOME A PARTNER -->
+        <section class="x-view" id="v-apply" aria-label="Become a partner" hidden>
+          <form class="x-box x-stack" id="f-apply" novalidate style="max-width:860px;margin:0 auto;gap:28px">
+            <div class="x-stack" style="gap:14px">
+              <button type="button" class="x-txt" data-go="v-auth" style="justify-self:start">← Back to sign in</button>
+              <div class="x-headrow"><div class="x-acts"><span class="x-mark" aria-hidden="true"><svg viewBox="4 0 94 100"><use href="#x-db-glyph" width="100" height="100"/></svg></span><h2 class="x-h">Become a DevPoint partner</h2></div><p class="x-eye" id="apstep">Step 1 of 4 · Owner</p></div>
+              <div class="x-prog" id="prog" aria-hidden="true"><i class="on"></i><i></i><i></i><i></i></div>
+            </div>
+
+            <div class="x-f x-panel" data-g="ap" data-n="1">
+              <div class="x-row">
+                <label class="x-fld"><span>Owner name</span><input name="name" data-v="name" autocomplete="name" /><em class="x-err"></em></label>
+                <label class="x-fld"><span>Mobile</span><input name="mobile" data-v="mobile" data-num inputmode="numeric" maxlength="10" autocomplete="tel-national" placeholder="10 digits" /><em class="x-err"></em></label>
+                <label class="x-fld"><span>Email</span><input name="email" type="email" data-v="email" autocomplete="email" /><em class="x-err"></em></label>
+                <label class="x-fld"><span>Town</span><input name="town" data-v="req" autocomplete="address-level2" /><em class="x-err"></em></label>
+              </div>
+              <div class="x-acts"><button type="button" class="x-cta" data-ap="2">Continue</button></div>
+            </div>
+
+            <div class="x-f x-panel" data-g="ap" data-n="2" hidden>
+              <div class="x-row">
+                <label class="x-fld"><span>Shop name</span><input name="shop" data-v="req" /><em class="x-err"></em></label>
+                <label class="x-fld"><span>Pincode</span><input name="pin" data-v="pin" data-num inputmode="numeric" maxlength="6" autocomplete="postal-code" /><em class="x-err"></em></label>
+              </div>
+              <label class="x-fld"><span>Shop address</span><input name="addr" data-v="req" autocomplete="street-address" /><em class="x-err"></em></label>
+              <fieldset class="x-fld" style="border:0;padding:0;margin:0"><legend class="x-eye" style="padding:0 0 8px">Counter tier · no royalty on any tier</legend>
+                <div class="x-tiers">
+                  <label class="x-tier"><input type="radio" name="tier" value="DevPoint Lite · ₹50,000" /><b>DevPoint Lite</b><strong>₹50,000</strong><small>No royalty · you earn 75% of DevBus bus commission</small></label>
+                  <label class="x-tier"><input type="radio" name="tier" value="DevPoint · ₹1.5 lakh" checked /><b>DevPoint</b><strong>₹1.5 lakh</strong><small>No royalty · you earn 75% of DevBus bus commission</small></label>
+                  <label class="x-tier"><input type="radio" name="tier" value="DevPoint Plus · ₹3 lakh" /><b>DevPoint Plus</b><strong>₹3 lakh</strong><small>No royalty · you earn 80% of DevBus bus commission</small></label>
+                </div>
+              </fieldset>
+              <div class="x-acts"><button type="button" class="x-cta" data-ap="3">Continue</button><button type="button" class="x-txt" data-ap="1" data-back>Back</button></div>
+            </div>
+
+            <div class="x-f x-panel" data-g="ap" data-n="3" hidden>
+              <div class="x-row">
+                <label class="x-fld"><span>Aadhaar, last 4 digits</span><input name="a4" data-v="a4" data-num inputmode="numeric" maxlength="4" /><em class="x-err"></em></label>
+                <label class="x-fld"><span>PAN</span><input name="pan" data-v="pan" data-up maxlength="10" placeholder="ABCDE1234F" /><em class="x-err"></em></label>
+                <label class="x-fld"><span>GSTIN <small class="x-hint">optional</small></span><input name="gst" data-v="gst" data-up maxlength="15" /><em class="x-err"></em></label>
+              </div>
+              <div class="x-row">
+                <label class="x-fld"><span>Shop photo</span><input type="file" name="photo" data-v="file" accept="image/*" /><em class="x-err"></em></label>
+                <label class="x-fld"><span>Signed agreement</span><input type="file" name="agree" data-v="file" accept=".pdf,image/*" /><em class="x-err"></em></label>
+              </div>
+              <div class="x-acts"><button type="button" class="x-cta" data-ap="4">Review application</button><button type="button" class="x-txt" data-ap="2" data-back>Back</button></div>
+            </div>
+
+            <div class="x-f x-panel" data-g="ap" data-n="4" hidden>
+              <dl class="x-dl" id="review"></dl>
+              <div class="x-acts"><button class="x-cta">Submit application</button><button type="button" class="x-txt" data-ap="1" data-back>Edit details</button></div>
+            </div>
+          </form>
+        </section>
+
+        <!-- APPLICATION STATUS -->
+        <section class="x-view" id="v-status" aria-label="Application status" hidden>
+          <div class="x-box x-stack" style="max-width:860px;margin:0 auto;gap:28px">
+            <span class="x-done" aria-hidden="true">✓</span>
+            <div class="x-stack" style="gap:8px">
+              <p class="x-eye" id="apref"></p>
+              <h2 class="x-h">Application received. DevBus will verify and activate your counter.</h2>
+            </div>
+            <ol class="timeline">
+              <li><p class="timeline__when">Applied</p><div class="timeline__what">Details, KYC and agreement submitted.</div><p><span class="chip chip--solid">Done</span></p></li>
+              <li class="is-current"><p class="timeline__when">Verified</p><div class="timeline__what">DevBus checks your KYC and visits the shop.</div><p><span class="chip">In progress</span></p></li>
+              <li><p class="timeline__when">Approved</p><div class="timeline__what">Your partner ID and counter wallet are issued.</div></li>
+              <li><p class="timeline__when">Trained</p><div class="timeline__what">A short session on booking and the wallet.</div></li>
+              <li><p class="timeline__when">Live</p><div class="timeline__what">Your counter starts selling DevBus seats.</div></li>
+            </ol>
+            <div class="x-acts"><button type="button" class="x-sec" data-go="v-auth">Back to sign in</button></div>
+          </div>
+        </section>
+
+        <!-- HOME -->
+        <section class="x-view" id="v-home" aria-label="Home" hidden>
+          <div class="x-home">
+            <div class="x-box x-wallet">
+              <div class="x-stack" style="gap:6px"><p class="x-eye">Counter wallet</p><p class="x-big" data-wal></p></div>
+              <div class="x-acts"><button type="button" class="x-cta" data-topup>Top up</button></div>
+            </div>
+            <div class="x-box x-stack">
+              <p class="x-eye">Today</p>
+              <section class="stats">
+                <div class="stat"><span class="stat__fig" id="tN"></span><span class="stat__label">Bookings</span></div>
+                <div class="stat"><span class="stat__fig" id="tE"></span><span class="stat__label">Earnings</span></div>
+              </section>
+            </div>
+            <button type="button" class="x-cta x-new" data-newbk><span aria-hidden="true">+</span> New booking</button>
+            <div class="x-box x-stack" style="grid-column:1/-1">
+              <h2 class="x-h3">Last 5 bookings</h2>
+              <div class="table-wrap"><table>
+                <thead><tr><th scope="col">PNR</th><th scope="col">Route</th><th scope="col">Travel</th><th scope="col">Seats</th><th scope="col">Paid</th></tr></thead>
+                <tbody id="recent"></tbody>
+              </table></div>
+            </div>
+          </div>
+        </section>
+
+        <!-- NEW BOOKING -->
+        <section class="x-view" id="v-book" aria-label="New booking" hidden>
+          <div class="x-stack">
+            <div class="x-headrow">
+              <div class="x-stack" style="gap:4px"><button type="button" class="x-txt" data-home style="justify-self:start">← Home</button><h2 class="x-h">New booking</h2></div>
+              <ol class="x-trail" id="trail"><li>Route</li><li>Bus</li><li>Seats</li><li>Passengers</li><li>Pay</li></ol>
+            </div>
+
+            <form class="x-box x-f x-panel" data-g="bk" data-n="1" id="f-route" novalidate>
+              <div class="x-route">
+                <label class="x-fld"><span>From</span><select name="from" id="from"></select></label>
+                <button type="button" class="x-swap" id="swap" aria-label="Swap from and to">⇄</button>
+                <label class="x-fld"><span>To</span><select name="to" id="to"></select><em class="x-err" id="routeErr"></em></label>
+                <label class="x-fld"><span>Date</span><input type="date" id="date" data-v="req" /><em class="x-err"></em></label>
+              </div>
+              <div class="x-acts"><button class="x-cta">Search buses</button></div>
+            </form>
+
+            <div class="x-box x-stack x-panel" data-g="bk" data-n="2" hidden>
+              <div class="x-headrow"><h3 class="x-h3" id="busHead"></h3><button type="button" class="x-txt" data-p="bk:1">Change search</button></div>
+              <div class="x-buses" id="buses"></div>
+            </div>
+
+            <div class="x-box x-stack x-panel" data-g="bk" data-n="3" hidden>
+              <div class="x-headrow"><h3 class="x-h3" id="seatHead"></h3><button type="button" class="x-txt" data-p="bk:2">Change bus</button></div>
+              <div class="x-seats">
+                <div class="x-deck" id="deck"></div>
+                <div class="x-stack">
+                  <div class="x-legend"><span><i></i>Available</span><span><i class="l"></i>Ladies</span><span><i class="b"></i>Booked</span><span><i class="s"></i>Selected</span></div>
+                  <p class="x-hint">Up to 6 seats per booking. Ladies seats go to women passengers only.</p>
+                  <div class="breakdown"><dl>
+                    <div class="row"><dt>Seats</dt><dd id="selSeats">None</dd></div>
+                    <div class="row row--total"><dt>Fare before GST</dt><dd id="selFare">₹0</dd></div>
+                  </dl></div>
+                  <div class="x-acts"><button type="button" class="x-cta" id="toPax" disabled>Add passengers</button></div>
+                </div>
+              </div>
+            </div>
+
+            <form class="x-box x-stack x-panel" data-g="bk" data-n="4" id="f-pax" novalidate hidden>
+              <div class="x-headrow"><h3 class="x-h3">Passengers</h3><button type="button" class="x-txt" data-p="bk:3">Change seats</button></div>
+              <div id="pax"></div>
+              <label class="x-fld" style="max-width:360px"><span>Customer mobile <small class="x-hint">ticket goes here on WhatsApp</small></span><input id="cmob" data-v="mobile" data-num inputmode="numeric" maxlength="10" placeholder="10 digits" /><em class="x-err"></em></label>
+              <div class="x-acts"><button class="x-cta">Review and pay</button></div>
+            </form>
+
+            <div class="x-box x-stack x-panel" data-g="bk" data-n="5" hidden>
+              <div class="x-headrow"><h3 class="x-h3">Pay from wallet</h3><button type="button" class="x-txt" data-p="bk:4">Edit passengers</button></div>
+              <div id="paybox" class="x-stack"></div>
+            </div>
+
+            <div class="x-panel" data-g="bk" data-n="6" hidden>
+              <article class="x-box x-ticket" id="ticket"></article>
+            </div>
+          </div>
+        </section>
+
+        <div class="x-foot">
+          <span class="x-foot__brand"><svg class="x-lg x-lg--l" viewBox="0 0 408 92" role="img" aria-label="DevBus"><use href="#x-logo-pri"/></svg><svg class="x-lg x-lg--d" viewBox="0 0 408 92" role="img" aria-label="DevBus"><use href="#x-logo-rev"/></svg>Travel that keeps its word.</span>
+          <span>DevPoint Partner Portal</span>
+        </div>
+      </main>
+    </div>
+
+    <dialog class="x-dlg" id="dlg" aria-labelledby="dlgT">
+      <form class="x-f" id="f-top" novalidate>
+        <div class="x-stack" style="gap:6px"><p class="x-eye">Wallet top up</p><h2 class="x-h3" id="dlgT">Add money by UPI</h2></div>
+        <label class="x-fld"><span>Amount (₹)</span><input id="amt" data-v="amt" data-num inputmode="numeric" maxlength="6" value="5000" /><em class="x-err"></em></label>
+        <div class="x-quick"><button type="button" data-amt="2000">₹2,000</button><button type="button" data-amt="5000">₹5,000</button><button type="button" data-amt="10000">₹10,000</button><button type="button" data-amt="25000">₹25,000</button></div>
+        <div class="x-acts"><button class="x-cta" id="upi">Pay with UPI</button><button type="button" class="x-txt" id="dlgX">Cancel</button></div>
+      </form>
+    </dialog>
+    <div class="x-toast" id="toast" role="status" aria-live="polite"></div>
+
+    <script src="hark.js"></script>
+    <script>
+      (function () {
+        const $ = (s, r = document) => r.querySelector(s), $$ = (s, r = document) => [...r.querySelectorAll(s)];
+        const inr = (n) => "₹" + Math.round(n).toLocaleString("en-IN");
+        const fmtD = (d) => d.toLocaleDateString("en-IN", { weekday: "short", day: "numeric", month: "short" });
+        const iso = (d) => new Date(d.getTime() - d.getTimezoneOffset() * 6e4).toISOString().slice(0, 10);
+        const esc = (s) => String(s).replace(/[&<>"]/g, (c) => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;" })[c]);
+        const day = (o) => { const d = new Date(); d.setDate(d.getDate() + o); return d; };
+        const S = {
+          wallet: 18450, n: 6, earn: 742,
+          bk: [
+            { pnr: "DB4Q7M2K81", r: "Mysuru → Bengaluru", d: fmtD(day(0)), t: "14:45", s: "2", amt: 944 },
+            { pnr: "DB9T3H6P27", r: "Mysuru → Chennai", d: fmtD(day(1)), t: "21:00", s: "1", amt: 1259 },
+            { pnr: "DB2L8C5V64", r: "Mysuru → Kochi", d: fmtD(day(2)), t: "22:30", s: "3", amt: 3087 },
+            { pnr: "DB6R1N4D90", r: "Mysuru → Mangaluru", d: fmtD(day(0)), t: "06:15", s: "1", amt: 419 },
+            { pnr: "DB3J5W8F12", r: "Mysuru → Goa", d: fmtD(day(3)), t: "21:00", s: "2", amt: 2310 },
+          ],
+          t: {},
+        };
+        const toast = (m) => { const t = $("#toast"); t.textContent = m; t.classList.add("on"); clearTimeout(toast.h); toast.h = setTimeout(() => t.classList.remove("on"), 2800); };
+
+        /* navigation */
+        function view(id) {
+          $$(".x-view").forEach((v) => (v.hidden = v.id !== id));
+          const app = id === "v-home" || id === "v-book";
+          ["#who", "#wal", "#out"].forEach((s) => ($(s).hidden = !app));
+          window.scrollTo(0, 0);
+        }
+        function panel(g, n) {
+          $$(`[data-g="${g}"]`).forEach((p) => (p.hidden = p.dataset.n !== n));
+          if (g === "login") {
+            const fp = n.startsWith("fp");
+            $("#seg").hidden = fp;
+            $("#lt").textContent = fp ? "Reset your password" : "Sign in to your counter";
+            $$("#seg button").forEach((b) => b.setAttribute("aria-selected", b.dataset.p === "login:" + (n === "otp2" ? "otp1" : n)));
+          }
+          if (g === "bk") trail(+n);
+        }
+        document.addEventListener("click", (e) => {
+          const t = e.target.closest("[data-go],[data-p]");
+          if (!t) return;
+          if (t.dataset.go) { view(t.dataset.go); if (t.dataset.go === "v-auth") panel("login", "pass"); }
+          if (t.dataset.p) { const [g, n] = t.dataset.p.split(":"); panel(g, n); }
+        });
+
+        /* validation */
+        const mob = /^[6-9]\d{9}$/;
+        const R = {
+          mobile: [mob, "Enter a 10-digit mobile number"],
+          id: [(v) => mob.test(v) || /^DP-[A-Z]{3}-\d{4}$/.test(v), "Enter a 10-digit mobile or a partner ID like DP-MYS-0142"],
+          pass: [/^.{6,}$/, "Password has at least 6 characters"],
+          newpass: [/^.{8,}$/, "Use at least 8 characters"],
+          match: [(v, el) => v && v === el.form.np.value, "Passwords don't match"],
+          name: [/\S.+/, "Enter a full name"],
+          email: [/^\S+@\S+\.\S+$/, "Enter a valid email"],
+          pin: [/^[1-9]\d{5}$/, "Enter a 6-digit pincode"],
+          a4: [/^\d{4}$/, "Enter the last 4 digits"],
+          pan: [/^[A-Z]{5}\d{4}[A-Z]$/, "PAN looks like ABCDE1234F"],
+          gst: [(v) => !v || /^\d{2}[A-Z]{5}\d{4}[A-Z][A-Z\d]Z[A-Z\d]$/.test(v), "GSTIN has 15 characters, like 29ABCDE1234F1Z5"],
+          req: [/\S/, "Required"],
+          age: [(v) => v >= 1 && v <= 110, "1 to 110"],
+          amt: [(v) => v >= 100 && v <= 100000, "₹100 to ₹1,00,000"],
+          file: [(v, el) => el.files.length > 0, "Choose a file"],
+        };
+        function ok(scope) {
+          let first;
+          $$("[data-v]", scope).forEach((el) => {
+            if (el.closest("[hidden]")) return;
+            const [t, m] = R[el.dataset.v], v = el.value.trim();
+            const pass = typeof t === "function" ? t(v, el) : t.test(v);
+            const f = el.closest(".x-fld");
+            f.classList.toggle("is-bad", !pass);
+            el.setAttribute("aria-invalid", !pass);
+            const er = $(".x-err", f); if (er) er.textContent = pass ? "" : m;
+            if (!pass && !first) first = el;
+          });
+          if (first) first.focus();
+          return !first;
+        }
+        document.addEventListener("input", (e) => {
+          const el = e.target;
+          if (el.hasAttribute("data-num")) el.value = el.value.replace(/\D/g, "");
+          if (el.hasAttribute("data-up")) el.value = el.value.toUpperCase().replace(/\s/g, "");
+          const f = el.closest(".x-fld.is-bad"); if (f) { f.classList.remove("is-bad"); const er = $(".x-err", f); if (er) er.textContent = ""; }
+        });
+        $$(".x-eyebtn").forEach((b) => (b.onclick = () => {
+          const i = b.previousElementSibling, show = i.type === "password";
+          i.type = show ? "text" : "password"; b.textContent = show ? "Hide" : "Show";
+          b.setAttribute("aria-label", show ? "Hide password" : "Show password");
+        }));
+
+        /* OTP */
+        let tm;
+        function timer(b) {
+          clearInterval(tm); let s = 30;
+          const t = () => { b.textContent = s > 0 ? `Resend OTP in ${s}s` : "Resend OTP"; b.disabled = s > 0; if (s-- <= 0) clearInterval(tm); };
+          t(); tm = setInterval(t, 1000);
+        }
+        function otp(form, m) {
+          $("[data-sent]", form).textContent = `Enter the 6-digit code sent to +91 ${m.slice(0, 5)} ${m.slice(5)}.`;
+          const box = $(".x-otp", form);
+          box.innerHTML = Array.from({ length: 6 }, (_, i) => `<input class="x-in" inputmode="numeric" maxlength="1" autocomplete="${i ? "off" : "one-time-code"}" aria-label="Digit ${i + 1}">`).join("");
+          $(".x-err", form).textContent = "";
+          const ins = $$("input", box);
+          ins.forEach((el, i) => {
+            el.oninput = () => { el.value = el.value.replace(/\D/g, "").slice(-1); if (el.value && ins[i + 1]) ins[i + 1].focus(); };
+            el.onkeydown = (e) => { if (e.key === "Backspace" && !el.value && ins[i - 1]) ins[i - 1].focus(); };
+            el.onpaste = (e) => { const d = (e.clipboardData.getData("text").match(/\d/g) || []).slice(0, 6); if (d.length) { e.preventDefault(); d.forEach((c, j) => (ins[j].value = c)); ins[Math.min(d.length, 5)].focus(); } };
+          });
+          setTimeout(() => ins[0].focus(), 60);
+          const rb = $(".x-resend", form);
+          rb.onclick = () => { toast("A new OTP is on its way"); timer(rb); };
+          timer(rb);
+        }
+        const otpOk = (form) => { const v = $$(".x-otp input", form).map((i) => i.value).join(""); const good = /^\d{6}$/.test(v); $(".x-err", form).textContent = good ? "" : "Enter all 6 digits"; return good; };
+        const on = (id, f) => $(id).addEventListener("submit", (e) => { e.preventDefault(); f(e.target); });
+
+        on("#f-pass", (f) => ok(f) && signIn());
+        on("#f-otp1", (f) => { if (ok(f)) { panel("login", "otp2"); otp($("#f-otp2"), f.m.value); } });
+        on("#f-otp2", (f) => otpOk(f) && signIn());
+        on("#f-fp1", (f) => { if (ok(f)) { panel("login", "fp2"); otp($("#f-fp2"), $("input", f).value); } });
+        on("#f-fp2", (f) => { if (otpOk(f)) { clearInterval(tm); panel("login", "fp3"); } });
+        on("#f-fp3", (f) => { if (ok(f)) { f.reset(); panel("login", "pass"); toast("Password updated. Sign in with your new password."); } });
+
+        function signIn() {
+          clearInterval(tm); $$("#v-auth form").forEach((f) => f.reset());
+          view("v-home"); home(); toast("Welcome back, Ravi");
+        }
+        $("#out").onclick = () => { view("v-auth"); panel("login", "pass"); toast("Signed out"); };
+
+        /* become a partner */
+        const steps = ["Owner", "Business", "KYC", "Review"];
+        const ap = $("#f-apply");
+        function apGo(n) {
+          panel("ap", String(n));
+          $("#apstep").textContent = `Step ${n} of 4 · ${steps[n - 1]}`;
+          $$("#prog i").forEach((i, k) => i.classList.toggle("on", k < n));
+          if (n === 4) review();
+          ap.scrollIntoView({ block: "start" });
+        }
+        ap.addEventListener("click", (e) => {
+          const b = e.target.closest("[data-ap]"); if (!b) return;
+          const cur = $('[data-g="ap"]:not([hidden])');
+          if (b.hasAttribute("data-back") || ok(cur)) apGo(+b.dataset.ap);
+        });
+        function review() {
+          const v = (n) => esc(ap[n].value.trim()), file = (n) => esc(ap[n].files[0] ? ap[n].files[0].name : "");
+          const rows = [["Owner", v("name")], ["Mobile", "+91 " + v("mobile")], ["Email", v("email")], ["Town", v("town")], ["Shop", v("shop")], ["Address", v("addr") + " · " + v("pin")], ["Tier", esc(ap.querySelector("[name=tier]:checked").value) + " · no royalty"], ["Aadhaar", "XXXX XXXX " + v("a4")], ["PAN", v("pan")], ["GSTIN", v("gst") || "Not added"], ["Shop photo", file("photo")], ["Agreement", file("agree")]];
+          $("#review").innerHTML = rows.map(([k, x]) => `<dt>${k}</dt><dd>${x}</dd>`).join("");
+        }
+        ap.addEventListener("submit", (e) => {
+          e.preventDefault();
+          $("#apref").textContent = "Application DPA-" + Math.floor(100000 + Math.random() * 899999) + " · " + fmtD(new Date());
+          ap.reset(); apGo(1); view("v-status");
+        });
+
+        /* home */
+        function wal() { $("#wal").textContent = inr(S.wallet); $$("[data-wal]").forEach((e) => (e.textContent = inr(S.wallet))); }
+        function home() {
+          wal();
+          $("#tN").textContent = S.n; $("#tE").textContent = inr(S.earn);
+          const L = ["PNR", "Route", "Travel", "Seats", "Paid"];
+          $("#recent").innerHTML = S.bk.slice(0, 5).map((b) =>
+            `<tr><th scope="row" style="font-variant-numeric:tabular-nums;letter-spacing:.04em">${b.pnr}</th><td data-label="${L[1]}">${b.r}</td><td data-label="${L[2]}">${b.d}<small>${b.t}</small></td><td data-label="${L[3]}">${b.s}</td><td class="num" data-label="${L[4]}">${inr(b.amt)}</td></tr>`).join("");
+        }
+        $("[data-home]").onclick = () => { view("v-home"); home(); };
+
+        /* top up */
+        const dlg = $("#dlg");
+        document.addEventListener("click", (e) => { if (e.target.closest("[data-topup]")) { $("#upi").disabled = false; $("#upi").textContent = "Pay with UPI"; dlg.showModal(); $("#amt").select(); } });
+        $$("[data-amt]").forEach((b) => (b.onclick = () => ($("#amt").value = b.dataset.amt)));
+        $("#dlgX").onclick = () => dlg.close();
+        on("#f-top", (f) => {
+          if (!ok(f)) return;
+          const a = +$("#amt").value, b = $("#upi");
+          b.disabled = true; b.textContent = "Waiting for UPI…";
+          setTimeout(() => {
+            dlg.close(); S.wallet += a; wal(); toast(`UPI payment successful · ${inr(a)} added to wallet`);
+            if (!$('[data-g="bk"][data-n="5"]').hidden) pay();
+          }, 1200);
+        });
+
+        /* booking */
+        const C = { Bengaluru: [12.97, 77.59], Mysuru: [12.3, 76.64], Chennai: [13.08, 80.27], Hyderabad: [17.38, 78.49], Goa: [15.49, 73.83], Kochi: [9.93, 76.27], Mangaluru: [12.91, 74.86], Hubballi: [15.36, 75.12] };
+        const opts = Object.keys(C).map((c) => `<option>${c}</option>`).join("");
+        $("#from").innerHTML = opts; $("#to").innerHTML = opts;
+        const km = (a, b) => { const r = Math.PI / 180, [x1, y1] = C[a], [x2, y2] = C[b]; const h = Math.sin(((x2 - x1) * r) / 2) ** 2 + Math.cos(x1 * r) * Math.cos(x2 * r) * Math.sin(((y2 - y1) * r) / 2) ** 2; return 1.25 * 12742 * Math.asin(Math.sqrt(h)); };
+        const OPS = [["DevBus Prime", 1, "06:15", 4.8], ["Kaveri Travels", 0, "09:30", 4.3], ["Sahyadri Lines", 1, "14:45", 4.6], ["Coastal Star", 0, "21:00", 4.4], ["Deccan Express", 1, "22:30", 4.7]];
+        const LAD = ["1A", "1B", "4C", "4D"];
+        function trail(n) { $$("#trail li").forEach((l, i) => { l.className = i + 1 < n ? "done" : i + 1 === n ? "on" : ""; }); }
+        $("[data-newbk]").onclick = () => {
+          view("v-book"); $("#from").value = "Mysuru"; $("#to").value = "Bengaluru";
+          const d = $("#date"); d.min = iso(new Date()); d.value = iso(new Date()); panel("bk", "1");
+        };
+        $("#swap").onclick = () => { const f = $("#from").value; $("#from").value = $("#to").value; $("#to").value = f; };
+        on("#f-route", (f) => {
+          const a = $("#from").value, b = $("#to").value;
+          $("#routeErr").textContent = a === b ? "Pick a different destination" : "";
+          if (a === b || !ok(f)) return;
+          const d = new Date($("#date").value + "T00:00"), k = km(a, b), hrs = k / 52 + 0.4;
+          S.t = { a, b, d, k };
+          S.t.buses = OPS.map(([op, sl, dep, sc], i) => {
+            const [h, m] = dep.split(":").map(Number), mins = Math.round((h * 60 + m + hrs * 60 + i * 7) / 5) * 5;
+            const fare = Math.max(299, Math.round((k * (sl ? 2 : 1.35) + i * 15) / 10) * 10 - 1);
+            const arr = `${String(Math.floor(mins / 60) % 24).padStart(2, "0")}:${String(mins % 60).padStart(2, "0")}`;
+            const dur = mins - h * 60 - m;
+            return { op, type: sl ? "AC Sleeper" : "AC Seater", sl, dep, arr, dur: `${Math.floor(dur / 60)}h ${dur % 60 ? (dur % 60) + "m" : ""}`.trim(), next: mins >= 1440, fare, sc, i };
+          });
+          $("#busHead").textContent = `${a} → ${b} · ${fmtD(d)}`;
+          $("#buses").innerHTML = S.t.buses.map((x) =>
+            `<div class="x-bus"><div><h3>${x.op}</h3><small>${x.type} · 2+2</small><span class="x-score">DevSafe ${x.sc}</span></div>
+             <div class="x-time">${x.dep}<i><span>${x.dur}</span></i>${x.arr}${x.next ? '<small style="margin:0">+1</small>' : ""}</div>
+             <p class="x-fare">${inr(x.fare)}<small>per seat</small></p><button type="button" class="x-cta" data-bus="${x.i}">Select seats</button></div>`).join("");
+          panel("bk", "2");
+        });
+        $("#buses").addEventListener("click", (e) => { const b = e.target.closest("[data-bus]"); if (b) seats(S.t.buses[+b.dataset.bus]); });
+
+        function seats(bus) {
+          S.t.bus = bus; S.t.sel = [];
+          let seed = bus.i * 97 + S.t.k * 13 + S.t.d.getDate();
+          const rnd = () => ((seed = (seed * 9301 + 49297) % 233280) / 233280);
+          const rows = bus.sl ? 8 : 10, deck = $("#deck");
+          deck.className = "x-deck" + (bus.sl ? " sl" : "");
+          let h = `<p>Front · driver</p>`;
+          for (let r = 1; r <= rows; r++) "AB_CD".split("").forEach((c) => {
+            if (c === "_") return (h += "<span></span>");
+            const id = r + c, lad = LAD.includes(id), taken = rnd() < 0.32;
+            h += `<button type="button" class="x-seat${lad ? " lad" : ""}" data-s="${id}" aria-pressed="false" aria-label="Seat ${id}${lad ? ", ladies" : ""}${taken ? ", booked" : ""}" ${taken ? "disabled" : ""}>${id}</button>`;
+          });
+          deck.innerHTML = h;
+          $("#seatHead").textContent = `${bus.op} · ${bus.type} · ${bus.dep}`;
+          seatSum(); panel("bk", "3");
+        }
+        $("#deck").addEventListener("click", (e) => {
+          const b = e.target.closest(".x-seat"); if (!b || b.disabled) return;
+          const s = b.dataset.s, sel = S.t.sel, i = sel.indexOf(s);
+          if (i > -1) sel.splice(i, 1);
+          else if (sel.length >= 6) return toast("Up to 6 seats per booking");
+          else sel.push(s);
+          b.setAttribute("aria-pressed", i < 0); seatSum();
+        });
+        function seatSum() {
+          const sel = S.t.sel;
+          $("#selSeats").textContent = sel.length ? sel.join(", ") : "None";
+          $("#selFare").textContent = inr(sel.length * S.t.bus.fare);
+          $("#toPax").disabled = !sel.length;
+        }
+        $("#toPax").onclick = () => {
+          $("#pax").innerHTML = S.t.sel.map((s) => {
+            const lad = LAD.includes(s);
+            return `<div class="x-pax"><span class="x-tag${lad ? " lad" : ""}" title="${lad ? "Ladies seat" : ""}">${s}</span>
+              <label class="x-fld"><span>Full name</span><input data-v="name" autocomplete="off" /><em class="x-err"></em></label>
+              <label class="x-fld"><span>Age</span><input data-v="age" data-num inputmode="numeric" maxlength="3" /><em class="x-err"></em></label>
+              <label class="x-fld"><span>Gender${lad ? " · ladies seat" : ""}</span><select>${lad ? "<option>Female</option>" : "<option>Female</option><option selected>Male</option><option>Other</option>"}</select></label></div>`;
+          }).join("");
+          panel("bk", "4"); $("#pax input").focus();
+        };
+        on("#f-pax", (f) => {
+          if (!ok(f)) return;
+          S.t.pax = $$(".x-pax").map((p, i) => { const [n, a] = $$("input", p); return { s: S.t.sel[i], n: n.value.trim(), a: a.value, g: $("select", p).value }; });
+          S.t.mob = $("#cmob").value; pay(); panel("bk", "5");
+        });
+        function pay() {
+          const t = S.t, n = t.sel.length, base = n * t.bus.fare, gst = Math.round(base * 0.05), tot = base + gst, earn = Math.round(base * 0.11 * 0.75), short = tot - S.wallet;
+          Object.assign(t, { base, gst, tot, earn });
+          $("#paybox").innerHTML = `<p class="x-hint">${esc(t.a)} → ${esc(t.b)} · ${fmtD(t.d)} · ${t.bus.op}, ${t.bus.dep} · Seats ${t.sel.join(", ")}</p>
+            <div class="breakdown"><dl>
+              <div class="row"><dt>Fare <small>${n} × ${inr(t.bus.fare)}</small></dt><dd>${inr(base)}</dd></div>
+              <div class="row"><dt>GST <small>5%</small></dt><dd>${inr(gst)}</dd></div>
+              <div class="row row--total"><dt>Total from wallet</dt><dd>${inr(tot)}</dd></div></dl></div>
+            <div class="x-earn"><span>You earn <small class="x-hint" style="display:block">75% of the 11% DevBus commission</small></span><strong>${inr(earn)}</strong></div>
+            <p class="x-hint">Wallet ${inr(S.wallet)}${short > 0 ? "" : " → " + inr(S.wallet - tot) + " after this booking"}</p>
+            ${short > 0 ? `<div class="x-short" role="alert"><span>Wallet is short by ${inr(short)}. Top up to book.</span><button type="button" class="x-sec" data-topup style="min-height:44px">Top up</button></div>` : ""}
+            <div class="x-acts"><button type="button" class="x-cta" id="payBtn" ${short > 0 ? "disabled" : ""}>Pay ${inr(tot)} from wallet</button></div>`;
+          $("#payBtn").onclick = book;
+        }
+        function book() {
+          const t = S.t;
+          if (t.tot > S.wallet) return pay();
+          const A = "ABCDEFGHJKLMNPQRSTUVWXYZ23456789";
+          const pnr = "DB" + Array.from({ length: 8 }, () => A[Math.floor(Math.random() * A.length)]).join("");
+          S.wallet -= t.tot; S.n += 1; S.earn += t.earn;
+          S.bk.unshift({ pnr, r: `${t.a} → ${t.b}`, d: fmtD(t.d), t: t.bus.dep, s: String(t.sel.length), amt: t.tot });
+          wal(); t.pnr = pnr;
+          $("#ticket").innerHTML = `<header><div class="x-stack" style="gap:4px"><p class="x-eye">DevBus e-ticket · PNR</p><p class="x-pnr">${pnr}</p></div><span class="chip chip--solid">Confirmed</span></header>
+            <div class="x-tb">
+              <div class="x-time" style="font:var(--type-title)">${esc(t.a)} ${t.bus.dep}<i><span>${t.bus.dur}</span></i>${esc(t.b)} ${t.bus.arr}</div>
+              <dl class="x-dl">
+                <dt>Date</dt><dd>${fmtD(t.d)}${t.bus.next ? " · arrives next day" : ""}</dd>
+                <dt>Bus</dt><dd>${t.bus.op} · ${t.bus.type} · DevSafe ${t.bus.sc}</dd>
+                <dt>Passengers</dt><dd>${t.pax.map((p) => `${p.s} · ${esc(p.n)}, ${p.a}, ${p.g}`).join("<br>")}</dd>
+                <dt>Customer</dt><dd>+91 ${t.mob}</dd>
+                <dt>Paid</dt><dd>${inr(t.tot)} <small class="x-hint">incl. ${inr(t.gst)} GST</small></dd>
+                <dt>Booked at</dt><dd>Mysuru DevPoint · Ravi Kumar</dd>
+              </dl>
+              <div class="x-acts"><button type="button" class="x-cta" id="wa">Send on WhatsApp</button><button type="button" class="x-sec" onclick="window.print()">Print</button><button type="button" class="x-txt" data-home2>Back to home</button></div>
+            </div>`;
+          $("#wa").onclick = () => toast(`Ticket ${pnr} sent on WhatsApp to +91 ${t.mob}`);
+          $("[data-home2]").onclick = () => { view("v-home"); home(); };
+          panel("bk", "6"); $$("#trail li").forEach((l) => (l.className = "done"));
+          toast(`Booked · you earn ${inr(t.earn)}`);
+        }
+      })();
+    </script>
+  </body>
+</html>

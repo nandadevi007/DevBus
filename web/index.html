@@ -1,0 +1,1032 @@
+<!doctype html>
+<html lang="en" data-theme="dark">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>DevBus · Travel that keeps its word</title>
+    <link rel="icon" type="image/svg+xml" href="favicon.svg" />
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link
+      rel="stylesheet"
+      href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap"
+    />
+    <link rel="stylesheet" href="hark.css" />
+    <link rel="stylesheet" href="hark-hero.css" />
+    <style>
+      :root {
+        /* DevBus colour system: ~90% neutrals and navy, burnt orange only for the main action */
+        --x-navy: #0b1f3a;
+        --x-accent: light-dark(#d9480f, #e8590c);       /* Book / Pay buttons, selected seat, key highlights */
+        --x-accent-hover: light-dark(#c03f0d, #d9480f);
+        --x-accent-ink: light-dark(#b93a0a, #e8590c);   /* orange text on cards, never on navy */
+        --x-on-accent: #ffffff;
+        --x-disabled: light-dark(#a8b3c2, #3a4350);
+        --x-disabled-ink: light-dark(#ffffff, #9aa7b8);
+        --x-success: #1f8a4c; --x-warn: #c98a00; --x-error: #c92a2a; --x-info: #1c6dd0;
+        --x-seat-free: #ffffff; --x-seat-line: #9aa7b8; --x-seat-sel: #d9480f; --x-seat-off: #cbd2dc; --x-seat-lady: #d6336c;
+        --x-on-navy: #f2f5f9; --x-on-navy-muted: #c3ccd8;
+        --fill-primary-on: light-dark(#f6f7f9, #0a0a0a);
+        --x-surface: light-dark(#ffffff, #14181f);
+        --fill-tertiary: light-dark(#eef1f5, #1c222b);
+        --x-line: light-dark(#dde2e9, #2a323e);
+        --stroke-primary: light-dark(#dde2e9, #2a323e);
+        --stroke-secondary: light-dark(#e7ebf0, #222932);
+        --text-primary: light-dark(#0b1f3a, #f2f5f9);
+        --text-secondary: light-dark(#5b6b80, #9aa7b8);
+        --fill-primary: light-dark(#0b1f3a, #f2f5f9);
+        --text-primary-on: light-dark(#ffffff, #0b1f3a);
+        --text-secondary-on: light-dark(#c3ccd8, #5b6b80);
+        --fill-system-green: var(--x-success);
+        --fill-system-red: var(--x-error);
+        --fill-system-orange: var(--x-warn);
+        --hover-wash: light-dark(#0b1f3a0d, #f2f5f910);
+        --hark-shadow: 0 8px 32px #0b1f3a1f;
+        --sans: "Inter", -apple-system, BlinkMacSystemFont, "Segoe UI", "Helvetica Neue", sans-serif;
+        --weight-bold: 700;
+        --type-heading: var(--weight-bold) var(--size-heading)/var(--lh) var(--sans);
+        --type-title: var(--weight-bold) var(--size-title)/var(--lh) var(--sans);
+        --type-display: var(--weight-bold) var(--size-display)/1.1 var(--sans);
+      }
+      .x-top { position: sticky; top: 0; z-index: 30; display: flex; align-items: center; gap: 8px; padding: 10px 0; background: color-mix(in srgb, var(--fill-primary-on) 82%, transparent); -webkit-backdrop-filter: var(--hark-blur); backdrop-filter: var(--hark-blur); }
+      .x-logo { display: block; width: 125px; height: 28px; flex: none; }
+      .x-logo--rev { display: none; }
+      :root[data-theme="dark"] .x-logo--pri { display: none; }
+      :root[data-theme="dark"] .x-logo--rev { display: block; }
+      .x-logowrap { display: inline-flex; align-items: center; min-height: var(--tap); text-decoration: none; border-radius: var(--r-s); }
+      .x-logowrap:focus-visible { outline: 2px solid var(--text-primary); outline-offset: 4px; }
+      .x-top__right { margin-left: auto; display: flex; align-items: center; gap: 6px; }
+      .x-icon-btn, .x-ghost, .x-cta { display: inline-flex; align-items: center; justify-content: center; gap: 6px; min-height: var(--tap); border: 0; cursor: pointer; font: var(--type-label); border-radius: var(--r-pill); text-decoration: none; transition: transform var(--dur-quick) var(--ease-out), box-shadow var(--dur-quick) ease; }
+      .x-icon-btn { width: var(--tap); background: var(--fill-tertiary); color: var(--text-primary); }
+      .x-ghost { min-width: var(--tap); padding: 0 14px; background: transparent; color: var(--text-primary); box-shadow: inset 0 0 0 1px var(--stroke-primary); }
+      .x-ghost:hover, .x-icon-btn:hover { box-shadow: inset 0 0 0 100px var(--hover-wash); }
+      .x-cta { padding: 0 18px; background: var(--x-accent); color: var(--x-on-accent); font-weight: var(--weight-bold); transition: background var(--dur-quick) ease, transform var(--dur-quick) var(--ease-out); }
+      .x-cta:hover { background: var(--x-accent-hover); }
+      .x-cta.x-solid { background: var(--fill-primary); color: var(--text-primary-on); }
+      .x-cta.x-solid:hover { box-shadow: inset 0 0 0 100px light-dark(#ffffff14, #0b1f3a14); }
+      .x-cta:active, .x-ghost:active { transform: scale(0.98); }
+      .x-cta--wide { width: 100%; min-height: 52px; font-size: var(--size-body); border-radius: var(--r-m); }
+      svg.i { width: 18px; height: 18px; flex: none; fill: none; stroke: currentColor; stroke-width: 1.8; stroke-linecap: round; stroke-linejoin: round; }
+      :root[data-theme="dark"] .x-moon, :root[data-theme="light"] .x-sun { display: none; }
+      @media (max-width: 479px) { .x-hide-s { display: none; } .x-ghost { padding: 0 12px; } }
+
+      .x-hero { position: relative; overflow: hidden; border-radius: var(--r-xl); padding: clamp(24px, 5vw, 48px) clamp(18px, 4vw, 44px) clamp(18px, 3vw, 32px); background: var(--x-navy); color: var(--x-on-navy); display: grid; gap: 20px; }
+      :root[data-theme="dark"] .x-hero { box-shadow: inset 0 0 0 1px var(--x-line); }
+      .x-hero__eyebrow { font: var(--type-label); color: var(--x-on-navy-muted); display: flex; align-items: center; gap: 8px; }
+      .x-hero h1 { font: var(--type-display); letter-spacing: -0.02em; max-width: 14ch; }
+      .x-hero h1 em { font-style: normal; color: var(--x-on-navy); text-decoration: underline; text-decoration-color: var(--x-seat-sel); text-decoration-thickness: 4px; text-underline-offset: 8px; text-decoration-skip-ink: none; }
+      .x-hero__sub { color: var(--x-on-navy-muted); max-width: 46ch; font-size: var(--size-prose); }
+      .x-route { width: 100%; height: auto; max-height: 120px; }
+      .x-route text { fill: var(--x-on-navy-muted); font: var(--type-tag); }
+      .x-route__path { stroke-dasharray: 600; stroke-dashoffset: 600; animation: x-draw var(--dur-draw) var(--ease-out) 200ms forwards; }
+      @keyframes x-draw { to { stroke-dashoffset: 0; } }
+
+      .x-search { background: var(--x-surface); color: var(--text-primary); border-radius: var(--r-l); padding: 14px; display: grid; gap: 12px; box-shadow: 0 20px 60px -20px #0008; }
+      .x-modes { display: flex; gap: 4px; padding: 4px; border-radius: var(--r-pill); background: var(--fill-tertiary); }
+      .x-mode { flex: 1; display: inline-flex; align-items: center; justify-content: center; gap: 6px; min-height: var(--tap); border: 0; border-radius: var(--r-pill); background: transparent; color: var(--text-primary); font: var(--type-label); cursor: pointer; }
+      .x-mode[aria-pressed="true"] { background: var(--x-surface); color: var(--text-primary); box-shadow: 0 2px 10px #0002; }
+      .x-mode small { font: var(--type-caption); color: var(--text-secondary); padding: 1px 6px; border-radius: var(--r-pill); box-shadow: inset 0 0 0 1px var(--stroke-primary); }
+      @media (max-width: 400px) { .x-mode small { display: none; } }
+      .x-od { position: relative; display: grid; grid-template-columns: 1fr 1fr; gap: 8px; }
+      .x-field { display: grid; gap: 2px; padding: 10px 14px; border-radius: var(--r-m); background: var(--fill-tertiary); min-width: 0; }
+      .x-field label { font: var(--type-caption); color: var(--text-secondary); }
+      .x-field select { appearance: none; border: 0; background: transparent; color: var(--text-primary); font: var(--weight-bold) var(--size-heading)/1.2 var(--sans); padding: 0; min-height: 30px; cursor: pointer; width: 100%; }
+      .x-field select option { color: var(--text-primary); background: var(--x-surface); }
+      .x-field:focus-within { box-shadow: inset 0 0 0 1.5px var(--text-primary); }
+      .x-od .x-field:last-child { padding-left: 26px; }
+      .x-swap { position: absolute; left: 50%; top: 50%; translate: -50% -50%; width: var(--tap); height: var(--tap); border-radius: 50%; border: 4px solid var(--x-surface); background: var(--fill-primary); color: var(--text-primary-on); display: grid; place-items: center; cursor: pointer; transition: rotate 300ms var(--ease-out); }
+      .x-swap.is-spun { rotate: 180deg; }
+      .x-dates { display: flex; gap: 8px; flex-wrap: wrap; }
+      .x-chip { display: inline-flex; align-items: center; gap: 6px; min-height: var(--tap); padding: 0 14px; border-radius: var(--r-pill); border: 1px solid var(--stroke-primary); background: transparent; color: var(--text-primary); font: var(--type-label); cursor: pointer; transition: background var(--dur-quick) ease; }
+      .x-chip small { color: var(--text-secondary); font-weight: var(--weight-regular); }
+      .x-chip:hover { background: var(--hover-wash); }
+      .x-chip[aria-pressed="true"] { border-color: var(--fill-primary); background: var(--fill-primary); color: var(--text-primary-on); }
+      .x-chip[aria-pressed="true"] small { color: var(--text-secondary-on); }
+      .x-popular { display: flex; gap: 8px; flex-wrap: wrap; align-items: center; }
+      .x-popular p { font: var(--type-label); color: var(--x-on-navy-muted); margin-right: 4px; }
+      .x-popular .x-chip { color: var(--x-on-navy); border-color: #f2f5f938; }
+      .x-popular .x-chip:hover { background: #f2f5f914; }
+
+      .x-pillar__ico { width: 44px; height: 44px; border-radius: 14px; display: grid; place-items: center; background: var(--fill-primary); color: var(--text-primary-on); margin-bottom: 14px; }
+      .x-pillar__ico svg.i { width: 22px; height: 22px; }
+
+      .x-rhead { display: flex; align-items: center; gap: 12px; padding: 8px 0 4px; }
+      .x-rhead h1 { font: var(--type-heading); display: flex; align-items: center; gap: 8px; flex-wrap: wrap; }
+      .x-rhead p { font: var(--type-small); color: var(--text-secondary); }
+      .x-sort { display: flex; gap: 8px; overflow-x: auto; scrollbar-width: none; padding-bottom: 2px; }
+      .x-list { display: grid; gap: 12px; }
+      .x-bus { background: var(--x-surface); border: 1px solid var(--x-line); border-radius: var(--r-l); padding: 18px; display: grid; gap: 14px; animation: x-rise 520ms var(--ease-out) both; animation-delay: calc(var(--i, 0) * 70ms); }
+      @keyframes x-rise { from { opacity: 0; transform: translateY(14px); } }
+      .x-bus__top { display: flex; justify-content: space-between; gap: 12px; align-items: start; }
+      .x-bus h3 { font: var(--type-body-strong); font-size: var(--size-prose); }
+      .x-bus__type { font: var(--type-small); color: var(--text-secondary); }
+      .x-rating { display: inline-flex; align-items: center; gap: 4px; padding: 4px 10px; border-radius: var(--r-pill); background: var(--fill-tertiary); font: var(--type-label); white-space: nowrap; }
+      .x-rating svg { width: 14px; height: 14px; fill: var(--x-warn); stroke: none; }
+      .x-times { display: grid; grid-template-columns: auto 1fr auto; align-items: center; gap: 12px; }
+      .x-times b { font: var(--type-figure); font-weight: var(--weight-medium); letter-spacing: -0.01em; display: block; }
+      .x-times small { color: var(--text-secondary); display: block; }
+      .x-times > div:last-child { text-align: right; }
+      .x-times sup { font: var(--type-tag); color: var(--x-accent-ink); margin-left: 2px; }
+      .x-dur { position: relative; text-align: center; font: var(--type-tag); color: var(--text-secondary); }
+      .x-dur::before { content: ""; position: absolute; left: 0; right: 0; top: 50%; border-top: 1.5px dashed var(--stroke-primary); }
+      .x-dur span { position: relative; background: var(--x-surface); padding: 0 8px; }
+      .x-tags { display: flex; flex-wrap: wrap; align-items: center; gap: 8px; }
+      .x-safe { display: inline-flex; align-items: center; gap: 6px; padding: 4px 10px 4px 4px; border-radius: var(--r-pill); font: var(--type-tag); background: var(--fill-tertiary); }
+      .x-safe b { display: grid; place-items: center; min-width: 30px; height: 22px; padding: 0 6px; border-radius: var(--r-pill); background: var(--fill-primary); color: var(--text-primary-on); font-weight: var(--weight-bold); }
+      .x-tag { display: inline-flex; align-items: center; gap: 5px; padding: 4px 10px; border-radius: var(--r-pill); font: var(--type-tag); box-shadow: inset 0 0 0 1px var(--stroke-primary); }
+      .x-tag svg.i { width: 14px; height: 14px; color: var(--text-secondary); }
+      .x-amen { display: flex; gap: 10px; margin-left: auto; color: var(--text-secondary); }
+      .x-amen svg.i { width: 17px; height: 17px; }
+      .x-bus__foot { display: flex; align-items: center; gap: 10px; flex-wrap: wrap; padding-top: 14px; border-top: 1px solid var(--x-line); }
+      .x-price { font: var(--type-figure); font-weight: var(--weight-bold); letter-spacing: -0.01em; }
+      .x-seats { font: var(--type-tag); color: var(--text-secondary); display: block; }
+      .x-seats.is-low { color: var(--fill-system-red); }
+      .x-bus__foot .x-acts { margin-left: auto; display: flex; gap: 8px; }
+      .x-check { display: flex; align-items: center; gap: 10px; padding: 12px 14px; border-radius: var(--r-m); background: var(--fill-tertiary); font: var(--type-small); animation: x-rise 300ms var(--ease-out); }
+      .x-check svg.i { color: var(--fill-system-green); }
+      .x-check s { color: var(--text-secondary); text-decoration: none; }
+      .x-skel { height: 196px; border-radius: var(--r-l); background: linear-gradient(90deg, var(--fill-tertiary) 30%, var(--x-surface) 50%, var(--fill-tertiary) 70%) 0 0 / 300% 100%; animation: x-shim 1.1s linear infinite; }
+      @keyframes x-shim { to { background-position: -150% 0; } }
+      .x-view[hidden] { display: none; }
+      .x-view { display: grid; gap: 16px; animation: x-fade 360ms var(--ease-out); }
+      @keyframes x-fade { from { opacity: 0; } }
+      .x-toast { position: fixed; left: 50%; bottom: calc(env(safe-area-inset-bottom, 0px) + 20px); translate: -50% 20px; opacity: 0; pointer-events: none; z-index: 50; display: flex; align-items: center; gap: 8px; padding: 12px 18px; border-radius: var(--r-pill); background: var(--fill-primary); color: var(--text-primary-on); font: var(--type-label); box-shadow: var(--hark-shadow); transition: opacity 220ms ease, translate 320ms var(--ease-out); max-width: calc(100vw - 32px); }
+      .x-toast.is-on { opacity: 1; translate: -50% 0; }
+      :root { --x-pink: light-dark(#d6336c, #f06595); --x-ink: var(--x-accent-ink); }
+      .x-card { background: var(--x-surface); border: 1px solid var(--x-line); border-radius: var(--r-l); padding: 16px; display: grid; gap: 14px; min-width: 0; }
+      .x-h { font: var(--type-body-strong); display: flex; flex-wrap: wrap; align-items: center; gap: 8px; }
+      .x-h small { margin-left: auto; font: var(--type-small); color: var(--text-secondary); }
+      .x-h svg.i { color: var(--text-secondary); }
+      .x-mode b { display: grid; place-items: center; min-width: 20px; height: 20px; padding: 0 6px; border-radius: var(--r-pill); background: var(--x-seat-sel); color: var(--x-on-accent); font: var(--type-caption); font-weight: var(--weight-bold); }
+      .x-mode b:empty { display: none; }
+      .x-legend { display: flex; flex-wrap: wrap; gap: 8px 14px; font: var(--type-tag); color: var(--text-secondary); }
+      .x-legend span { display: inline-flex; align-items: center; gap: 6px; }
+      .x-legend .x-seat { width: 16px; min-height: 16px; height: 16px; border-radius: 5px; cursor: default; }
+      .x-deck { width: 100%; max-width: 300px; margin: 0 auto; padding: 12px; border-radius: var(--r-m); border: 1.5px solid var(--stroke-secondary); display: grid; gap: 10px; }
+      .x-deck__top { display: flex; justify-content: space-between; align-items: center; min-height: 24px; padding-bottom: 8px; border-bottom: 1px dashed var(--stroke-secondary); font: var(--type-caption); color: var(--text-secondary); }
+      .x-deck__top span { display: inline-flex; align-items: center; gap: 4px; }
+      .x-grid { display: grid; grid-template-columns: 1fr 1fr 14px 1fr 1fr; gap: 8px; }
+      .x-grid--sl { grid-template-columns: 1fr 14px 1fr 1fr; }
+      .x-seat { position: relative; display: grid; place-items: center; min-height: 46px; padding: 0; border-radius: 10px 10px 6px 6px; border: 1.5px solid var(--x-seat-line); background: var(--x-seat-free); color: var(--x-navy); font: var(--type-tag); cursor: pointer; transition: transform var(--dur-quick) var(--ease-out); }
+      .x-grid--sl .x-seat { min-height: 84px; border-radius: 10px; }
+      .x-grid--sl .x-seat::before { content: ""; position: absolute; top: 8px; left: 28%; right: 28%; height: 6px; border-radius: 3px; background: currentColor; opacity: 0.25; }
+      .x-seat:hover { box-shadow: inset 0 0 0 100px #0b1f3a0d; }
+      .x-seat:active { transform: scale(0.96); }
+      .x-seat:focus-visible { outline: 2px solid var(--text-primary); outline-offset: 2px; }
+      .x-seat.is-lady { border: 2px solid var(--x-seat-lady); color: var(--x-seat-lady); font-weight: var(--weight-bold); }
+      .x-seat[aria-pressed="true"], .x-seat.is-sel { background: var(--x-seat-sel); border-color: var(--x-seat-sel); color: #ffffff; font-weight: var(--weight-bold); }
+      .x-seat:disabled, .x-seat.is-off { background: var(--x-seat-off); border-color: var(--x-seat-off); color: #5b6b80; text-decoration: line-through; cursor: not-allowed; box-shadow: none; transform: none; }
+      .x-spots { display: grid; grid-template-columns: repeat(auto-fill, minmax(220px, 1fr)); gap: 8px; }
+      .x-spot { display: grid; grid-template-columns: auto 1fr; align-items: center; gap: 2px 10px; padding: 12px 14px; border-radius: var(--r-m); border: 1.5px solid var(--x-line); cursor: pointer; transition: border-color var(--dur-quick) ease; }
+      .x-spot input { grid-row: span 3; width: 18px; height: 18px; margin: 0; accent-color: var(--fill-primary); }
+      .x-spot b { font: var(--type-body-strong); }
+      .x-spot em { font: var(--type-tag); font-style: normal; color: var(--text-secondary); }
+      .x-spot small { display: flex; align-items: center; gap: 4px; font: var(--type-small); color: var(--text-secondary); }
+      .x-spot small svg.i { width: 14px; height: 14px; }
+      .x-spot:has(input:checked) { border-color: var(--text-primary); background: var(--hover-wash); }
+      .x-spot:has(:focus-visible) { outline: 2px solid var(--text-primary); outline-offset: 2px; }
+      .x-bar { position: fixed; left: 0; right: 0; bottom: 0; z-index: 40; padding: 10px var(--gutter) calc(10px + env(safe-area-inset-bottom, 0px)); background: color-mix(in srgb, var(--fill-primary-on) 88%, transparent); -webkit-backdrop-filter: var(--hark-blur); backdrop-filter: var(--hark-blur); border-top: 1px solid var(--x-line); }
+      .x-bar__in { max-width: var(--page-max); margin: 0 auto; display: flex; align-items: center; gap: 12px; }
+      .x-bar__in > div { flex: 1; min-width: 0; }
+      .x-bar small { display: block; font: var(--type-small); color: var(--text-secondary); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+      .x-bar b { display: block; font: var(--type-heading); font-weight: var(--weight-bold); }
+      .x-bar .x-cta { flex: none; min-height: 48px; }
+      .x-cta[aria-disabled="true"] { background: var(--x-disabled); color: var(--x-disabled-ink); box-shadow: none; transform: none; cursor: not-allowed; }
+      body.x-has-bar .foot { margin-bottom: 84px; }
+      body.x-has-bar .x-toast { bottom: calc(env(safe-area-inset-bottom, 0px) + 92px); }
+      .x-row { display: grid; grid-template-columns: 1fr 84px; gap: 8px; }
+      .x-field input { width: 100%; min-height: 28px; padding: 0; border: 0; outline: 0; background: transparent; color: var(--text-primary); font: var(--type-body-strong); }
+      .x-field input::placeholder { color: var(--text-secondary); font-weight: var(--weight-regular); }
+      .x-field[data-bad] { box-shadow: inset 0 0 0 1.5px var(--fill-system-red); }
+      .x-err { font: var(--type-caption); color: var(--fill-system-red); }
+      .x-phone { display: flex; align-items: center; gap: 8px; }
+      .x-phone span { font: var(--type-body-strong); color: var(--text-secondary); }
+      .x-seatno { display: grid; place-items: center; min-width: 40px; height: 28px; padding: 0 8px; border-radius: var(--r-pill); background: var(--x-seat-sel); color: #ffffff; font: var(--type-tag); font-weight: var(--weight-bold); }
+      .x-lady { display: flex; align-items: center; gap: 6px; font: var(--type-tag); color: var(--x-pink); }
+      .x-lady svg.i { width: 14px; height: 14px; }
+      .x-gs { display: flex; gap: 8px; }
+      .x-gs .x-chip { flex: 1; justify-content: center; }
+      .x-gs .x-chip:disabled { opacity: 0.4; cursor: not-allowed; }
+      .x-strip { display: flex; flex-wrap: wrap; align-items: center; gap: 10px; padding: 14px; border-radius: var(--r-l); background: var(--x-surface); border: 1px solid var(--x-line); border-left: 4px solid var(--fill-primary); }
+      .x-strip .x-safe { background: var(--fill-tertiary); }
+      .x-strip > p { flex: 1 1 200px; min-width: 0; }
+      .x-strip > p b { display: block; font: var(--type-body-strong); }
+      .x-strip > p small { display: block; font: var(--type-small); color: var(--text-secondary); }
+      .x-card .breakdown dd s { color: var(--text-secondary); margin-right: 6px; }
+      .x-foot-logo .x-logo { width: 107px; height: 24px; }
+      .x-hold { display: flex; align-items: center; gap: 10px; padding: 12px 14px; border-radius: var(--r-m); background: color-mix(in srgb, var(--x-warn) 12%, var(--x-surface)); border: 1px solid color-mix(in srgb, var(--x-warn) 40%, transparent); font: var(--type-small); }
+      .x-hold svg.i { color: var(--x-warn); }
+      .x-hold b { margin-left: auto; font: var(--weight-bold) var(--size-heading)/1 var(--sans); font-variant-numeric: tabular-nums; }
+      .x-hold.is-low b { color: var(--fill-system-red); }
+      .x-wrap { display: flex; flex-wrap: wrap; gap: 8px; }
+      .x-app i { display: grid; place-items: center; width: 24px; height: 24px; border-radius: 7px; font: var(--type-caption); font-style: normal; font-weight: var(--weight-bold); color: #fff; background: var(--c); }
+      .x-chip[aria-pressed="true"] i { box-shadow: 0 0 0 2px #fff8; }
+      .x-or { display: flex; align-items: center; gap: 10px; font: var(--type-caption); color: var(--text-secondary); }
+      .x-or::before, .x-or::after { content: ""; flex: 1; border-top: 1px solid var(--x-line); }
+      .x-row2 { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; }
+      .x-banks { display: grid; grid-template-columns: repeat(auto-fill, minmax(132px, 1fr)); gap: 8px; }
+      .x-banks .x-chip { justify-content: flex-start; border-radius: var(--r-m); padding: 8px 12px; }
+      .x-pane { display: grid; gap: 12px; }
+      .x-pane[hidden], .x-proc[hidden] { display: none; }
+      .x-proc { position: fixed; inset: 0; z-index: 60; display: grid; place-content: center; justify-items: center; gap: 14px; text-align: center; padding: 24px; background: color-mix(in srgb, var(--fill-primary-on) 90%, transparent); -webkit-backdrop-filter: var(--hark-blur); backdrop-filter: var(--hark-blur); font: var(--type-small); color: var(--text-secondary); }
+      .x-proc b { font: var(--type-heading); color: var(--text-primary); }
+      .x-spin { width: 48px; height: 48px; border-radius: 50%; border: 4px solid var(--fill-tertiary); border-top-color: var(--x-accent); animation: x-rot 0.9s linear infinite; }
+      @keyframes x-rot { to { rotate: 360deg; } }
+      .x-done { display: grid; justify-items: center; gap: 6px; text-align: center; padding: 12px 0 4px; }
+      .x-done h1 { font: var(--type-title); letter-spacing: -0.01em; }
+      .x-done p { font: var(--type-small); color: var(--text-secondary); }
+      .x-tick { width: 72px; height: 72px; }
+      .x-tick circle { fill: var(--fill-system-green); transform-origin: center; animation: x-pop 480ms var(--ease-out) both; }
+      .x-tick path { fill: none; stroke: #fff; stroke-width: 4; stroke-linecap: round; stroke-linejoin: round; stroke-dasharray: 40; stroke-dashoffset: 40; animation: x-draw 420ms var(--ease-out) 320ms forwards; }
+      @keyframes x-pop { from { transform: scale(0.3); opacity: 0; } 70% { transform: scale(1.08); } }
+      .x-confetti { position: fixed; inset: 0; z-index: 55; pointer-events: none; overflow: hidden; }
+      .x-confetti i { position: absolute; top: -16px; left: var(--x); width: 8px; height: 14px; border-radius: 2px; background: var(--c); animation: x-fall var(--t) cubic-bezier(.25,.6,.5,1) var(--d) both; }
+      @keyframes x-fall { from { transform: translate(0, 0) rotate(0); } to { transform: translate(var(--dx), 105vh) rotate(var(--r)); opacity: 0.8; } }
+      .x-pass { background: var(--x-surface); border: 1px solid var(--x-line); border-radius: var(--r-l); overflow: hidden; animation: x-rise 520ms var(--ease-out) 200ms both; }
+      .x-pass__top { display: flex; align-items: center; justify-content: space-between; gap: 12px; padding: 14px 16px; background: var(--x-navy); color: var(--x-on-navy); border-bottom: 3px solid var(--x-seat-sel); }
+      .x-pass__top b { display: block; font: var(--type-body-strong); font-weight: var(--weight-bold); }
+      .x-pass__top small { font: var(--type-caption); color: var(--x-on-navy-muted); }
+      .x-pass__top p:last-child { text-align: right; }
+      .x-pass__body { padding: 16px; display: grid; gap: 16px; }
+      .x-facts { display: grid; grid-template-columns: repeat(auto-fill, minmax(130px, 1fr)); gap: 12px 16px; margin: 0; }
+      .x-facts dt { font: var(--type-caption); color: var(--text-secondary); }
+      .x-facts dd { margin: 0; font: var(--type-body-strong); overflow-wrap: anywhere; }
+      .x-facts .x-wide { grid-column: 1 / -1; }
+      .x-perf { position: relative; border-top: 2px dashed var(--x-line); margin: 0 16px; }
+      .x-perf::before, .x-perf::after { content: ""; position: absolute; top: -12px; width: 22px; height: 22px; border-radius: 50%; background: var(--fill-primary-on); }
+      .x-perf::before { left: -28px; } .x-perf::after { right: -28px; }
+      .x-pass__foot { display: flex; align-items: center; gap: 16px; padding: 16px; flex-wrap: wrap; }
+      .x-qr { width: 112px; height: 112px; padding: 8px; border-radius: var(--r-s); background: #fff; flex: none; }
+      .x-pass__foot p { flex: 1 1 140px; font: var(--type-small); color: var(--text-secondary); }
+      .x-pass__foot p b { display: block; font: var(--weight-bold) var(--size-heading)/1.3 var(--sans); color: var(--text-primary); letter-spacing: 0.04em; }
+      .x-acts3 { display: grid; grid-template-columns: repeat(auto-fit, minmax(150px, 1fr)); gap: 8px; }
+      .x-acts3 > * { min-height: 48px; }
+      .x-map { width: 100%; height: auto; border-radius: var(--r-m); background: var(--fill-tertiary); }
+      .x-map .x-m-base { fill: none; stroke: var(--stroke-primary); stroke-width: 3; stroke-dasharray: 2 8; stroke-linecap: round; }
+      .x-map .x-m-run { fill: none; stroke: var(--fill-primary); stroke-width: 4; stroke-linecap: round; }
+      .x-map text { fill: var(--text-secondary); font: var(--type-tag); }
+      .x-map .x-m-pin { fill: var(--x-accent); } .x-map .x-m-end { fill: var(--fill-primary); }
+      .x-map .x-m-bus { fill: var(--fill-primary); stroke: var(--x-surface); stroke-width: 3; }
+      .x-map .x-m-pulse { fill: var(--fill-primary); opacity: 0.2; animation: x-pulse 2s ease-out infinite; transform-box: fill-box; transform-origin: center; }
+      @keyframes x-pulse { from { transform: scale(0.7); opacity: 0.3; } to { transform: scale(1.6); opacity: 0; } }
+      .x-eta { font: var(--type-title); letter-spacing: -0.01em; }
+      .x-eta em { font-style: normal; color: var(--x-ink); }
+      .x-driver { display: flex; align-items: center; gap: 12px; flex-wrap: wrap; }
+      .x-driver > p { flex: 1 1 140px; min-width: 0; font: var(--type-small); color: var(--text-secondary); }
+      .x-driver > p b { display: block; font: var(--type-body-strong); color: var(--text-primary); }
+      .x-ava { display: grid; place-items: center; width: 44px; height: 44px; border-radius: 50%; background: var(--fill-primary); color: var(--text-primary-on); font: var(--type-body-strong); font-weight: var(--weight-bold); flex: none; }
+      .x-sheet { width: min(560px, 100%); max-width: 100%; max-height: 92vh; margin: auto auto 0; padding: 20px var(--gutter) calc(20px + env(safe-area-inset-bottom, 0px)); border: 0; border-radius: var(--r-l) var(--r-l) 0 0; background: var(--x-surface); color: var(--text-primary); box-shadow: var(--hark-shadow); }
+      .x-sheet[open] { display: grid; gap: 14px; animation: x-up 320ms var(--ease-out); }
+      .x-sheet::backdrop { background: #0b1f3a99; }
+      .x-sheet h2 { font: var(--type-heading); }
+      .x-sheet .x-row2 > * { min-height: 48px; }
+      @keyframes x-up { from { transform: translateY(40px); opacity: 0; } }
+      @media (min-width: 600px) { .x-sheet { margin: auto; border-radius: var(--r-l); } }
+      .x-rf { list-style: none; margin: 0; padding: 0; display: grid; grid-template-columns: repeat(3, 1fr); }
+      .x-rf li { position: relative; display: grid; justify-items: center; align-content: start; gap: 6px; text-align: center; font: var(--type-small); color: var(--text-secondary); padding: 0 4px; }
+      .x-rf li::before { content: ""; position: absolute; top: 13px; right: 50%; width: 100%; height: 2px; background: linear-gradient(var(--fill-system-green), var(--fill-system-green)) 0 0 / 0% 100% no-repeat, var(--stroke-secondary); transition: background-size 600ms var(--ease-out); }
+      .x-rf li:first-child::before { display: none; }
+      .x-rf span { position: relative; z-index: 1; display: grid; place-items: center; width: 28px; height: 28px; border-radius: 50%; border: 2px solid var(--stroke-primary); background: var(--x-surface); color: #fff; transition: background 300ms ease, border-color 300ms ease; }
+      .x-rf span svg.i { width: 16px; height: 16px; stroke-width: 2.6; opacity: 0; transition: opacity 200ms ease; }
+      .x-rf b { font: var(--type-label); color: var(--text-primary); }
+      .x-rf .is-done::before { background-size: 100% 100%; }
+      .x-rf .is-done span { background: var(--fill-system-green); border-color: var(--fill-system-green); }
+      .x-rf .is-done span svg.i { opacity: 1; }
+      .x-rf .is-now span { border-color: var(--x-info); }
+      :is(.page, .x-sheet) :is(h1, h2, h3, h4), .x-h { font-weight: var(--weight-bold); }
+      .x-confetti i { opacity: 0.85; }
+      @media (prefers-reduced-motion: reduce) {
+        .x-spin, .x-map .x-m-pulse, .x-pass, .x-sheet[open], .x-tick circle { animation: none; }
+        .x-tick path { animation: none; stroke-dashoffset: 0; }
+        .x-bus, .x-view, .x-check { animation: none; }
+        .x-route__path { animation: none; stroke-dashoffset: 0; }
+        .x-skel { animation: none; }
+        .x-swap { transition: none; }
+      }
+    </style>
+  </head>
+  <body>
+    <svg width="0" height="0" style="position:absolute" aria-hidden="true">
+      <defs>
+        <path id="lg-body" fill-rule="evenodd" d="M14 10 H48 A40 40 0 0 1 48 90 H14 Z M33 24 H66 A5 5 0 0 1 71 29 V45 A3 3 0 0 1 68 48 H31 A3 3 0 0 1 28 45 V29 A5 5 0 0 1 33 24 Z M29.5 71 a6 6 0 1 0 12 0 a6 6 0 1 0 -12 0 Z M58.5 71 a6 6 0 1 0 12 0 a6 6 0 1 0 -12 0 Z" />
+        <path id="lg-dev" d="M175.0986328125 106.3740234375C192.3515625 106.3740234375 202.7490234375 95.7099609375 202.7490234375 77.9619140625C202.7490234375 60.2900390625 192.3515625 49.6259765625 175.2890625 49.6259765625H155.1416015625V106.3740234375ZM166.7578125 96.357421875V59.642578125H174.603515625C185.4580078125 59.642578125 191.1708984375 65.279296875 191.1708984375 77.9619140625C191.1708984375 90.720703125 185.4580078125 96.357421875 174.52734375 96.357421875Z M229.5015 107.2119140625C239.40384375 107.2119140625 246.183140625 102.603515625 248.2778671875 95.51953125L237.9184921875 93.5771484375C236.6997421875 96.8525390625 233.690953125 98.6044921875 229.6919296875 98.6044921875C223.940953125 98.6044921875 220.0561875 95.0244140625 219.7895859375 88.0546875H248.925328125V84.85546875C248.925328125 70.306640625 240.0513046875 63.2607421875 228.9302109375 63.2607421875C216.476109375 63.2607421875 208.4780625 72.1728515625 208.4780625 85.3125C208.4780625 98.7568359375 216.476109375 107.2119140625 229.5015 107.2119140625ZM219.8657578125 80.89453125C220.3227890625 75.638671875 223.5981796875 71.8681640625 229.04446875 71.8681640625C234.3384140625 71.8681640625 237.347203125 75.333984375 237.9184921875 80.89453125Z M267.794015625 106.3740234375H280.7813203125L296.5108125 63.7939453125H284.5137421875L277.4297578125 85.8837890625C276.24909375 89.73046875 275.33503125 93.5390625 274.4590546875 97.5C273.5449921875 93.5390625 272.59284375 89.6923828125 271.4121796875 85.8837890625L264.2520234375 63.7939453125H252.102609375Z" />
+        <path id="lg-bus" fill="#D9480F" d="M301.897078125 106.3740234375H325.8531328125C338.6500078125 106.3740234375 345.3531328125 99.708984375 345.3531328125 90.720703125C345.3531328125 82.3037109375 339.3355546875 77.2763671875 332.9371171875 76.9716796875V76.400390625C338.764265625 75.10546875 343.1441484375 70.9541015625 343.1441484375 64.212890625C343.1441484375 55.7197265625 336.85996875 49.6259765625 324.4058671875 49.6259765625H301.897078125ZM313.5132890625 96.814453125V81.427734375H323.8726640625C329.6998125 81.427734375 333.3941484375 84.85546875 333.3941484375 89.6162109375C333.3941484375 93.919921875 330.385359375 96.814453125 323.5679765625 96.814453125ZM313.5132890625 73.4677734375V59.109375H322.920515625C328.3668046875 59.109375 331.37559375 61.927734375 331.37559375 66.0791015625C331.37559375 70.6494140625 327.6812578125 73.4677734375 322.692 73.4677734375Z M366.96400781250003 106.9072265625C373.43861718750003 106.9072265625 377.78041406250003 103.5556640625 380.17982812500003 97.5380859375L380.33217187500003 106.3740234375H391.14857812500003V63.7939453125H379.68471093750003V88.435546875C379.68471093750003 94.072265625 376.25697656250003 97.34765625 371.42006250000003 97.34765625C366.62123437500003 97.34765625 363.72670312500003 94.1865234375 363.72670312500003 88.892578125V63.7939453125H352.30092187500003V90.873046875C352.30092187500003 100.8515625 358.12807031250003 106.9072265625 366.96400781250003 106.9072265625Z M416.83464843750005 107.2119140625C427.99382812500005 107.2119140625 435.87761718750005 101.61328125 435.87761718750005 93.234375C435.87761718750005 87.1787109375 431.91667968750005 83.408203125 423.69011718750005 81.732421875L416.03484375000005 80.208984375C411.99773437500005 79.37109375 410.55046875000005 77.8857421875 410.55046875000005 75.7529296875C410.55046875000005 73.201171875 413.44500000000005 71.44921875 417.17742187500005 71.44921875C421.32878906250005 71.44921875 423.72820312500005 73.505859375 424.64226562500005 76.400390625L434.77312500000005 74.6103515625C433.17351562500005 67.6787109375 427.11785156250005 63.2607421875 417.02507812500005 63.2607421875C406.24675781250005 63.2607421875 399.12468750000005 68.2880859375 399.12468750000005 76.4765625C399.12468750000005 82.8369140625 403.16179687500005 86.8740234375 411.38835937500005 88.5498046875L418.73894531250005 90.0732421875C422.47136718750005 90.8349609375 424.22332031250005 92.2060546875 424.22332031250005 94.453125C424.22332031250005 97.0048828125 421.51921875000005 98.8330078125 417.17742187500005 98.8330078125C412.49285156250005 98.8330078125 409.75066406250005 96.890625 408.64617187500005 92.8916015625L398.02019531250005 94.7197265625C399.50554687500005 102.6416015625 406.55144531250005 107.2119140625 416.83464843750005 107.2119140625Z" />
+      </defs>
+      <!-- DevBus horizontal logo, primary (light backgrounds) -->
+      <symbol id="logo-pri" viewBox="36 32 406 92"><g transform="translate(28,28)"><use href="#lg-body" fill="#0B1F3A" /><rect x="28" y="54" width="44" height="5" rx="1" fill="#D9480F" /></g><use href="#lg-dev" fill="#0B1F3A" /><use href="#lg-bus" /></symbol>
+      <!-- DevBus horizontal logo, reverse (dark backgrounds) -->
+      <symbol id="logo-rev" viewBox="36 32 406 92"><g transform="translate(28,28)"><use href="#lg-body" fill="#FFFFFF" /><rect x="28" y="54" width="44" height="5" rx="1" fill="#D9480F" /></g><use href="#lg-dev" fill="#FFFFFF" /><use href="#lg-bus" /></symbol>
+      <!-- DevBus mark, small spots -->
+      <symbol id="logo-mark" viewBox="0 0 94 100"><g transform="translate(-4,0)"><use href="#lg-body" fill="#0B1F3A" /><rect x="28" y="54" width="44" height="5" rx="1" fill="#D9480F" /></g></symbol>
+      <symbol id="i-swap" viewBox="0 0 24 24"><path d="M7 4 3 8l4 4M3 8h14M17 20l4-4-4-4M21 16H7" /></symbol>
+      <symbol id="i-sun" viewBox="0 0 24 24"><circle cx="12" cy="12" r="4" /><path d="M12 2v2M12 20v2M4.9 4.9l1.4 1.4M17.7 17.7l1.4 1.4M2 12h2M20 12h2M4.9 19.1l1.4-1.4M17.7 6.3l1.4-1.4" /></symbol>
+      <symbol id="i-moon" viewBox="0 0 24 24"><path d="M21 12.8A9 9 0 1 1 11.2 3a7 7 0 0 0 9.8 9.8Z" /></symbol>
+      <symbol id="i-ticket" viewBox="0 0 24 24"><path d="M3 8a2 2 0 0 0 0 4v0a2 2 0 0 1 0 4v2h18v-2a2 2 0 0 1 0-4 2 2 0 0 1 0-4V6H3Z" /><path d="M14 6v12" stroke-dasharray="2 2" /></symbol>
+      <symbol id="i-user" viewBox="0 0 24 24"><circle cx="12" cy="8" r="4" /><path d="M4 21a8 8 0 0 1 16 0" /></symbol>
+      <symbol id="i-bus" viewBox="0 0 24 24"><rect x="4" y="3" width="16" height="15" rx="3" /><path d="M4 11h16M8 21v-3M16 21v-3" /><circle cx="8" cy="14.5" r=".8" /><circle cx="16" cy="14.5" r=".8" /></symbol>
+      <symbol id="i-train" viewBox="0 0 24 24"><rect x="5" y="3" width="14" height="14" rx="4" /><path d="M5 10h14M8 21l2-4M16 21l-2-4" /></symbol>
+      <symbol id="i-plane" viewBox="0 0 24 24"><path d="M10.5 13.5 3 11l1.5-1.5 8 1 4-4.5c1-1 2.5-1.5 3.5-.5s.5 2.5-.5 3.5l-4.5 4 1 8L14.5 22 12 14.5" /></symbol>
+      <symbol id="i-shield" viewBox="0 0 24 24"><path d="M12 3 4 6v6c0 4.5 3.4 8.3 8 9 4.6-.7 8-4.5 8-9V6Z" /><path d="m9 12 2 2 4-4" /></symbol>
+      <symbol id="i-bolt" viewBox="0 0 24 24"><path d="M13 2 4 14h7l-1 8 9-12h-7Z" /></symbol>
+      <symbol id="i-pin" viewBox="0 0 24 24"><path d="M12 22s7-6.2 7-12a7 7 0 0 0-14 0c0 5.8 7 12 7 12Z" /><circle cx="12" cy="10" r="2.5" /></symbol>
+      <symbol id="i-back" viewBox="0 0 24 24"><path d="M15 18l-6-6 6-6" /></symbol>
+      <symbol id="i-star" viewBox="0 0 24 24"><path d="m12 2.5 2.9 6 6.6.9-4.8 4.6 1.2 6.5L12 17.4l-5.9 3.1 1.2-6.5-4.8-4.6 6.6-.9Z" /></symbol>
+      <symbol id="i-wifi" viewBox="0 0 24 24"><path d="M2 8.5a15 15 0 0 1 20 0M5 12a10 10 0 0 1 14 0M8.5 15.5a5 5 0 0 1 7 0" /><circle cx="12" cy="19" r=".8" /></symbol>
+      <symbol id="i-plug" viewBox="0 0 24 24"><path d="M9 2v5M15 2v5M6 7h12v4a6 6 0 0 1-12 0ZM12 17v5" /></symbol>
+      <symbol id="i-blanket" viewBox="0 0 24 24"><path d="M3 7h18v10H3zM3 12h18" /><path d="M7 17v3M17 17v3" /></symbol>
+      <symbol id="i-water" viewBox="0 0 24 24"><path d="M12 3s6 6.5 6 11a6 6 0 0 1-12 0c0-4.5 6-11 6-11Z" /></symbol>
+      <symbol id="i-track" viewBox="0 0 24 24"><circle cx="12" cy="12" r="3" /><path d="M12 2v3M12 19v3M2 12h3M19 12h3" /><circle cx="12" cy="12" r="7" /></symbol>
+      <symbol id="i-woman" viewBox="0 0 24 24"><circle cx="12" cy="8" r="5" /><path d="M12 13v9M9 18h6" /></symbol>
+      <symbol id="i-check" viewBox="0 0 24 24"><circle cx="12" cy="12" r="9" /><path d="m8 12 3 3 5-6" /></symbol>
+      <symbol id="i-wheel" viewBox="0 0 24 24"><circle cx="12" cy="12" r="9" /><circle cx="12" cy="12" r="2" /><path d="M3.5 10H10M14 10h6.5M12 14v7" /></symbol>
+      <symbol id="i-clock" viewBox="0 0 24 24"><circle cx="12" cy="12" r="9" /><path d="M12 7v5l3 2" /></symbol>
+      <symbol id="i-phone" viewBox="0 0 24 24"><path d="M5 3h4l2 5-2.5 1.5a11 11 0 0 0 6 6L16 13l5 2v4a2 2 0 0 1-2 2A16 16 0 0 1 3 5a2 2 0 0 1 2-2Z" /></symbol>
+      <symbol id="i-lock" viewBox="0 0 24 24"><rect x="5" y="11" width="14" height="10" rx="2" /><path d="M8 11V7a4 4 0 0 1 8 0v4" /></symbol>
+      <symbol id="i-tick" viewBox="0 0 24 24"><path d="m5 12 5 5 9-10" /></symbol>
+      <symbol id="i-leaf" viewBox="0 0 24 24"><path d="M5 19c0-9 6-14 15-14 0 9-5 15-14 15M5 19l7-7" /></symbol>
+    </svg>
+    <div class="page" id="top">
+      <header class="x-top">
+        <a class="x-logowrap" href="#top" data-go="home" aria-label="DevBus home"><svg class="x-logo x-logo--pri" aria-hidden="true"><use href="#logo-pri" /></svg><svg class="x-logo x-logo--rev" aria-hidden="true"><use href="#logo-rev" /></svg></a>
+        <div class="x-top__right">
+          <button class="x-icon-btn" id="x-theme" type="button" aria-label="Switch to light theme"><svg class="i x-sun"><use href="#i-sun" /></svg><svg class="i x-moon"><use href="#i-moon" /></svg></button>
+          <button class="x-ghost" type="button" data-toast="Sign in to see your trips"><svg class="i"><use href="#i-ticket" /></svg><span class="x-hide-s">My Trips</span></button>
+          <button class="x-cta x-solid" type="button" data-toast="Login opening soon"><svg class="i"><use href="#i-user" /></svg>Login</button>
+        </div>
+      </header>
+
+      <main class="main">
+        <div class="x-view" id="home">
+          <section class="x-hero" aria-labelledby="x-title">
+            <p class="x-hero__eyebrow"><svg class="i"><use href="#i-bus" /></svg>Intercity buses from Bengaluru</p>
+            <h1 id="x-title">Travel that <em>keeps its word.</em></h1>
+            <p class="x-hero__sub">Safety scored operators, refunds in minutes and a pickup point you can actually find.</p>
+            <svg class="x-route" viewBox="0 0 600 120" role="img" aria-label="Route line from origin to destination">
+              <path d="M24 92 C 170 92, 190 28, 300 40 S 470 92, 576 30" fill="none" stroke="#f2f5f926" stroke-width="2" stroke-dasharray="4 6" />
+              <path class="x-route__path" id="x-rp" d="M24 92 C 170 92, 190 28, 300 40 S 470 92, 576 30" fill="none" stroke="#9AA7B8" stroke-width="3" stroke-linecap="round" />
+              <circle cx="24" cy="92" r="6" fill="#F2F5F9" /><circle cx="576" cy="30" r="6" fill="#D9480F" />
+              <circle r="5" fill="#F2F5F9"><animateMotion id="x-am" dur="5s" repeatCount="indefinite" begin="1.4s"><mpath href="#x-rp" /></animateMotion></circle>
+              <text x="24" y="116" id="x-rf">Bengaluru</text><text x="576" y="16" text-anchor="end" id="x-rt">Mysuru</text>
+            </svg>
+            <form class="x-search" id="x-form" aria-label="Search buses">
+              <div class="x-modes" role="group" aria-label="Travel mode">
+                <button class="x-mode" type="button" aria-pressed="true" data-toast="Buses selected · pick your route"><svg class="i"><use href="#i-bus" /></svg>Bus</button>
+                <button class="x-mode" type="button" aria-pressed="false" data-toast="Train tickets are coming soon"><svg class="i"><use href="#i-train" /></svg>Train <small>Coming soon</small></button>
+                <button class="x-mode" type="button" aria-pressed="false" data-toast="Flights are coming soon"><svg class="i"><use href="#i-plane" /></svg>Flight <small>Coming soon</small></button>
+              </div>
+              <div class="x-od">
+                <div class="x-field"><label for="x-from">From</label><select id="x-from"></select></div>
+                <button class="x-swap" type="button" id="x-swap" aria-label="Swap From and To"><svg class="i"><use href="#i-swap" /></svg></button>
+                <div class="x-field"><label for="x-to">To</label><select id="x-to"></select></div>
+              </div>
+              <div class="x-dates" role="group" aria-label="Date of travel" id="x-dates"></div>
+              <button class="x-cta x-cta--wide" type="submit">Search buses</button>
+            </form>
+            <div class="x-popular"><p>Popular</p></div>
+          </section>
+
+          <section class="section" id="why">
+            <div class="head">
+              <p class="head__eyebrow">Why DevBus</p>
+              <h2>Three promises on every ticket.</h2>
+            </div>
+            <div class="cards">
+              <div>
+                <div class="x-pillar__ico"><svg class="i"><use href="#i-shield" /></svg></div>
+                <h3>DevSafe Score</h3>
+                <p class="sub">Every bus rated out of 10 before you book.</p>
+                <ul><li>Driver record</li><li>Vehicle age</li><li>Women-safety</li></ul>
+              </div>
+              <div>
+                <div class="x-pillar__ico"><svg class="i"><use href="#i-bolt" /></svg></div>
+                <h3>Instant refunds</h3>
+                <p class="quote">Money back in minutes.</p>
+                <p class="sub">Cancel within the operator's window and the refund starts right away, not in a week.</p>
+              </div>
+              <div>
+                <div class="x-pillar__ico"><svg class="i"><use href="#i-pin" /></svg></div>
+                <h3>Boarding Precision</h3>
+                <ul><li>Live bus location</li><li>Exact pickup point, pinned</li></ul>
+              </div>
+            </div>
+          </section>
+        </div>
+
+        <div class="x-view" id="results" hidden>
+          <div class="x-rhead">
+            <button class="x-icon-btn" type="button" data-go="home" aria-label="Back to search"><svg class="i"><use href="#i-back" /></svg></button>
+            <div><h1 id="x-rtitle">Bengaluru → Mysuru</h1><p id="x-rsub"></p></div>
+          </div>
+          <div class="x-sort" role="group" aria-label="Sort buses">
+            <button class="x-chip" type="button" data-sort="price" aria-pressed="true">Cheapest</button>
+            <button class="x-chip" type="button" data-sort="dur" aria-pressed="false">Fastest</button>
+            <button class="x-chip" type="button" data-sort="safe" aria-pressed="false"><svg class="i"><use href="#i-shield" /></svg>Safest</button>
+          </div>
+          <div class="x-list" id="x-list" aria-live="polite"></div>
+          <p class="fineprint">Other-app prices are indicative and change through the day.</p>
+        </div>
+
+        <div class="x-view" id="seats" hidden>
+          <div class="x-rhead">
+            <button class="x-icon-btn" type="button" data-go="results" aria-label="Back to buses"><svg class="i"><use href="#i-back" /></svg></button>
+            <div><h1 id="x-stitle"></h1><p id="x-ssub"></p></div>
+          </div>
+          <section class="x-card" aria-label="Choose seats">
+            <div class="x-modes" role="group" aria-label="Deck" id="x-decks">
+              <button class="x-mode" type="button" data-deck="0" aria-pressed="true">Lower deck <b></b></button>
+              <button class="x-mode" type="button" data-deck="1" aria-pressed="false">Upper deck <b></b></button>
+            </div>
+            <div class="x-legend">
+              <span><i class="x-seat"></i>Available</span><span><i class="x-seat is-sel"></i>Selected</span>
+              <span><i class="x-seat is-off"></i>Booked</span><span><i class="x-seat is-lady"></i>Women only</span>
+            </div>
+            <div class="x-deck">
+              <div class="x-deck__top"><span id="x-dinfo"></span><span id="x-wheel"><svg class="i" aria-hidden="true"><use href="#i-wheel" /></svg>Driver</span></div>
+              <div class="x-grid" id="x-grid"></div>
+            </div>
+            <p class="fineprint">Up to 6 seats per booking.</p>
+          </section>
+          <section class="x-card">
+            <h2 class="x-h"><svg class="i" aria-hidden="true"><use href="#i-pin" /></svg>Boarding point<small id="x-bfrom"></small></h2>
+            <div class="x-spots" id="x-board"></div>
+          </section>
+          <section class="x-card">
+            <h2 class="x-h"><svg class="i" aria-hidden="true"><use href="#i-pin" /></svg>Dropping point<small id="x-dto"></small></h2>
+            <div class="x-spots" id="x-drop"></div>
+          </section>
+        </div>
+
+        <div class="x-view" id="pax" hidden>
+          <div class="x-rhead">
+            <button class="x-icon-btn" type="button" data-go="seats" aria-label="Back to seats"><svg class="i"><use href="#i-back" /></svg></button>
+            <div><h1>Passenger details</h1><p id="x-psub"></p></div>
+          </div>
+          <div class="x-strip" id="x-strip"></div>
+          <div class="x-list" id="x-pcards"></div>
+          <section class="x-card">
+            <h2 class="x-h">Contact<small>Your ticket goes here</small></h2>
+            <div class="x-field">
+              <label for="x-ph">Mobile number</label>
+              <div class="x-phone"><span>+91</span><input id="x-ph" type="tel" inputmode="numeric" maxlength="10" autocomplete="tel-national" placeholder="10-digit number" aria-describedby="ex-ph" /></div>
+              <span class="x-err" id="ex-ph" hidden></span>
+            </div>
+            <div class="x-field">
+              <label for="x-em">Email (optional)</label>
+              <input id="x-em" type="email" autocomplete="email" placeholder="you@example.com" aria-describedby="ex-em" />
+              <span class="x-err" id="ex-em" hidden></span>
+            </div>
+          </section>
+          <section class="x-card">
+            <h2 class="x-h">Fare breakdown</h2>
+            <div class="breakdown"><dl id="x-fare"></dl></div>
+            <p class="x-check"><svg class="i" aria-hidden="true"><use href="#i-shield" /></svg><span>Free cancellation till 6 hrs before departure · Instant refund to source</span></p>
+          </section>
+        </div>
+
+        <div class="x-view" id="pay" hidden>
+          <div class="x-rhead">
+            <button class="x-icon-btn" type="button" data-go="pax" aria-label="Back to passenger details"><svg class="i"><use href="#i-back" /></svg></button>
+            <div><h1>Payment</h1><p id="x-paysub"></p></div>
+          </div>
+          <p class="x-hold" id="x-hold" role="timer" aria-live="off"><svg class="i" aria-hidden="true"><use href="#i-clock" /></svg><span>Your seats are held for</span><b id="x-clock">10:00</b></p>
+          <section class="x-card" aria-label="Payment method">
+            <div class="x-modes" role="group" aria-label="Pay with" id="x-pms">
+              <button class="x-mode" type="button" data-pm="upi" aria-pressed="true">UPI</button>
+              <button class="x-mode" type="button" data-pm="card" aria-pressed="false">Card</button>
+              <button class="x-mode" type="button" data-pm="nb" aria-pressed="false">Netbanking</button>
+            </div>
+            <div class="x-pane" data-pane="upi">
+              <h2 class="x-h">Pay with a UPI app<small>No extra charges</small></h2>
+              <div class="x-wrap" role="group" aria-label="UPI app" id="x-apps"></div>
+              <p class="x-or">or pay with your UPI ID</p>
+              <div class="x-field"><label for="x-upi">UPI ID</label><input id="x-upi" autocomplete="off" autocapitalize="off" spellcheck="false" placeholder="name@okbank" aria-describedby="ex-upi" /><span class="x-err" id="ex-upi" hidden></span></div>
+            </div>
+            <div class="x-pane" data-pane="card" hidden>
+              <div class="x-field"><label for="x-cn">Card number</label><input id="x-cn" inputmode="numeric" autocomplete="cc-number" maxlength="19" placeholder="1234 5678 9012 3456" aria-describedby="ex-cn" /><span class="x-err" id="ex-cn" hidden></span></div>
+              <div class="x-row2">
+                <div class="x-field"><label for="x-ce">Expiry</label><input id="x-ce" inputmode="numeric" autocomplete="cc-exp" maxlength="5" placeholder="MM/YY" aria-describedby="ex-ce" /><span class="x-err" id="ex-ce" hidden></span></div>
+                <div class="x-field"><label for="x-cv">CVV</label><input id="x-cv" type="password" inputmode="numeric" autocomplete="cc-csc" maxlength="4" placeholder="•••" aria-describedby="ex-cv" /><span class="x-err" id="ex-cv" hidden></span></div>
+              </div>
+              <div class="x-field"><label for="x-cnm">Name on card</label><input id="x-cnm" autocomplete="cc-name" placeholder="As printed on the card" aria-describedby="ex-cnm" /><span class="x-err" id="ex-cnm" hidden></span></div>
+            </div>
+            <div class="x-pane" data-pane="nb" hidden>
+              <h2 class="x-h">Choose your bank</h2>
+              <div class="x-banks" role="group" aria-label="Bank" id="x-banks"></div>
+            </div>
+            <p class="x-check"><svg class="i" aria-hidden="true"><use href="#i-lock" /></svg><span>256-bit encrypted · PCI DSS compliant</span></p>
+          </section>
+          <section class="x-card">
+            <h2 class="x-h">You're paying for</h2>
+            <div class="breakdown"><dl id="x-paysum"></dl></div>
+          </section>
+        </div>
+
+        <div class="x-view" id="ticket" hidden>
+          <div class="x-done">
+            <svg class="x-tick" viewBox="0 0 72 72" aria-hidden="true"><circle cx="36" cy="36" r="34" /><path d="m22 37 9 9 19-20" /></svg>
+            <h1>Ticket confirmed</h1>
+            <p id="x-sent"></p>
+          </div>
+          <article class="x-pass" id="x-pass" aria-label="E-ticket"></article>
+          <div class="x-acts3">
+            <button class="x-cta x-solid" type="button" id="x-go-track"><svg class="i"><use href="#i-track" /></svg>Track my bus</button>
+            <button class="x-ghost" type="button" id="x-go-cancel">Cancel ticket</button>
+            <button class="x-ghost" type="button" data-reset>Book another trip</button>
+          </div>
+        </div>
+
+        <div class="x-view" id="track" hidden>
+          <div class="x-rhead">
+            <button class="x-icon-btn" type="button" data-go="ticket" aria-label="Back to ticket"><svg class="i"><use href="#i-back" /></svg></button>
+            <div><h1>Track my bus</h1><p id="x-tsub"></p></div>
+          </div>
+          <section class="x-card">
+            <svg class="x-map" viewBox="0 0 600 220" role="img" id="x-map" aria-label="Live route: the bus is on its way to your pickup point">
+              <path class="x-m-base" d="M40 170 C 120 170, 160 90, 260 96 S 430 170, 560 50" />
+              <path class="x-m-run" id="x-tp" d="M40 170 C 120 170, 160 90, 260 96" />
+              <circle class="x-m-end" cx="40" cy="170" r="6" /><circle class="x-m-end" cx="560" cy="50" r="7" />
+              <path class="x-m-pin" d="M260 96c-9-9-14-15-14-22a14 14 0 0 1 28 0c0 7-5 13-14 22Z" /><circle cx="260" cy="74" r="5" fill="#fff" />
+              <g id="x-busdot"><circle class="x-m-pulse" r="14" /><circle class="x-m-bus" r="8" /><animateMotion id="x-tam" dur="7s" repeatCount="indefinite" keyPoints="0;0.85" keyTimes="0;1" calcMode="linear"><mpath href="#x-tp" /></animateMotion></g>
+              <text x="40" y="200">Depot</text><text x="260" y="40" text-anchor="middle" id="x-mpick"></text><text x="560" y="30" text-anchor="end" id="x-mdrop"></text>
+            </svg>
+            <p class="x-eta" aria-live="polite">Arriving at your pickup in <em id="x-eta">18 min</em></p>
+            <p class="fineprint" id="x-tpick"></p>
+            <div class="x-driver">
+              <span class="x-ava" id="x-dava"></span>
+              <p><b id="x-dname"></b><span id="x-dphone"></span></p>
+              <button class="x-ghost" type="button" data-toast="Connecting you through a masked line"><svg class="i"><use href="#i-phone" /></svg>Call driver</button>
+            </div>
+          </section>
+          <p class="fineprint">Location refreshes every 30 seconds. Your number stays hidden from the driver.</p>
+        </div>
+
+        <div class="x-view" id="cancelled" hidden>
+          <div class="x-done">
+            <svg class="x-tick" viewBox="0 0 72 72" aria-hidden="true"><circle cx="36" cy="36" r="34" /><path d="m22 37 9 9 19-20" /></svg>
+            <h1>Ticket cancelled</h1>
+            <p id="x-refmsg"></p>
+          </div>
+          <section class="x-card" aria-label="Refund status">
+            <ol class="x-rf" id="x-rf">
+              <li><span><svg class="i" aria-hidden="true"><use href="#i-tick" /></svg></span><b>Cancelled</b><small>Just now</small></li>
+              <li><span><svg class="i" aria-hidden="true"><use href="#i-tick" /></svg></span><b>Refund initiated</b><small>Instant</small></li>
+              <li><span><svg class="i" aria-hidden="true"><use href="#i-tick" /></svg></span><b>Credited</b><small id="x-credt">In ~2 min</small></li>
+            </ol>
+            <p class="fineprint" id="x-refid"></p>
+          </section>
+          <div class="x-acts3"><button class="x-cta" type="button" data-reset>Book another trip</button></div>
+        </div>
+      </main>
+
+      <footer class="foot">
+        <a class="x-logowrap x-foot-logo" href="#top" data-go="home" aria-label="DevBus home"><svg class="x-logo x-logo--pri" aria-hidden="true"><use href="#logo-pri" /></svg><svg class="x-logo x-logo--rev" aria-hidden="true"><use href="#logo-rev" /></svg></a>
+        <nav aria-label="Company">
+          <a href="#top" data-toast="About DevBus opening soon">About</a>
+          <a href="#top" data-toast="Franchise enquiries opening soon">Become a Franchise Partner</a>
+          <a href="#top" data-toast="Operator onboarding opening soon">Operator Partners</a>
+          <a href="#top" data-toast="Support is available 24x7">Support 24x7</a>
+        </nav>
+        <p>Bengaluru 560064 · © 2026 DevBus · Travel that keeps its word.</p>
+      </footer>
+    </div>
+    <div class="x-bar" id="x-bar" hidden>
+      <div class="x-bar__in"><div><small id="x-bar-l"></small><b id="x-bar-t"></b></div><button class="x-cta" type="button" id="x-bar-btn">Continue</button></div>
+    </div>
+    <div class="x-proc" id="x-proc" role="status" aria-live="assertive" hidden><span class="x-spin" aria-hidden="true"></span><b id="x-proct">Processing payment</b><span>Please don't close or refresh this page</span></div>
+    <dialog class="x-sheet" id="x-sheet" aria-labelledby="x-sh-t">
+      <h2 id="x-sh-t">Cancel this ticket?</h2>
+      <p id="x-sh-l"></p>
+      <div class="breakdown"><dl id="x-sh-dl"></dl></div>
+      <p class="fineprint">Free cancellation till 6 hrs before departure. The refund goes back to the way you paid.</p>
+      <div class="x-row2"><button class="x-ghost" type="button" id="x-sh-no">Keep ticket</button><button class="x-cta x-solid" type="button" id="x-sh-yes">Cancel &amp; refund</button></div>
+    </dialog>
+    <div class="x-toast" id="x-toast" role="status" aria-live="polite"></div>
+    <script src="hark.js"></script>
+    <script>
+      (function () {
+        var $ = function (s) { return document.querySelector(s); }, root = document.documentElement;
+        var reduce = matchMedia("(prefers-reduced-motion: reduce)").matches;
+        var CITIES = ["Bengaluru", "Mysuru", "Chennai", "Hyderabad", "Goa"];
+        // price range in ₹ and base journey time in minutes from Bengaluru
+        var ROUTES = { Mysuru: [350, 900, 185], Chennai: [600, 1500, 365], Hyderabad: [900, 2200, 600], Goa: [1000, 2500, 690] };
+        var BUSES = [
+          { n: "Kaveri Travels", t: "Volvo AC Sleeper", p: 0.78, dep: 1290, m: 1, seats: 7, r: 4.6, s: 9.2, w: 1, a: ["wifi", "plug", "blanket", "water", "track"] },
+          { n: "Sahyadri Express", t: "AC Seater 2+2", p: 0.22, dep: 375, m: 1.06, seats: 18, r: 4.2, s: 8.4, w: 0, a: ["plug", "water", "track"] },
+          { n: "Nandi Lines", t: "Volvo AC Sleeper", p: 0.6, dep: 1365, m: 0.98, seats: 3, r: 4.4, s: 8.9, w: 1, a: ["plug", "blanket", "water", "track"] },
+          { n: "Deccan Comfort", t: "AC Seater 2+2", p: 0, dep: 780, m: 1.12, seats: 24, r: 3.9, s: 7.8, w: 0, a: ["water", "track"] },
+          { n: "Coastal Royale", t: "Volvo AC Sleeper", p: 1, dep: 1200, m: 0.94, seats: 5, r: 4.8, s: 9.5, w: 1, a: ["wifi", "plug", "blanket", "water", "track"] },
+          { n: "GreenRoute Electric", t: "Electric AC Seater", p: 0.4, dep: 450, m: 0.9, seats: 12, r: 4.7, s: 9.4, w: 1, a: ["leaf", "wifi", "plug", "water", "track"], e: 1 }
+        ];
+        var AM = { wifi: "Wi‑Fi", plug: "Charging point", blanket: "Blanket", water: "Water bottle", track: "Live tracking", leaf: "Zero‑emission" };
+        var state = { from: "Bengaluru", to: "Mysuru", day: 0, sort: "price" };
+        var inr = function (n) { return "₹" + n.toLocaleString("en-IN"); };
+        var ico = function (id, label) { return '<svg class="i"' + (label ? ' role="img" aria-label="' + label + '"><title>' + label + "</title>" : ' aria-hidden="true">') + '<use href="#i-' + id + '"/></svg>'; };
+        var hm = function (min) { min = ((min % 1440) + 1440) % 1440; return String(Math.floor(min / 60)).padStart(2, "0") + ":" + String(min % 60).padStart(2, "0"); };
+        var dur = function (min) { return Math.floor(min / 60) + "h " + String(min % 60).padStart(2, "0") + "m"; };
+        var r10 = function (n) { return Math.round(n / 10) * 10; };
+        var dayLabel = function (d) { var x = new Date(); x.setDate(x.getDate() + d); return x.toLocaleDateString("en-IN", { weekday: "short", day: "numeric", month: "short" }); };
+
+        // toast
+        var toastEl = $("#x-toast"), tt;
+        function toast(msg) { toastEl.innerHTML = ico("check") + msg; toastEl.classList.add("is-on"); clearTimeout(tt); tt = setTimeout(function () { toastEl.classList.remove("is-on"); }, 2400); }
+        document.addEventListener("click", function (e) {
+          var t = e.target.closest("[data-toast]"); if (t) { e.preventDefault(); toast(t.getAttribute("data-toast")); }
+          var g = e.target.closest("[data-go]"); if (g) { e.preventDefault(); show(g.getAttribute("data-go")); }
+        });
+
+        // theme, kept for this visit only
+        var tb = $("#x-theme");
+        tb.addEventListener("click", function () {
+          var next = root.getAttribute("data-theme") === "dark" ? "light" : "dark";
+          root.setAttribute("data-theme", next);
+          tb.setAttribute("aria-label", next === "dark" ? "Switch to light theme" : "Switch to dark theme");
+        });
+
+        // search form
+        var fromS = $("#x-from"), toS = $("#x-to");
+        [fromS, toS].forEach(function (s) { s.innerHTML = CITIES.map(function (c) { return "<option>" + c + "</option>"; }).join(""); });
+        function syncForm() { fromS.value = state.from; toS.value = state.to; $("#x-rf").textContent = state.from; $("#x-rt").textContent = state.to; }
+        fromS.addEventListener("change", function () { state.from = fromS.value; syncForm(); });
+        toS.addEventListener("change", function () { state.to = toS.value; syncForm(); });
+        $("#x-swap").addEventListener("click", function () { var f = state.from; state.from = state.to; state.to = f; this.classList.toggle("is-spun"); syncForm(); });
+        var dates = $("#x-dates");
+        dates.innerHTML = ["Today", "Tomorrow"].map(function (l, i) { return '<button class="x-chip" type="button" data-day="' + i + '" aria-pressed="' + (i === 0) + '">' + l + " <small>" + dayLabel(i) + "</small></button>"; }).join("");
+        dates.addEventListener("click", function (e) { var b = e.target.closest("[data-day]"); if (!b) return; state.day = +b.dataset.day; dates.querySelectorAll("[data-day]").forEach(function (x) { x.setAttribute("aria-pressed", x === b); }); });
+        var pop = $(".x-popular");
+        ["Mysuru", "Chennai", "Hyderabad", "Goa"].forEach(function (c) {
+          var b = document.createElement("button"); b.type = "button"; b.className = "x-chip"; b.textContent = "Bengaluru → " + c;
+          b.addEventListener("click", function () { state.from = "Bengaluru"; state.to = c; syncForm(); search(); });
+          pop.appendChild(b);
+        });
+        $("#x-form").addEventListener("submit", function (e) { e.preventDefault(); search(); });
+
+        // views
+        var view = "home";
+        function show(v) {
+          view = v;
+          ["home", "results", "seats", "pax", "pay", "ticket", "track", "cancelled"].forEach(function (id) { $("#" + id).hidden = id !== v; });
+          if (v === "home" || v === "results" || v === "seats") stopHold();
+          bar();
+          window.scrollTo({ top: 0, behavior: reduce ? "auto" : "smooth" });
+        }
+
+        var current = [];
+        function search() {
+          if (state.from === state.to) { toast("Pick two different cities"); return; }
+          var key = state.to !== "Bengaluru" ? state.to : state.from, R = ROUTES[key];
+          if (state.from !== "Bengaluru" && state.to !== "Bengaluru") R = [r10(R[0] * 1.2), r10(R[1] * 1.2), Math.round(R[2] * 1.25)];
+          current = BUSES.map(function (b) {
+            var d = Math.round((R[2] * b.m) / 5) * 5, price = r10(R[0] + b.p * (R[1] - R[0]));
+            return Object.assign({}, b, { dur: d, price: price, arr: b.dep + d, lo: r10(price * 1.08), hi: r10(price * 1.24) });
+          });
+          $("#x-rtitle").innerHTML = state.from + " " + ico("bus") + " " + state.to;
+          $("#x-rsub").textContent = dayLabel(state.day) + " · " + current.length + " buses";
+          show("results");
+          $("#x-list").innerHTML = '<div class="x-skel"></div><div class="x-skel"></div><div class="x-skel"></div>';
+          $("#x-list").setAttribute("aria-busy", "true");
+          setTimeout(render, reduce ? 150 : 750);
+        }
+
+        function render() {
+          var k = state.sort;
+          var list = current.slice().sort(function (a, b) { return k === "safe" ? b.s - a.s : a[k] - b[k]; });
+          $("#x-list").innerHTML = list.map(function (b, i) {
+            var nd = b.arr >= 1440 ? "<sup>+1</sup>" : "";
+            return '<article class="x-bus" style="--i:' + i + '">' +
+              '<div class="x-bus__top"><div><h3>' + b.n + '</h3><p class="x-bus__type">' + b.t + "</p></div>" +
+              '<span class="x-rating">' + ico("star") + b.r.toFixed(1) + "</span></div>" +
+              '<div class="x-times"><div><b>' + hm(b.dep) + "</b><small>" + state.from + '</small></div><p class="x-dur"><span>' + dur(b.dur) + "</span></p><div><b>" + hm(b.arr) + nd + "</b><small>" + state.to + "</small></div></div>" +
+              '<div class="x-tags"><span class="x-safe"><b>' + b.s.toFixed(1) + "</b>DevSafe</span>" +
+              (b.w ? '<span class="x-tag">' + ico("woman") + "Women-friendly</span>" : "") +
+              '<span class="x-amen">' + b.a.map(function (a) { return ico(a, AM[a]); }).join("") + "</span></div>" +
+              '<div class="x-bus__foot"><div><span class="x-price">' + inr(b.price) + '</span><span class="x-seats' + (b.seats <= 5 ? " is-low" : "") + '">' + b.seats + (b.seats === 1 ? " seat" : " seats") + " left</span></div>" +
+              '<div class="x-acts"><button class="x-ghost" type="button" aria-expanded="false" data-check>Price check</button>' +
+              '<button class="x-cta" type="button" data-bus="' + current.indexOf(b) + '">Select seats</button></div></div>' +
+              '<p class="x-check" hidden>' + ico("check") + "<span><b>DevBus " + inr(b.price) + "</b> <s>· other apps " + inr(b.lo) + "–" + inr(b.hi) + " (indicative)</s></span></p>" +
+              "</article>";
+          }).join("");
+          $("#x-list").removeAttribute("aria-busy");
+        }
+
+        $("#x-list").addEventListener("click", function (e) {
+          var sb = e.target.closest("[data-bus]"); if (sb) { openSeats(current[+sb.dataset.bus]); return; }
+          var b = e.target.closest("[data-check]"); if (!b) return;
+          var p = b.closest(".x-bus").querySelector(".x-check"), open = p.hidden;
+          p.hidden = !open; b.setAttribute("aria-expanded", open);
+        });
+        document.querySelectorAll("[data-sort]").forEach(function (c) {
+          c.addEventListener("click", function () {
+            state.sort = c.dataset.sort;
+            document.querySelectorAll("[data-sort]").forEach(function (x) { x.setAttribute("aria-pressed", x === c); });
+            if (current.length && !$("#x-list").hasAttribute("aria-busy")) render();
+          });
+        });
+
+        // seat selection
+        var POINTS = {
+          Bengaluru: [["Majestic", "Gate 2, Kempegowda Bus Station"], ["Silk Board", "Opposite Silk Board bus stop"], ["Electronic City", "Service road, Infosys Gate 1"]],
+          Mysuru: [["Mysuru Bus Stand", "Bay 6, Sub-urban Bus Stand"], ["Hinkal", "Ring Road junction, near petrol bunk"], ["Ramaswamy Circle", "Bus shelter by the circle"]],
+          Chennai: [["Koyambedu", "CMBT Gate 5, omni bus bay"], ["Guindy", "Below Kathipara flyover"], ["Poonamallee", "Bypass bus stop"]],
+          Hyderabad: [["Lakdi-ka-pul", "Opposite Ravindra Bharathi"], ["Ameerpet", "Below Ameerpet metro"], ["Miyapur", "X Roads, near metro station"]],
+          Goa: [["Panaji", "Kadamba Bus Stand, Bay 3"], ["Mapusa", "Mapusa bus stand entrance"], ["Margao", "KTC bus stand, Margao"]]
+        };
+        var MAX = 6, cur = null, sel = [], deck = 0, pax = {};
+        var esc = function (s) { return String(s).replace(/[&<>"']/g, function (c) { return "&#" + c.charCodeAt(0) + ";"; }); };
+        function rng(s) { var h = 2166136261; for (var i = 0; i < s.length; i++) h = Math.imul(h ^ s.charCodeAt(i), 16777619); return function () { h = Math.imul(h ^ (h >>> 15), 2246822507); h = Math.imul(h ^ (h >>> 13), 3266489909); return ((h ^= h >>> 16) >>> 0) / 4294967296; }; }
+        var plural = function (n, w) { return n + " " + w + (n === 1 ? "" : "s"); };
+
+        function openSeats(b) {
+          if (cur !== b) {
+            cur = b; sel = []; pax = {}; deck = 0;
+            var sl = /Sleeper/.test(b.t), R = rng(b.n + state.from + state.to + state.day), all = [];
+            b.decks = [{ n: "Lower", c: "L", cols: 4, rows: 8, sl: 0, p: b.price }, { n: "Upper", c: "U", cols: sl ? 3 : 4, rows: 6, sl: sl, p: sl ? r10(b.price * 1.12) : b.price }];
+            b.decks.forEach(function (d, di) {
+              d.seats = [];
+              for (var i = 1; i <= d.rows * d.cols; i++) { var s = { id: d.c + i, d: di, p: d.p, lady: di ? i === 4 : i === 5 || i === 6 }; d.seats.push(s); all.push(s); }
+            });
+            for (var i = all.length - 1; i > 0; i--) { var j = Math.floor(R() * (i + 1)), t = all[i]; all[i] = all[j]; all[j] = t; }
+            if (b.seats >= 4) { var l6 = b.decks[0].seats[5]; all.splice(all.indexOf(l6), 1); all.unshift(l6); }
+            all.forEach(function (s, i) { s.booked = i >= b.seats; });
+            var arr = b.dep + b.dur;
+            spots("#x-board", "board", state.from, function (i) { return b.dep + i * 20; }, "Pickup spot");
+            spots("#x-drop", "drop", state.to, function (i) { return arr - (2 - i) * 20; }, "Drop spot");
+          }
+          $("#x-stitle").textContent = b.n;
+          $("#x-ssub").textContent = b.t + " · " + hm(b.dep) + " → " + hm(b.dep + b.dur) + " · " + dayLabel(state.day);
+          $("#x-bfrom").textContent = state.from; $("#x-dto").textContent = state.to;
+          renderDeck(); show("seats");
+        }
+        function spots(el, name, city, time, tag) {
+          $(el).innerHTML = POINTS[city].map(function (p, i) {
+            return '<label class="x-spot"><input type="radio" name="' + name + '" value="' + i + '"' + (i ? "" : " checked") + " /><b>" + hm(time(i)) + " · " + p[0] + "</b><em>" + tag + "</em><small>" + ico("pin") + p[1] + "</small></label>";
+          }).join("");
+        }
+        function renderDeck() {
+          var d = cur.decks[deck], g = $("#x-grid");
+          g.className = "x-grid" + (d.sl ? " x-grid--sl" : "");
+          g.innerHTML = d.seats.map(function (s, i) {
+            var c = i % d.cols, aisle = c === (d.cols === 4 ? 2 : 1) ? '<span aria-hidden="true"></span>' : "";
+            return aisle + '<button type="button" class="x-seat' + (s.lady ? " is-lady" : "") + '" data-s="' + i + '" aria-pressed="' + (sel.indexOf(s) > -1) + '"' + (s.booked ? " disabled" : "") +
+              ' aria-label="' + (d.sl ? "Berth " : "Seat ") + s.id + ", " + inr(s.p) + (s.booked ? ", booked" : s.lady ? ", women only" : "") + '">' + s.id + "</button>";
+          }).join("");
+          $("#x-dinfo").textContent = d.n + " deck · " + (d.sl ? "sleeper " : "seater ") + inr(d.p);
+          $("#x-wheel").style.visibility = deck ? "hidden" : "visible";
+          tabs();
+        }
+        function tabs() {
+          document.querySelectorAll("[data-deck]").forEach(function (t) {
+            var k = +t.dataset.deck, n = sel.filter(function (s) { return s.d === k; }).length;
+            t.setAttribute("aria-pressed", k === deck); t.querySelector("b").textContent = n || "";
+          });
+        }
+        $("#x-decks").addEventListener("click", function (e) { var t = e.target.closest("[data-deck]"); if (t && +t.dataset.deck !== deck) { deck = +t.dataset.deck; renderDeck(); } });
+        $("#x-grid").addEventListener("click", function (e) {
+          var btn = e.target.closest("[data-s]"); if (!btn || btn.disabled) return;
+          var s = cur.decks[deck].seats[+btn.dataset.s], k = sel.indexOf(s);
+          if (k > -1) sel.splice(k, 1);
+          else if (sel.length >= MAX) { toast("You can book up to " + MAX + " seats at a time"); return; }
+          else { sel.push(s); if (s.lady) toast("Seat " + s.id + " is reserved for women"); }
+          btn.setAttribute("aria-pressed", k < 0); tabs(); bar();
+        });
+
+        // sticky bar
+        function fare() { var b = sel.reduce(function (a, s) { return a + s.p; }, 0), g = Math.round(b * 0.05); return { b: b, g: g, t: b + g }; }
+        function bar() {
+          var on = view === "seats" || view === "pax" || view === "pay", btn = $("#x-bar-btn"), ids = sel.map(function (s) { return s.id; }).join(", ");
+          $("#x-bar").hidden = !on; document.body.classList.toggle("x-has-bar", on);
+          if (view === "seats") {
+            $("#x-bar-l").textContent = sel.length ? plural(sel.length, "seat") + " · " + ids : "Pick your seats";
+            $("#x-bar-t").textContent = inr(fare().b); btn.textContent = "Continue"; btn.setAttribute("aria-disabled", !sel.length);
+          } else if (view === "pax") {
+            $("#x-bar-l").textContent = ids + " · incl. GST"; $("#x-bar-t").textContent = plural(sel.length, "traveller");
+            btn.textContent = "Proceed to pay " + inr(fare().t); btn.setAttribute("aria-disabled", "false");
+          } else if (view === "pay") {
+            $("#x-bar-l").textContent = ids + " · incl. GST"; $("#x-bar-t").textContent = inr(fare().t);
+            btn.textContent = "Pay " + inr(fare().t); btn.setAttribute("aria-disabled", String(paying));
+          }
+        }
+        $("#x-bar-btn").addEventListener("click", function () {
+          if (view === "seats") { if (!sel.length) toast("Pick at least one seat"); else openPax(); }
+          else if (view === "pax") { if (validate()) openPay(); }
+          else if (view === "pay") pay();
+        });
+
+        // passenger details
+        var chosen = function (n) { var i = document.querySelector('input[name="' + n + '"]:checked'); return i ? i.parentNode.querySelector("b").textContent : ""; };
+        function field(id, label, val, attrs) {
+          return '<div class="x-field"><label for="' + id + '">' + label + '</label><input id="' + id + '" value="' + esc(val) + '" aria-describedby="e' + id + '" ' + attrs + ' /><span class="x-err" id="e' + id + '" hidden></span></div>';
+        }
+        function openPax() {
+          var b = cur;
+          $("#x-psub").textContent = state.from + " → " + state.to + " · " + dayLabel(state.day);
+          $("#x-strip").innerHTML = '<span class="x-safe"><b>' + b.s.toFixed(1) + "</b>DevSafe</span><p><b>" + b.n + "</b><small>Board " + chosen("board") + " · Drop " + chosen("drop") + "</small></p>" +
+            (b.w ? '<span class="x-tag">' + ico("woman") + "Women-friendly</span>" : "") + '<span class="x-tag">' + ico("track") + 'Live tracking</span><span class="x-rating">' + ico("star") + b.r.toFixed(1) + "</span>";
+          $("#x-pcards").innerHTML = sel.map(function (s, i) {
+            var p = pax[s.id] || (pax[s.id] = { n: "", a: "", g: "" }); if (s.lady) p.g = "F";
+            return '<article class="x-card" data-id="' + s.id + '"><p class="x-h"><span class="x-seatno">' + s.id + "</span>Passenger " + (i + 1) + "<small>" + inr(s.p) + "</small></p>" +
+              (s.lady ? '<p class="x-lady">' + ico("woman") + "Women-only seat</p>" : "") +
+              '<div class="x-row">' + field("n-" + s.id, "Full name", p.n, 'data-k="n" autocomplete="name" placeholder="As on ID"') + field("a-" + s.id, "Age", p.a, 'data-k="a" inputmode="numeric" maxlength="3"') + "</div>" +
+              '<div class="x-gs" role="group" aria-label="Gender">' + [["M", "Male"], ["F", "Female"], ["O", "Other"]].map(function (g) {
+                return '<button class="x-chip" type="button" data-g="' + g[0] + '" aria-label="' + g[1] + '" aria-pressed="' + (p.g === g[0]) + '"' + (s.lady && g[0] !== "F" ? " disabled" : "") + ">" + (g[0] === "O" ? "Other" : g[0]) + "</button>";
+              }).join("") + "</div></article>";
+          }).join("");
+          var f = fare();
+          $("#x-fare").innerHTML = '<div class="row"><dt>Base fare <small>' + plural(sel.length, "seat") + "</small></dt><dd>" + inr(f.b) + '</dd></div><div class="row"><dt>GST <small>5%</small></dt><dd>' + inr(f.g) +
+            '</dd></div><div class="row"><dt>Convenience fee</dt><dd><s>₹49</s>₹0 launch offer</dd></div><div class="row row--total"><dt>Total</dt><dd>' + inr(f.t) + "</dd></div>";
+          show("pax");
+        }
+        $("#x-pcards").addEventListener("click", function (e) {
+          var g = e.target.closest("[data-g]"); if (!g) return;
+          pax[g.closest("[data-id]").dataset.id].g = g.dataset.g;
+          g.parentNode.querySelectorAll("[data-g]").forEach(function (x) { x.setAttribute("aria-pressed", x === g); });
+        });
+        $("#pax").addEventListener("input", function (e) {
+          var t = e.target, c = t.closest("[data-id]");
+          if (t.dataset.k === "a" || t.id === "x-ph") t.value = t.value.replace(/\D/g, "");
+          if (c) pax[c.dataset.id][t.dataset.k] = t.value;
+          mark(t, "");
+        });
+        function mark(inp, msg) {
+          var f = inp.closest(".x-field"), er = f.querySelector(".x-err");
+          f.toggleAttribute("data-bad", !!msg); inp.setAttribute("aria-invalid", !!msg); er.textContent = msg; er.hidden = !msg;
+          return msg ? inp : null;
+        }
+        function validate() {
+          var bad = [];
+          sel.forEach(function (s) {
+            var p = pax[s.id], n = document.getElementById("n-" + s.id), a = document.getElementById("a-" + s.id);
+            bad.push(mark(n, p.n.trim().length < 2 ? "Enter the passenger's name" : ""));
+            bad.push(mark(a, !(+p.a >= 1 && +p.a <= 110) ? "Age 1–110" : ""));
+          });
+          var ph = $("#x-ph"), em = $("#x-em");
+          bad.push(mark(ph, /^\d{10}$/.test(ph.value) ? "" : "Enter a 10-digit mobile number"));
+          bad.push(mark(em, !em.value || /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(em.value) ? "" : "Check the email address"));
+          bad = bad.filter(Boolean);
+          if (bad.length) { bad[0].focus(); toast("Check the highlighted fields"); return false; }
+          return true;
+        }
+
+        // payment
+        var pm = "upi", app = "", bank = "", hold = 0, holdT = null, paying = false, booking = null, timers = [];
+        var APPS = [["GPay", "G", "#1a73e8"], ["PhonePe", "Pe", "#5f259f"], ["Paytm", "P", "#002e6e"], ["BHIM", "B", "#b4530d"]];
+        var BANKS = [["SBI", "SBI", "#22409a"], ["HDFC Bank", "H", "#004c8f"], ["ICICI Bank", "I", "#ae282e"], ["Axis Bank", "A", "#97144d"], ["Kotak Bank", "K", "#c8102e"], ["Bank of Baroda", "B", "#c2410c"]];
+        var badge = function (x) { return '<i aria-hidden="true" style="--c:' + x[2] + '">' + x[1] + "</i>"; };
+        $("#x-apps").innerHTML = APPS.map(function (a) { return '<button class="x-chip x-app" type="button" data-app="' + a[0] + '" aria-pressed="false">' + badge(a) + a[0] + "</button>"; }).join("");
+        $("#x-banks").innerHTML = BANKS.map(function (a) { return '<button class="x-chip x-app" type="button" data-bank="' + a[0] + '" aria-pressed="false">' + badge(a) + a[0] + "</button>"; }).join("");
+        var press = function (attr, val) { document.querySelectorAll("[" + attr + "]").forEach(function (x) { x.setAttribute("aria-pressed", x.getAttribute(attr) === val); }); };
+        var mmss = function (s) { return String(Math.floor(s / 60)).padStart(2, "0") + ":" + String(s % 60).padStart(2, "0"); };
+        function tick() { $("#x-clock").textContent = mmss(hold); $("#x-hold").classList.toggle("is-low", hold <= 60); }
+        function stopHold() { clearInterval(holdT); holdT = null; }
+        function startHold() {
+          hold = 600; tick();
+          holdT = setInterval(function () {
+            hold--; tick();
+            if (hold <= 0) { stopHold(); sel = []; toast("Seat hold expired · pick your seats again"); openSeats(cur); }
+          }, 1000);
+        }
+        function openPay() {
+          var f = fare();
+          $("#x-paysub").textContent = cur.n + " · " + plural(sel.length, "seat");
+          $("#x-paysum").innerHTML = '<div class="row"><dt>' + state.from + " → " + state.to + "<small>" + dayLabel(state.day) + " · " + chosen("board") + "</small></dt><dd>" + sel.map(function (s) { return s.id; }).join(", ") +
+            '</dd></div><div class="row"><dt>Fare + GST <small>Convenience fee waived</small></dt><dd>' + inr(f.b) + " + " + inr(f.g) + '</dd></div><div class="row row--total"><dt>Total</dt><dd>' + inr(f.t) + "</dd></div>";
+          if (!holdT) startHold();
+          show("pay");
+        }
+        $("#x-pms").addEventListener("click", function (e) {
+          var b = e.target.closest("[data-pm]"); if (!b) return;
+          pm = b.dataset.pm; press("data-pm", pm);
+          document.querySelectorAll("[data-pane]").forEach(function (p) { p.hidden = p.dataset.pane !== pm; });
+        });
+        $("#pay").addEventListener("click", function (e) {
+          var a = e.target.closest("[data-app]"), k = e.target.closest("[data-bank]");
+          if (a) { app = a.dataset.app; press("data-app", app); var u = $("#x-upi"); u.value = ""; mark(u, ""); }
+          if (k) { bank = k.dataset.bank; press("data-bank", bank); }
+        });
+        $("#pay").addEventListener("input", function (e) {
+          var t = e.target, v = t.value;
+          if (t.id === "x-cn") t.value = v.replace(/\D/g, "").slice(0, 16).replace(/(\d{4})(?=\d)/g, "$1 ");
+          else if (t.id === "x-ce") { v = v.replace(/\D/g, "").slice(0, 4); t.value = v.length > 2 ? v.slice(0, 2) + "/" + v.slice(2) : v; }
+          else if (t.id === "x-cv") t.value = v.replace(/\D/g, "");
+          else if (t.id === "x-upi" && app) { app = ""; press("data-app", ""); }
+          if (t.closest(".x-field")) mark(t, "");
+        });
+        function luhn(n) { var s = 0; for (var i = 0; i < n.length; i++) { var d = +n[n.length - 1 - i]; if (i % 2) { d *= 2; if (d > 9) d -= 9; } s += d; } return s % 10 === 0; }
+        function validPay() {
+          if (pm === "upi") {
+            if (app) return true;
+            var u = $("#x-upi"), v = u.value.trim();
+            var msg = !v ? "Pick an app above or enter your UPI ID" : /^[a-z0-9._-]{2,256}@[a-z][a-z0-9]{1,63}$/i.test(v) ? "" : "Enter a valid UPI ID, like name@okhdfc";
+            if (msg) { mark(u, msg); u.focus(); return false; }
+            return true;
+          }
+          if (pm === "nb") { if (!bank) toast("Choose your bank"); return !!bank; }
+          var n = $("#x-cn"), ex = $("#x-ce"), cv = $("#x-cv"), nm = $("#x-cnm"), d = n.value.replace(/\s/g, ""), m = ex.value.match(/^(\d\d)\/(\d\d)$/), now = new Date();
+          var em = !m || +m[1] < 1 || +m[1] > 12 ? "Use MM/YY" : (2000 + +m[2]) * 12 + +m[1] < now.getFullYear() * 12 + now.getMonth() + 1 ? "This card has expired" : "";
+          var bad = [mark(n, d.length >= 15 && luhn(d) ? "" : "Check the card number"), mark(ex, em), mark(cv, /^\d{3,4}$/.test(cv.value) ? "" : "3 or 4 digits"), mark(nm, nm.value.trim().length >= 2 ? "" : "Enter the name on the card")].filter(Boolean);
+          if (bad.length) { bad[0].focus(); return false; }
+          return true;
+        }
+        function pay() {
+          if (paying || !validPay()) return;
+          paying = true; stopHold(); bar();
+          $("#x-proct").textContent = "Processing " + inr(fare().t) + (pm === "upi" ? " via " + (app || "UPI") : pm === "nb" ? " via " + bank : " on your card");
+          $("#x-proc").hidden = false;
+          timers.push(setTimeout(function () { $("#x-proc").hidden = true; paying = false; confirmTicket(); }, 2000));
+        }
+
+        // ticket
+        function qr(seed) {
+          var R = rng(seed), N = 25, d = "";
+          var fin = function (x, y) { return "M" + x + " " + y + "h7v7h-7zM" + (x + 1) + " " + (y + 1) + "v5h5v-5zM" + (x + 2) + " " + (y + 2) + "h3v3h-3z"; };
+          for (var y = 0; y < N; y++) for (var x = 0; x < N; x++) {
+            if ((x < 8 && y < 8) || (x > 16 && y < 8) || (x < 8 && y > 16)) continue;
+            if (R() < 0.5) d += "M" + x + " " + y + "h1v1h-1z";
+          }
+          return '<svg class="x-qr" viewBox="0 0 25 25" shape-rendering="crispEdges" role="img" aria-label="Boarding code for PNR ' + seed + '"><path fill="#0b1f3a" d="' + d + '"/><path fill="#0b1f3a" fill-rule="evenodd" d="' + fin(0, 0) + fin(18, 0) + fin(0, 18) + '"/><rect x="9" y="9" width="7" height="7" fill="#fff"/><use href="#logo-mark" x="9.6" y="9.5" width="5.8" height="6" shape-rendering="geometricPrecision"/></svg>';
+        }
+        function confetti() {
+          if (reduce) return;
+          var c = document.createElement("div"), cols = ["var(--x-accent)", "var(--fill-primary)", "var(--x-seat-line)", "var(--x-info)"], h = "", r = Math.random;
+          for (var i = 0; i < 60; i++) h += '<i style="--x:' + (r() * 100).toFixed(1) + "%;--dx:" + Math.round(r() * 160 - 80) + "px;--r:" + Math.round(r() * 720 - 360) + "deg;--t:" + (1.8 + r() * 1.6).toFixed(2) + "s;--d:" + (r() * 0.5).toFixed(2) + "s;--c:" + cols[i % 4] + '"></i>';
+          c.className = "x-confetti"; c.setAttribute("aria-hidden", "true"); c.innerHTML = h; document.body.appendChild(c);
+          setTimeout(function () { c.remove(); }, 4200);
+        }
+        function confirmTicket() {
+          var R = rng(cur.n + Date.now()), L = "ABCDEFGHJKLMNPRSTUVWXYZ", D = "0123456789";
+          var pick = function (s, n) { var o = ""; while (n--) o += s[Math.floor(R() * s.length)]; return o; };
+          var bi = +document.querySelector('input[name="board"]:checked').value, di = +document.querySelector('input[name="drop"]:checked').value;
+          var bp = POINTS[state.from][bi], dp = POINTS[state.to][di], bt = cur.dep + bi * 20, dt = cur.dep + cur.dur - (2 - di) * 20, f = fare();
+          var ph = $("#x-ph").value, dn = ["Ramesh Kumar", "Suresh Gowda", "Manjunath R", "Venkatesh S", "Imran Pasha"][Math.floor(R() * 5)];
+          booking = {
+            pnr: "DB" + pick(D, 4) + pick(L, 2) + pick(D, 2), amt: f.t,
+            dest: pm === "upi" ? "your UPI" : pm === "card" ? "your card ending " + $("#x-cn").value.replace(/\D/g, "").slice(-4) : "your " + bank + " account"
+          };
+          var busNo = "KA " + ["01", "02", "03", "05", "51", "53"][Math.floor(R() * 6)] + " " + pick(L, 2) + " " + pick("123456789", 1) + pick(D, 3);
+          var people = sel.map(function (s) { var p = pax[s.id]; return esc(p.n.trim()) + " · " + p.a + (p.g ? " " + p.g : "") + " · " + s.id; }).join("<br>");
+          var fact = function (k, v, w) { return "<div" + (w ? ' class="x-wide"' : "") + "><dt>" + k + "</dt><dd>" + v + "</dd></div>"; };
+          $("#x-sent").textContent = "E-ticket sent to +91 " + ph.slice(0, 5) + " " + ph.slice(5) + ($("#x-em").value ? " and " + $("#x-em").value : "");
+          $("#x-pass").innerHTML = '<div class="x-pass__top"><p><b>' + cur.n + "</b><small>" + cur.t + "</small></p><p><small>PNR</small><b>" + booking.pnr + "</b></p></div>" +
+            '<div class="x-pass__body"><div class="x-times"><div><b>' + hm(bt) + "</b><small>" + state.from + '</small></div><p class="x-dur"><span>' + dur(dt - bt) + "</span></p><div><b>" + hm(dt) + (dt >= 1440 ? "<sup>+1</sup>" : "") + "</b><small>" + state.to + "</small></div></div>" +
+            '<dl class="x-facts">' + fact("Date", dayLabel(state.day)) + fact("Bus no.", busNo) + fact("Seats", sel.map(function (s) { return s.id; }).join(", ")) + fact("Amount paid", inr(f.t)) +
+            fact("Boarding", hm(bt) + " · " + bp[0] + "<br><small>" + bp[1] + "</small>", 1) + fact("Dropping", hm(dt) + " · " + dp[0] + "<br><small>" + dp[1] + "</small>", 1) + fact(plural(sel.length, "passenger"), people, 1) + "</dl></div>" +
+            '<div class="x-perf" aria-hidden="true"></div><div class="x-pass__foot">' + qr(booking.pnr) + "<p><b>" + booking.pnr + "</b>Show this code to the conductor when you board.</p></div>";
+          $("#x-tsub").textContent = busNo + " · " + cur.n;
+          $("#x-mpick").textContent = bp[0]; $("#x-mdrop").textContent = state.to;
+          $("#x-tpick").textContent = "Pickup " + hm(bt) + " · " + bp[0] + ", " + bp[1];
+          $("#x-dava").textContent = dn.split(" ").map(function (w) { return w[0]; }).join("");
+          $("#x-dname").textContent = dn;
+          $("#x-dphone").textContent = "Driver · +91 9" + pick("6789", 1) + "••• ••" + pick(D, 3);
+          show("ticket"); confetti();
+        }
+        $("#x-go-track").addEventListener("click", function () { show("track"); });
+
+        // cancel
+        var sheet = $("#x-sheet");
+        $("#x-go-cancel").addEventListener("click", function () {
+          if (!booking) return;
+          $("#x-sh-l").innerHTML = "<strong>Full refund of " + inr(booking.amt) + "</strong> to " + booking.dest + ".";
+          $("#x-sh-dl").innerHTML = '<div class="row"><dt>Paid <small>PNR ' + booking.pnr + '</small></dt><dd>' + inr(booking.amt) + '</dd></div><div class="row"><dt>Cancellation fee</dt><dd>₹0</dd></div><div class="row row--total"><dt>Refund</dt><dd>' + inr(booking.amt) + "</dd></div>";
+          $("#x-sh-yes").textContent = "Cancel & refund " + inr(booking.amt);
+          sheet.showModal();
+        });
+        $("#x-sh-no").addEventListener("click", function () { sheet.close(); });
+        sheet.addEventListener("click", function (e) {
+          var r = sheet.getBoundingClientRect();
+          if (e.target === sheet && (e.clientX < r.left || e.clientX > r.right || e.clientY < r.top || e.clientY > r.bottom)) sheet.close();
+        });
+        $("#x-sh-yes").addEventListener("click", function () {
+          sheet.close();
+          var li = document.querySelectorAll("#x-rf li"), st = function (i, c) { li[i].className = c; };
+          li.forEach(function (x) { x.className = ""; });
+          $("#x-credt").textContent = "In ~2 min";
+          $("#x-refmsg").textContent = inr(booking.amt) + " refunded to " + booking.dest + " · usually under 2 minutes";
+          $("#x-refid").textContent = "Refund ref RF" + booking.pnr.slice(2) + " · PNR " + booking.pnr + " is now cancelled.";
+          booking = null; show("cancelled");
+          var q = reduce ? [0, 0, 0] : [300, 1200, 2800];
+          timers.push(setTimeout(function () { st(0, "is-done"); st(1, "is-now"); }, q[0]));
+          timers.push(setTimeout(function () { st(1, "is-done"); st(2, "is-now"); }, q[1]));
+          timers.push(setTimeout(function () { st(2, "is-done"); $("#x-credt").textContent = "Done"; }, q[2]));
+        });
+
+        // book another trip
+        document.addEventListener("click", function (e) {
+          if (!e.target.closest("[data-reset]")) return;
+          timers.forEach(clearTimeout); timers = []; stopHold(); paying = false;
+          cur = null; sel = []; pax = {}; booking = null; current = []; pm = "upi"; app = ""; bank = "";
+          press("data-pm", "upi"); press("data-app", ""); press("data-bank", "");
+          document.querySelectorAll("[data-pane]").forEach(function (p) { p.hidden = p.dataset.pane !== "upi"; });
+          ["#x-upi", "#x-cn", "#x-ce", "#x-cv", "#x-cnm", "#x-ph", "#x-em"].forEach(function (s) { var i = $(s); i.value = ""; mark(i, ""); });
+          state = { from: "Bengaluru", to: "Mysuru", day: 0, sort: "price" };
+          press("data-day", "0"); press("data-sort", "price"); syncForm(); show("home");
+        });
+
+        tb.setAttribute("aria-label", root.getAttribute("data-theme") === "light" ? "Switch to dark theme" : "Switch to light theme");
+        syncForm();
+        if (reduce) {
+          var am = document.getElementById("x-am"); if (am) am.parentNode.remove();
+          var tm = document.getElementById("x-tam"); if (tm) { tm.remove(); $("#x-busdot").setAttribute("transform", "translate(195 105)"); }
+        }
+      })();
+    </script>
+  </body>
+</html>
