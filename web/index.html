@@ -156,6 +156,11 @@
       .x-safe b { display: grid; place-items: center; min-width: 30px; height: 22px; padding: 0 6px; border-radius: var(--r-pill); background: var(--fill-primary); color: var(--text-primary-on); font-weight: var(--weight-bold); }
       .x-tag { display: inline-flex; align-items: center; gap: 5px; padding: 4px 10px; border-radius: var(--r-pill); font: var(--type-tag); box-shadow: inset 0 0 0 1px var(--stroke-primary); }
       .x-tag svg.i { width: 14px; height: 14px; color: var(--text-secondary); }
+      .x-rest { list-style: none; margin: 0; padding: 0; display: grid; gap: 8px; }
+      .x-rest li { display: flex; gap: 12px; align-items: center; padding: 12px 14px; border-radius: var(--r-m); border: 1.5px solid var(--x-line); }
+      .x-rest li > svg.i { width: 20px; height: 20px; flex: none; color: var(--text-secondary); }
+      .x-rest b { display: block; font: var(--type-body-strong); }
+      .x-rest small { font: var(--type-small); color: var(--text-secondary); }
       .x-amen { display: flex; gap: 10px; margin-left: auto; color: var(--text-secondary); }
       .x-amen svg.i { width: 17px; height: 17px; }
       .x-bus__foot { display: flex; align-items: center; gap: 10px; flex-wrap: wrap; padding-top: 14px; border-top: 1px solid var(--x-line); }
@@ -361,6 +366,7 @@
       <symbol id="i-woman" viewBox="0 0 24 24"><circle cx="12" cy="8" r="5" /><path d="M12 13v9M9 18h6" /></symbol>
       <symbol id="i-check" viewBox="0 0 24 24"><circle cx="12" cy="12" r="9" /><path d="m8 12 3 3 5-6" /></symbol>
       <symbol id="i-wheel" viewBox="0 0 24 24"><circle cx="12" cy="12" r="9" /><circle cx="12" cy="12" r="2" /><path d="M3.5 10H10M14 10h6.5M12 14v7" /></symbol>
+      <symbol id="i-wc" viewBox="0 0 24 24"><circle cx="7" cy="4.5" r="1.8" /><circle cx="17" cy="4.5" r="1.8" /><path d="M5 9h4v6H8v6H6v-6H5zM17 9l3 7h-2v5h-2v-5h-2z" /></symbol><symbol id="i-food" viewBox="0 0 24 24"><path d="M6 3v8a2 2 0 0 0 4 0V3M8 11v10M17 21V3c-2 1-3 4-3 8h3" /></symbol>
       <symbol id="i-clock" viewBox="0 0 24 24"><circle cx="12" cy="12" r="9" /><path d="M12 7v5l3 2" /></symbol>
       <symbol id="i-phone" viewBox="0 0 24 24"><path d="M5 3h4l2 5-2.5 1.5a11 11 0 0 0 6 6L16 13l5 2v4a2 2 0 0 1-2 2A16 16 0 0 1 3 5a2 2 0 0 1 2-2Z" /></symbol>
       <symbol id="i-lock" viewBox="0 0 24 24"><rect x="5" y="11" width="14" height="10" rx="2" /><path d="M8 11V7a4 4 0 0 1 8 0v4" /></symbol>
@@ -477,6 +483,11 @@
             <h2 class="x-h"><svg class="i" aria-hidden="true"><use href="#i-pin" /></svg>Dropping point<small id="x-dto"></small></h2>
             <div class="x-spots" id="x-drop"></div>
           </section>
+          <section class="x-card">
+            <h2 class="x-h"><svg class="i" aria-hidden="true"><use href="#i-wc" /></svg>Rest stops<small>Washroom and meal breaks</small></h2>
+            <ol class="x-rest" id="x-rest"></ol>
+            <p class="fineprint">Need a washroom break between stops? Tell the crew or tap "Request a stop" in live tracking. Times may shift with traffic.</p>
+          </section>
         </div>
 
         <div class="x-view" id="pax" hidden>
@@ -580,6 +591,15 @@
               <button class="x-ghost" type="button" data-toast="Connecting you through a masked line"><svg class="i"><use href="#i-phone" /></svg>Call driver</button>
             </div>
           </section>
+          <section class="x-card">
+            <h2 class="x-h"><svg class="i" aria-hidden="true"><use href="#i-wc" /></svg>Need a break?<small>The crew gets your request</small></h2>
+            <div class="x-modes" role="group" aria-label="Request a stop" style="flex-wrap:wrap;border-radius:var(--r-m)">
+              <button class="x-mode" type="button" data-toast="Washroom stop requested. The crew will stop at the next safe spot, usually within 15 minutes.">Washroom</button>
+              <button class="x-mode" type="button" data-toast="Water and tea stop requested. The crew will stop at the next safe spot.">Water or tea</button>
+              <button class="x-mode" type="button" data-toast="Feeling unwell? We've alerted the crew and DevSafe support will call you now.">Feeling unwell</button>
+            </div>
+            <p class="fineprint">Scheduled breaks are listed on your ticket.</p>
+          </section>
           <p class="fineprint">Location refreshes every 30 seconds. Your number stays hidden from the driver.</p>
         </div>
 
@@ -651,6 +671,16 @@
         var inr = function (n) { return "₹" + n.toLocaleString("en-IN"); };
         var ico = function (id, label) { return '<svg class="i"' + (label ? ' role="img" aria-label="' + label + '"><title>' + label + "</title>" : ' aria-hidden="true">') + '<use href="#i-' + id + '"/></svg>'; };
         var hm = function (min) { min = ((min % 1440) + 1440) % 1440; return String(Math.floor(min / 60)).padStart(2, "0") + ":" + String(min % 60).padStart(2, "0"); };
+        // Rest stops: one roughly every 2.5 hours; a meal stop if it falls at breakfast, lunch or dinner time
+        function restStops(b) {
+          var n = Math.min(3, Math.floor(b.dur / 150)), out = [];
+          for (var k = 1; k <= n; k++) {
+            var t = b.dep + Math.round(b.dur * k / (n + 1) / 5) * 5, h = ((t % 1440) + 1440) % 1440, meal = h >= 1170 && h <= 1350 ? "Dinner" : h >= 750 && h <= 870 ? "Lunch" : h >= 450 && h <= 570 ? "Breakfast" : "";
+            if (h >= 0 && h < 300 && !meal) meal = "";
+            out.push(meal ? { t: t, k: "food", n: meal + " stop", m: 25, d: "Food court with clean washrooms" } : { t: t, k: "wc", n: "Washroom stop", m: 10, d: "Clean washrooms, tea and snacks" });
+          }
+          return out;
+        }
         var dur = function (min) { return Math.floor(min / 60) + "h " + String(min % 60).padStart(2, "0") + "m"; };
         var r10 = function (n) { return Math.round(n / 10) * 10; };
         var dayLabel = function (d) { var x = new Date(); x.setDate(x.getDate() + d); return x.toLocaleDateString("en-IN", { weekday: "short", day: "numeric", month: "short" }); };
@@ -782,6 +812,7 @@
               '<div class="x-times"><div><b>' + hm(b.dep) + "</b><small>" + state.from + '</small></div><p class="x-dur"><span>' + dur(b.dur) + "</span></p><div><b>" + hm(b.arr) + nd + "</b><small>" + state.to + "</small></div></div>" +
               '<div class="x-tags"><span class="x-safe"><b>' + b.s.toFixed(1) + "</b>DevSafe</span>" +
               (b.w ? '<span class="x-tag">' + ico("woman") + "Women-friendly</span>" : "") +
+              (function () { var r = restStops(b), m = r.filter(function (x) { return x.k === "food"; })[0]; return r.length ? '<span class="x-tag">' + ico(m ? "food" : "wc") + plural(r.length, "rest stop") + (m ? " · " + m.n.split(" ")[0] : "") + "</span>" : '<span class="x-tag">' + ico("wc") + "Non-stop</span>"; })() +
               '<span class="x-amen">' + b.a.map(function (a) { return ico(a, AM[a]); }).join("") + "</span></div>" +
               '<div class="x-bus__foot"><div><span class="x-price">' + inr(b.price) + '</span><span class="x-seats' + (b.seats <= 5 ? " is-low" : "") + '">' + b.seats + (b.seats === 1 ? " seat" : " seats") + " left</span></div>" +
               '<div class="x-acts"><button class="x-ghost" type="button" aria-expanded="false" data-check>Price check</button>' +
@@ -843,6 +874,8 @@
             var arr = b.dep + b.dur;
             spots("#x-board", "board", state.from, function (i) { return b.dep + i * 20; }, "Pickup spot");
             spots("#x-drop", "drop", state.to, function (i) { return arr - (2 - i) * 20; }, "Drop spot");
+            var rs = restStops(b);
+            $("#x-rest").innerHTML = rs.length ? rs.map(function (r) { return "<li>" + ico(r.k) + "<div><b>" + hm(r.t) + " · " + r.n + "</b><small>" + r.m + " min · " + r.d + "</small></div></li>"; }).join("") : "<li>" + ico("wc") + "<div><b>Non-stop journey</b><small>Under 2.5 hours. You can still request a washroom stop from live tracking.</small></div></li>";
           }
           $("#x-stitle").textContent = b.n;
           $("#x-ssub").textContent = b.t + " · " + hm(b.dep) + " → " + hm(b.dep + b.dur) + " · " + dayLabel(state.day);
@@ -1063,7 +1096,7 @@
           $("#x-pass").innerHTML = '<div class="x-pass__top"><p><b>' + cur.n + "</b><small>" + cur.t + "</small></p><p><small>PNR</small><b>" + booking.pnr + "</b></p></div>" +
             '<div class="x-pass__body"><div class="x-times"><div><b>' + hm(bt) + "</b><small>" + state.from + '</small></div><p class="x-dur"><span>' + dur(dt - bt) + "</span></p><div><b>" + hm(dt) + (dt >= 1440 ? "<sup>+1</sup>" : "") + "</b><small>" + state.to + "</small></div></div>" +
             '<dl class="x-facts">' + fact("Date", dayLabel(state.day)) + fact("Bus no.", busNo) + fact("Seats", sel.map(function (s) { return s.id; }).join(", ")) + fact("Amount paid", inr(f.t)) +
-            fact("Boarding", hm(bt) + " · " + bp[0] + "<br><small>" + bp[1] + "</small>", 1) + fact("Dropping", hm(dt) + " · " + dp[0] + "<br><small>" + dp[1] + "</small>", 1) + fact(plural(sel.length, "passenger"), people, 1) + "</dl></div>" +
+            fact("Boarding", hm(bt) + " · " + bp[0] + "<br><small>" + bp[1] + "</small>", 1) + fact("Dropping", hm(dt) + " · " + dp[0] + "<br><small>" + dp[1] + "</small>", 1) + (function () { var rs = restStops(cur); return fact("Rest stops", rs.length ? rs.map(function (r) { return hm(r.t) + " " + r.n + " (" + r.m + " min)"; }).join("<br>") : "Non-stop", 1); })() + fact(plural(sel.length, "passenger"), people, 1) + "</dl></div>" +
             '<div class="x-perf" aria-hidden="true"></div><div class="x-pass__foot">' + qr(booking.pnr) + "<p><b>" + booking.pnr + "</b>Show this code to the conductor when you board.</p></div>";
           $("#x-tsub").textContent = busNo + " · " + cur.n;
           $("#x-mpick").textContent = bp[0]; $("#x-mdrop").textContent = state.to;
