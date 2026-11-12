@@ -1,12 +1,12 @@
 # DevBus
 
-Travel that keeps its word. Bus, train and flight booking, starting in Bengaluru.
+Travel that keeps its word. Intercity bus booking across India, with trains and flights to follow.
 
 | App | Folder |
 | --- | --- |
 | Customer web app | `web/` |
-| Admin console | `admin/` |
-| DevPoint Partner Portal (franchisees) | `partner/` |
 | Brand and logo pack | `brand/` |
 
-Static HTML, CSS and JS. No build step. Open any `index.html`, or visit the GitHub Pages site.
+Staff apps (admin console, DevPoint partner portal) live in a private repo.
+
+Static HTML, CSS and JS. No build step. Open `web/index.html`, or visit the GitHub Pages site.
