@@ -529,7 +529,7 @@
                 <div class="x-note"><i></i><p>New franchise counter live in Hubballi, first 14 bookings in<small>2 hr ago · Franchise</small></p></div>
               </div>
             </div>
-            <div class="x-me"><span class="x-avatar">DT</span><div><span>Dev T.</span><small>Co-Founder &amp; COO</small></div></div>
+            <div class="x-me"><span class="x-avatar">DT</span><div><span>Dev T.</span><small>COO &amp; Founder</small></div></div>
           </header>
 
           <section class="x-view" id="view-dash">
@@ -2614,8 +2614,8 @@ Track your bus live in the DevBus app.</p>
           o.lv = o.lv || [12 - i % 5, 12 - i % 3, 15 - i % 6]; o.em = o.em || { n: ["Spouse", "Father", "Mother", "Brother"][i % 4], p: "+91 9" + String(8100 + i * 211).slice(0, 4) + " •••" + String(11 + (i * 53) % 87) };
           o.blood = ["O+", "B+", "A+", "AB+", "O-"][i % 5]; o.dob = new Date(1984 + i % 15, i % 12, 1 + i % 27); EMP.push(o); return o; };
         var SDEPT = [0, 1, 2, 3, 4, 1];
-        TM.forEach(function (m) { if (m.n === "Supreeth Thakur") return addE({ n: "Supreeth Thakur", role: "Founder & CEO", dept: 0, hub: "Bengaluru HQ", mgr: "Board", ctc: 0, join: dd(-420) });
-          if (m.n === "Dev T.") return addE({ n: "Dev Thakur", role: "Co-Founder & COO", dept: 0, hub: "Bengaluru HQ", mgr: "Supreeth Thakur", ctc: 0, join: dd(-420) });
+        TM.forEach(function (m) { if (m.n === "Supreeth Thakur") return addE({ n: "Supreeth Thakur", role: "CEO & Founder", dept: 0, hub: "Bengaluru HQ", mgr: "Board", ctc: 0, join: dd(-420) });
+          if (m.n === "Dev T.") return addE({ n: "Dev Thakur", role: "COO & Founder", dept: 0, hub: "Bengaluru HQ", mgr: "Supreeth Thakur", ctc: 0, join: dd(-420) });
           addE({ n: m.n, role: SROLE[m.r], dept: SDEPT[m.r], hub: m.h ? SHUB[m.h] : "Bengaluru HQ", mgr: "Dev Thakur", ctc: [0, 1500000, 1100000, 520000, 960000, 900000][m.r], st: m.st === "Invited" ? "Joining" : m.st === "Disabled" ? "Exited" : "Active", join: m.st === "Invited" ? dd(9) : null }); });
         addE({ n: "Vikram Rao", role: "Tech lead", dept: 6, hub: "Bengaluru HQ", mgr: "Dev Thakur", ctc: 2400000 });
         HUB.forEach(function (h) { var mg = h.staff.filter(function (x) { return x.r === 0; })[0];
