@@ -1,12 +1,12 @@
-# DevBus
+# VYGO
 
-Travel that keeps its word. Intercity bus booking across India, with trains and flights to follow.
+India, Let's Go ! Intercity bus booking across India, with trains and flights to follow.
 
 | App | Folder |
 | --- | --- |
 | Customer web app | `web/` |
 | Admin console | `admin/` |
-| DevPoint Partner Portal | `partner/` |
+| VYGO Point Partner Portal | `partner/` |
 | Brand and logo pack | `brand/` |
 
 Admin and partner apps are here temporarily for review; the private copy is DevBus-Staff.
