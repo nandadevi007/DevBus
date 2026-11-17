@@ -15,6 +15,7 @@
     <meta name="twitter:card" content="summary_large_image" />
     <link rel="apple-touch-icon" href="../brand/icons/favicon-180.png" />
     <link rel="icon" type="image/svg+xml" href="favicon.svg" />
+    <link rel="manifest" href="manifest.webmanifest" />
     <link rel="preconnect" href="https://fonts.googleapis.com" />
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
     <link
@@ -27,14 +28,14 @@
       :root {
         /* VYGO colour system: ~90% neutrals and navy, burnt orange only for the main action */
         --x-navy: #0b1f3a;
-        --x-accent: light-dark(#d9480f, #e8590c);       /* Book / Pay buttons, selected seat, key highlights */
-        --x-accent-hover: light-dark(#c03f0d, #d9480f);
+        --x-accent: light-dark(#b93a0a, #e8590c);       /* Book / Pay buttons, selected seat, key highlights */
+        --x-accent-hover: light-dark(#a3330a, #d9480f);
         --x-accent-ink: light-dark(#b93a0a, #e8590c);   /* orange text on cards, never on navy */
         --x-on-accent: #ffffff;
         --x-disabled: light-dark(#a8b3c2, #3a4350);
         --x-disabled-ink: light-dark(#ffffff, #9aa7b8);
         --x-success: #1f8a4c; --x-warn: #c98a00; --x-error: #c92a2a; --x-info: #1c6dd0;
-        --x-seat-free: #ffffff; --x-seat-line: #9aa7b8; --x-seat-sel: #d9480f; --x-seat-off: #cbd2dc; --x-seat-lady: #d6336c;
+        --x-seat-free: #ffffff; --x-seat-line: #9aa7b8; --x-seat-sel: #b93a0a; --x-seat-off: #cbd2dc; --x-seat-lady: #d6336c;
         --x-on-navy: #f2f5f9; --x-on-navy-muted: #c3ccd8;
         --fill-primary-on: light-dark(#f6f7f9, #0a0a0a);
         --x-surface: light-dark(#ffffff, #14181f);
@@ -68,6 +69,7 @@
       .x-top__right { margin-left: auto; display: flex; align-items: center; gap: 6px; }
       .x-icon-btn, .x-ghost, .x-cta { display: inline-flex; align-items: center; justify-content: center; gap: 6px; min-height: var(--tap); border: 0; cursor: pointer; font: var(--type-label); border-radius: var(--r-pill); text-decoration: none; transition: transform var(--dur-quick) var(--ease-out), box-shadow var(--dur-quick) ease; }
       .x-icon-btn { width: var(--tap); background: var(--fill-tertiary); color: var(--text-primary); }
+      .x-myt { display: flex; align-items: center; gap: 8px; margin: 12px auto 0; min-height: var(--tap); border-radius: 999px; background: var(--bg-primary, #fff); }
       .x-ghost { min-width: var(--tap); padding: 0 14px; background: transparent; color: var(--text-primary); box-shadow: inset 0 0 0 1px var(--stroke-primary); }
       .x-ghost:hover, .x-icon-btn:hover { box-shadow: inset 0 0 0 100px var(--hover-wash); }
       .x-cta { padding: 0 18px; background: var(--x-accent); color: var(--x-on-accent); font-weight: var(--weight-bold); transition: background var(--dur-quick) ease, transform var(--dur-quick) var(--ease-out); }
@@ -429,6 +431,7 @@
               <div class="x-dates" role="group" aria-label="Date of travel" id="x-dates"></div>
               <button class="x-cta x-cta--wide" type="submit">Search buses</button>
             </form>
+            <button class="x-ghost x-myt" type="button" id="x-myt" hidden><svg class="i" aria-hidden="true"><use href="#i-track" /></svg><span>Your ticket</span></button>
             <div class="x-popular"><p>Popular</p></div>
           </section>
 
@@ -799,7 +802,16 @@
 
         // views
         var view = "home";
-        function show(v) {
+        var NEEDS = { seats: "cur", pax: "cur", pay: "cur", ticket: "bk", track: "bk" };
+        function show(v, fromPop) {
+          if (NEEDS[v] === "cur" && !cur) v = current.length ? "results" : "home";
+          if (NEEDS[v] === "bk" && !booking) v = "home";
+          if (v === "results" && !current.length) v = "home";
+          try {
+            var u = v === "home" ? location.pathname + location.search : "#/" + v;
+            if (!fromPop && v !== view) history.pushState({ v: v }, "", u);
+            else if (fromPop || !history.state) history.replaceState({ v: v }, "", u);
+          } catch (e) {}
           view = v;
           ["home", "results", "seats", "pax", "pay", "ticket", "track", "cancelled"].forEach(function (id) { $("#" + id).hidden = id !== v; });
           if (v === "home" || v === "results" || v === "seats") stopHold();
@@ -810,6 +822,7 @@
         var current = [];
         function search() {
           if (state.from === state.to) { toast("Pick two different cities"); return; }
+          saveSearch();
           clearTimeout(tt); toastEl.classList.remove("is-on");
           var R = route(state.from, state.to);
           current = BUSES.map(function (b) {
@@ -1129,7 +1142,7 @@
           $("#x-dava").textContent = dn.split(" ").map(function (w) { return w[0]; }).join("");
           $("#x-dname").textContent = dn;
           $("#x-dphone").textContent = "Driver · +91 9" + pick("6789", 1) + "••• ••" + pick(D, 3);
-          show("ticket"); confetti();
+          saveTicket(); show("ticket"); confetti();
         }
         $("#x-go-track").addEventListener("click", function () { show("track"); });
 
@@ -1200,7 +1213,7 @@
           if (!booking) return;
           $("#x-refmsg").textContent = inr(booking.amt) + " refunded to " + booking.dest + " · usually under 2 minutes";
           $("#x-refid").textContent = "Refund ref RF" + booking.pnr.slice(2) + " · PNR " + booking.pnr + " is now cancelled.";
-          booking = null; show("cancelled");
+          booking = null; store("vygo.ticket", null); myTicket(); show("cancelled");
           var q = reduce ? [0, 0, 0] : [300, 1200, 2800];
           timers.push(setTimeout(function () { st(0, "is-done"); st(1, "is-now"); }, q[0]));
           timers.push(setTimeout(function () { st(1, "is-done"); st(2, "is-now"); }, q[1]));
@@ -1216,11 +1229,54 @@
           document.querySelectorAll("[data-pane]").forEach(function (p) { p.hidden = p.dataset.pane !== "upi"; });
           ["#x-upi", "#x-cn", "#x-ce", "#x-cv", "#x-cnm", "#x-ph", "#x-em"].forEach(function (s) { var i = $(s); i.value = ""; mark(i, ""); });
           state = { from: "Bengaluru", to: "Mysuru", day: 0, sort: "price" };
-          press("data-day", "0"); if (typeof markDay === "function") markDay(0); press("data-sort", "price"); syncForm(); show("home");
+          press("data-day", "0"); if (typeof markDay === "function") markDay(0); press("data-sort", "price"); syncForm(); store("vygo.search", null); show("home");
         });
 
         tb.setAttribute("aria-label", root.getAttribute("data-theme") === "light" ? "Switch to dark theme" : "Switch to light theme");
-        syncForm();
+
+        // keep the trip through refresh, back and offline
+        function store(k, v) { try { if (v === null) localStorage.removeItem(k); else localStorage.setItem(k, JSON.stringify(v)); } catch (e) {} }
+        function load(k) { try { return JSON.parse(localStorage.getItem(k) || "null"); } catch (e) { return null; } }
+        function today0() { var d = new Date(); d.setHours(0, 0, 0, 0); return d.getTime(); }
+        function saveSearch() { store("vygo.search", { from: state.from, to: state.to, sort: state.sort, date: today0() + state.day * 864e5 }); }
+        var TK = ["x-sent", "x-pass", "x-tsub", "x-mpick", "x-mdrop", "x-tpick", "x-dava", "x-dname", "x-dphone"];
+        function saveTicket() {
+          var t = { booking: booking, at: Date.now(), html: {} };
+          TK.forEach(function (id) { var el = document.getElementById(id); if (el) t.html[id] = el.innerHTML; });
+          store("vygo.ticket", t); myTicket();
+        }
+        function restoreTicket() {
+          var t = load("vygo.ticket"); if (!t || !t.booking) return false;
+          booking = t.booking;
+          TK.forEach(function (id) { var el = document.getElementById(id); if (el && t.html[id] != null) el.innerHTML = t.html[id]; });
+          return true;
+        }
+        function myTicket() {
+          var t = load("vygo.ticket"), b = $("#x-myt"); if (!b) return;
+          b.hidden = !(t && t.booking);
+          if (!b.hidden) b.querySelector("span").textContent = "Your ticket · PNR " + t.booking.pnr;
+        }
+        $("#x-myt").addEventListener("click", function () { if (restoreTicket()) show("ticket"); });
+        window.addEventListener("popstate", function (e) {
+          var v = (e.state && e.state.v) || "home";
+          if (booking && (v === "seats" || v === "pax" || v === "pay")) v = "home"; // never step back into a paid checkout
+          show(v, true);
+        });
+        (function boot() {
+          var s = load("vygo.search");
+          if (s && CITIES.indexOf(s.from) > -1 && CITIES.indexOf(s.to) > -1) {
+            var d = Math.round((s.date - today0()) / 864e5);
+            state.from = s.from; state.to = s.to; state.sort = s.sort || "price";
+            if (d >= 0 && d < MAXD) { markDay(d); } else markDay(0);
+            press("data-sort", state.sort);
+          }
+          syncForm(); myTicket();
+          var h = (location.hash.match(/^#\/(\w+)/) || [])[1];
+          if ((h === "ticket" || h === "track") && restoreTicket()) { show(h, true); return; }
+          if (/^(results|seats|pax|pay)$/.test(h || "") && s) { search(); if (h !== "results") toast("Your seat hold was released. Pick your seats again."); return; }
+          show("home", true);
+        })();
+        if ("serviceWorker" in navigator && location.protocol === "https:") window.addEventListener("load", function () { navigator.serviceWorker.register("sw.js").catch(function () {}); });
         if (reduce) {
           var am = document.getElementById("x-am"); if (am) am.parentNode.remove();
           var tm = document.getElementById("x-tam"); if (tm) { tm.remove(); $("#x-busdot").setAttribute("transform", "translate(195 105)"); }
