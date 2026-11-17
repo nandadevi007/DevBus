@@ -28,8 +28,8 @@
       :root {
         /* VYGO colour system: ~90% neutrals and navy, burnt orange only for the main action */
         --x-navy: #0b1f3a;
-        --x-accent: light-dark(#b93a0a, #e8590c);       /* Book / Pay buttons, selected seat, key highlights */
-        --x-accent-hover: light-dark(#a3330a, #d9480f);
+        --x-accent: light-dark(#b93a0a, #c4450c);       /* Book / Pay buttons, selected seat, key highlights */
+        --x-accent-hover: light-dark(#a3330a, #b93a0a);
         --x-accent-ink: light-dark(#b93a0a, #e8590c);   /* orange text on cards, never on navy */
         --x-on-accent: #ffffff;
         --x-disabled: light-dark(#a8b3c2, #3a4350);
@@ -70,6 +70,7 @@
       .x-icon-btn, .x-ghost, .x-cta { display: inline-flex; align-items: center; justify-content: center; gap: 6px; min-height: var(--tap); border: 0; cursor: pointer; font: var(--type-label); border-radius: var(--r-pill); text-decoration: none; transition: transform var(--dur-quick) var(--ease-out), box-shadow var(--dur-quick) ease; }
       .x-icon-btn { width: var(--tap); background: var(--fill-tertiary); color: var(--text-primary); }
       .x-myt { display: flex; align-items: center; gap: 8px; margin: 12px auto 0; min-height: var(--tap); border-radius: 999px; background: var(--bg-primary, #fff); }
+      .x-vh { position: absolute; width: 1px; height: 1px; overflow: hidden; clip: rect(0 0 0 0); white-space: nowrap; }
       .x-ghost { min-width: var(--tap); padding: 0 14px; background: transparent; color: var(--text-primary); box-shadow: inset 0 0 0 1px var(--stroke-primary); }
       .x-ghost:hover, .x-icon-btn:hover { box-shadow: inset 0 0 0 100px var(--hover-wash); }
       .x-cta { padding: 0 18px; background: var(--x-accent); color: var(--x-on-accent); font-weight: var(--weight-bold); transition: background var(--dur-quick) ease, transform var(--dur-quick) var(--ease-out); }
@@ -178,7 +179,7 @@
       .x-bus__foot { display: flex; align-items: center; gap: 10px; flex-wrap: wrap; padding-top: 14px; border-top: 1px solid var(--x-line); }
       .x-price { font: var(--type-figure); font-weight: var(--weight-bold); letter-spacing: -0.01em; }
       .x-seats { font: var(--type-tag); color: var(--text-secondary); display: block; }
-      .x-seats.is-low { color: var(--fill-system-red); }
+      .x-seats.is-low { color: light-dark(#c92a2a, #ff8787); }
       .x-bus__foot .x-acts { margin-left: auto; display: flex; gap: 8px; }
       .x-check { display: flex; align-items: center; gap: 10px; padding: 12px 14px; border-radius: var(--r-m); background: var(--fill-tertiary); font: var(--type-small); animation: x-rise 300ms var(--ease-out); }
       .x-check[hidden] { display: none; }
@@ -258,7 +259,7 @@
       .x-hold { display: flex; align-items: center; gap: 10px; padding: 12px 14px; border-radius: var(--r-m); background: color-mix(in srgb, var(--x-warn) 12%, var(--x-surface)); border: 1px solid color-mix(in srgb, var(--x-warn) 40%, transparent); font: var(--type-small); }
       .x-hold svg.i { color: var(--x-warn); }
       .x-hold b { margin-left: auto; font: var(--weight-bold) var(--size-heading)/1 var(--sans); font-variant-numeric: tabular-nums; }
-      .x-hold.is-low b { color: var(--fill-system-red); }
+      .x-hold.is-low b { color: light-dark(#c92a2a, #ff8787); }
       .x-wrap { display: flex; flex-wrap: wrap; gap: 8px; }
       .x-app i { display: grid; place-items: center; width: 24px; height: 24px; border-radius: 7px; font: var(--type-caption); font-style: normal; font-weight: var(--weight-bold); color: #fff; background: var(--c); }
       .x-chip[aria-pressed="true"] i { box-shadow: 0 0 0 2px #fff8; }
@@ -306,6 +307,7 @@
       .x-map .x-m-base { fill: none; stroke: var(--stroke-primary); stroke-width: 3; stroke-dasharray: 2 8; stroke-linecap: round; }
       .x-map .x-m-run { fill: none; stroke: var(--fill-primary); stroke-width: 4; stroke-linecap: round; }
       .x-map text { fill: var(--text-secondary); font: var(--type-tag); }
+      @media (max-width: 640px) { .x-map text { font-size: 24px; font-weight: 600; } .x-route text { font-size: 20px; } }
       .x-map .x-m-pin { fill: var(--x-accent); } .x-map .x-m-end { fill: var(--fill-primary); }
       .x-map .x-m-bus { fill: var(--fill-primary); stroke: var(--x-surface); stroke-width: 3; }
       .x-map .x-m-pulse { fill: var(--fill-primary); opacity: 0.2; animation: x-pulse 2s ease-out infinite; transform-box: fill-box; transform-origin: center; }
@@ -398,7 +400,7 @@
         <a class="x-logowrap" href="#top" data-go="home" aria-label="VYGO home"><svg class="x-logo x-logo--pri" aria-hidden="true"><use href="#logo-pri" /></svg><svg class="x-logo x-logo--rev" aria-hidden="true"><use href="#logo-rev" /></svg></a>
         <div class="x-top__right">
           <button class="x-icon-btn" id="x-theme" type="button" aria-label="Switch to light theme"><svg class="i x-sun"><use href="#i-sun" /></svg><svg class="i x-moon"><use href="#i-moon" /></svg></button>
-          <button class="x-ghost" type="button" data-toast="Sign in to see your trips"><svg class="i"><use href="#i-ticket" /></svg><span class="x-hide-s">My Trips</span></button>
+          <button class="x-ghost" type="button" data-toast="Sign in to see your trips" aria-label="My trips"><svg class="i"><use href="#i-ticket" /></svg><span class="x-hide-s">My Trips</span></button>
           <button class="x-cta x-solid" type="button" data-toast="Login opening soon"><svg class="i"><use href="#i-user" /></svg>Login</button>
         </div>
       </header>
@@ -472,6 +474,7 @@
             <button class="x-chip" type="button" data-sort="dur" aria-pressed="false">Fastest</button>
             <button class="x-chip" type="button" data-sort="safe" aria-pressed="false"><svg class="i"><use href="#i-shield" /></svg>Safest</button>
           </div>
+          <h2 class="x-vh">Available buses</h2>
           <div class="x-list" id="x-list" aria-live="polite"></div>
           <p class="fineprint">Other-app prices are indicative and change through the day.</p>
         </div>
@@ -653,7 +656,7 @@
         <p>Intercity buses across India · © 2026 VYGO · India, Let's Go !</p>
       </footer>
     </div>
-    <div class="x-bar" id="x-bar" hidden>
+    <div class="x-bar" id="x-bar" role="region" aria-label="Booking summary" hidden>
       <div class="x-bar__in"><div><small id="x-bar-l"></small><b id="x-bar-t"></b></div><button class="x-cta" type="button" id="x-bar-btn">Continue</button></div>
     </div>
     <div class="x-proc" id="x-proc" role="status" aria-live="assertive" hidden><span class="x-spin" aria-hidden="true"></span><b id="x-proct">Processing payment</b><span>Please don't close or refresh this page</span></div>
@@ -1258,7 +1261,8 @@
         }
         $("#x-myt").addEventListener("click", function () { if (restoreTicket()) show("ticket"); });
         window.addEventListener("popstate", function (e) {
-          var v = (e.state && e.state.v) || "home";
+          var v = (e.state && e.state.v) || (location.hash.match(/^#\/(\w+)/) || [])[1] || "home";
+          if ((v === "ticket" || v === "track") && !booking) restoreTicket();
           if (booking && (v === "seats" || v === "pax" || v === "pay")) v = "home"; // never step back into a paid checkout
           show(v, true);
         });

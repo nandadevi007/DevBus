@@ -94,7 +94,8 @@
       /* main */
       .x-main { overflow-y: auto; overflow-x: hidden; display: flex; flex-direction: column; }
       .x-top { position: sticky; top: 0; z-index: 20; display: flex; align-items: center; gap: 12px; padding: 12px var(--gutter); background: var(--x-glass); backdrop-filter: var(--hark-blur); -webkit-backdrop-filter: var(--hark-blur); border-bottom: 1px solid var(--stroke-secondary); }
-      .x-top h1 { font: var(--type-heading); margin-right: auto; white-space: nowrap; }
+      .x-top h1 { font: var(--type-heading); margin-right: auto; white-space: nowrap; min-width: 0; overflow: hidden; text-overflow: ellipsis; }
+      .x-top > .x-iconbtn, .x-top > div, .x-top .x-topmark { flex-shrink: 0; }
       .x-search { position: relative; flex: 0 1 320px; }
       .x-search .x-ic { position: absolute; left: 12px; top: 50%; translate: 0 -50%; color: var(--text-secondary); pointer-events: none; }
       .x-input, .x-select { width: 100%; min-height: var(--tap); padding: 0 14px; border-radius: var(--r-s); border: 1px solid var(--stroke-primary); background: var(--x-surface); color: var(--text-primary); font: var(--type-small); }
@@ -443,6 +444,7 @@
       .x-sheet[hidden] { display: none; }
       @media (min-width: 861px) { .x-sheet { display: none; } }
       @media (max-width: 860px) { .x-bottom { grid-template-columns: repeat(8, minmax(0, 1fr)); } }
+      @media (max-width: 400px) { .x-bottom button { font-size: 11px; letter-spacing: -0.2px; } }
       @media (max-width: 599px) { .x-score { grid-template-columns: 1fr 1fr; } .x-stock li { grid-template-columns: minmax(0, 1fr) 64px 40px; } }
       /* settings */
       .x-tabs { max-width: 100%; overflow-x: auto; scrollbar-width: none; }
@@ -498,8 +500,8 @@
           <div id="nav"></div>
           <div class="x-sidefoot">VYGO HQ · Bengaluru<br />Admin console v1.0</div>
         </aside>
-        <div class="x-main" id="main">
-          <header class="x-top">
+        <div class="x-main" id="main" role="main">
+          <div class="x-top">
             <button class="x-iconbtn x-menu" id="menuBtn" aria-label="Open menu" data-i="menu"></button>
             <span class="x-topmark"><svg viewBox="0 0 458 324" width="40" height="28" role="img" aria-label="VYGO"><use href="#logo-mark"/></svg></span>
             <h1 id="title">Dashboard</h1>
@@ -515,7 +517,7 @@
               </div>
             </div>
             <div class="x-me"><span class="x-avatar">DT</span><div><span>Dev T.</span><small>COO &amp; Founder</small></div></div>
-          </header>
+          </div>
 
           <section class="x-view" id="view-dash">
             <div class="x-row">
@@ -2335,7 +2337,7 @@ Track your bus live in the VYGO app.</p>
         function renderHubs() {
           $("#hubCards").innerHTML = HUB.map(function (h, i) {
             var done = sum(h.chk);
-            return '<article class="x-card x-hub" tabindex="0" role="button" aria-label="' + h.name + ", " + h.st + ', open details" data-h="' + i + '" style="--i:' + i + '"><header><h3>' + h.name + "<small>" + esc(h.addr) + "</small></h3>" + hPill(h.st) + '</header><dl class="x-dl"><dt>Manager</dt><dd>' + mgr(h) + '</dd><dt>Phone</dt><dd class="x-mono">' + h.ph + "</dd><dt>Hours</dt><dd>" + h.hrs + "</dd><dt>Staff</dt><dd>" + h.staff.length + (h.st === "Live" ? "" : " hired") + "</dd><dt>VYGO Points attached</dt><dd>" + h.pts + "</dd><dt>Monthly rent</dt><dd>" + inr(h.rent) + "</dd><dt>Walk-in bookings</dt><dd>" + (h.st === "Live" ? num(h.walk) + " this month" : h.st === "Fit-out" ? "None yet, " + opens : "Not scheduled") + '</dd></dl><div class="x-more"><span' + (done < 7 ? ' class="x-low"' : "") + ">Setup " + done + " of 7</span><span>Details" + ic("arrow") + "</span></div></article>";
+            return '<div class="x-card x-hub" tabindex="0" role="button" data-h="'  + i + '" style="--i:' + i + '"><header><h3>' + h.name + "<small>" + esc(h.addr) + "</small></h3>" + hPill(h.st) + '</header><dl class="x-dl"><dt>Manager</dt><dd>' + mgr(h) + '</dd><dt>Phone</dt><dd class="x-mono">' + h.ph + "</dd><dt>Hours</dt><dd>" + h.hrs + "</dd><dt>Staff</dt><dd>" + h.staff.length + (h.st === "Live" ? "" : " hired") + "</dd><dt>VYGO Points attached</dt><dd>" + h.pts + "</dd><dt>Monthly rent</dt><dd>" + inr(h.rent) + "</dd><dt>Walk-in bookings</dt><dd>" + (h.st === "Live" ? num(h.walk) + " this month" : h.st === "Fit-out" ? "None yet, " + opens : "Not scheduled") + '</dd></dl><div class="x-more"><span' + (done < 7 ? ' class="x-low"' : "") + ">Setup " + done + " of 7</span><span>Details" + ic("arrow") + "</span></div></div>";
           }).join("");
           ofKpis();
         }
