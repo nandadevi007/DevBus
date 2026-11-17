@@ -575,7 +575,7 @@
                   <tbody id="rows"></tbody>
                 </table>
               </div>
-              <div class="x-more"><span id="count"></span><button class="btn x-btn" id="moreBtn" type="button">Load more</button></div>
+              <div class="x-more"><span id="count"></span><button class="btn x-btn" id="loadMore" type="button">Load more</button></div>
             </div>
           </section>
 
@@ -649,8 +649,8 @@
                     <button class="x-fchip" type="button" data-d="Weekend" aria-pressed="false">Weekend</button>
                     <button class="x-fchip" type="button" data-d="Festival" aria-pressed="false">Festival</button>
                   </div>
-                  <label class="x-rng"><span>Days before travel<output id="sDaysV"></output></span><input type="range" id="sDays" min="0" max="30" value="10" /></label>
-                  <label class="x-rng"><span>Current load<output id="sLoadV"></output></span><input type="range" id="sLoad" min="0" max="100" step="5" value="60" /></label>
+                  <label class="x-rng"><span>Days before travel<output id="sDaysV"></output></span><input type="range" aria-label="Days before travel" id="sDays" min="0" max="30" value="10" /></label>
+                  <label class="x-rng"><span>Current load<output id="sLoadV"></output></span><input type="range" aria-label="Current load" id="sLoad" min="0" max="100" step="5" value="60" /></label>
                   <div class="x-sim" id="simOut" aria-live="polite"></div>
                 </div>
               </div>
@@ -717,7 +717,7 @@
                 <h3>Earnings calculator<small>30-day month</small></h3>
                 <div class="x-form">
                   <div class="x-chips" id="cTier" role="group" aria-label="Tier"></div>
-                  <label class="x-rng"><span>Bus tickets per day<output id="cBusV"></output></span><input type="range" id="cBus" min="0" max="100" value="20" /></label>
+                  <label class="x-rng"><span>Bus tickets per day<output id="cBusV"></output></span><input type="range" aria-label="Bus tickets per day" id="cBus" min="0" max="100" value="20" /></label>
                   <div class="x-two"><label>Avg bus fare, ₹<input class="x-input" type="number" id="cFare" min="100" max="5000" step="10" value="900" /></label><label>VYGO commission, %<input class="x-input" type="number" id="cComm" min="1" max="25" step="0.5" value="11" /></label></div>
                   <div class="x-two"><label>Flights per day<input class="x-input" type="number" id="cFl" min="0" max="50" value="2" /></label><label>Rail PNRs per day, non-AC / AC<span class="x-chips"><input class="x-input" style="flex: 1; width: 0" type="number" id="cRn" min="0" max="100" value="4" aria-label="Non-AC rail PNRs per day" /><input class="x-input" style="flex: 1; width: 0" type="number" id="cRa" min="0" max="100" value="2" aria-label="AC rail PNRs per day" /></span></label></div>
                   <div class="x-sim" id="calcOut" aria-live="polite"></div>
@@ -1377,11 +1377,11 @@ Track your bus live in the VYGO app.</p>
             return '<tr tabindex="0" data-p="' + b.pnr + '" style="--i:' + i + '"><th scope="row" class="x-mono">' + b.pnr + '</th><td data-label="Passenger">' + esc(b.name) + '<small class="x-mono">' + b.phone + '</small></td><td data-label="Route">' + b.route + '</td><td data-label="Travel" class="rowhead">' + fdate(b.date) + "<small>" + b.dep + '</small></td><td data-label="Operator">' + b.op + '</td><td data-label="Seats">' + b.seats + '</td><td class="num" data-label="Amount">' + inr(b.amount) + '</td><td data-label="Channel" class="muted">' + b.ch + '</td><td data-label="Status">' + pill(b.status) + "</td></tr>";
           }).join("") : '<tr><td colspan="9" class="x-empty">No bookings match these filters.</td></tr>';
           $("#count").textContent = "Showing " + V.length + " of " + L.length + " bookings";
-          $("#moreBtn").hidden = V.length >= L.length;
+          $("#loadMore").hidden = V.length >= L.length;
           var tot = sum(BK.map(function (b) { return b.amount; }));
           $("#bookSub").textContent = BK.length + " recent bookings · " + inr(tot) + " total value";
         }
-        $("#moreBtn").addEventListener("click", function () { shown += 10; renderRows(false); });
+        $("#loadMore").addEventListener("click", function () { shown += 10; renderRows(false); });
         $("#fStatus").addEventListener("click", function (e) { var b = e.target.closest("button"); if (b) { F.status = b.dataset.s; renderRows(true); } });
         $("#fRoute").addEventListener("change", function () { F.route = this.value; renderRows(true); });
         $("#fChan").addEventListener("change", function () { F.ch = this.value; renderRows(true); });

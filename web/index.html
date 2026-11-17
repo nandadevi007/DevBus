@@ -4,6 +4,16 @@
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1" />
     <title>VYGO · India, Let's Go !</title>
+    <meta name="description" content="Book intercity buses across India with VYGO: safety scores on every bus, instant refunds, precise boarding points and live tracking." />
+    <meta name="theme-color" content="#0B1F3A" />
+    <meta property="og:type" content="website" />
+    <meta property="og:site_name" content="VYGO" />
+    <meta property="og:title" content="VYGO · India, Let's Go !" />
+    <meta property="og:description" content="Intercity buses across India with safety scores, instant refunds and precise boarding points." />
+    <meta property="og:url" content="https://nandadevi007.github.io/DevBus/web/" />
+    <meta property="og:image" content="https://nandadevi007.github.io/DevBus/brand/png/vygo-logo-horizontal-primary-1200w.png" />
+    <meta name="twitter:card" content="summary_large_image" />
+    <link rel="apple-touch-icon" href="../brand/icons/favicon-180.png" />
     <link rel="icon" type="image/svg+xml" href="favicon.svg" />
     <link rel="preconnect" href="https://fonts.googleapis.com" />
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
@@ -402,7 +412,7 @@
               <path class="x-route__path" id="x-rp" d="M24 92 C 170 92, 190 28, 300 40 S 470 92, 576 30" fill="none" stroke="#9AA7B8" stroke-width="3" stroke-linecap="round" />
               <circle cx="24" cy="92" r="6" fill="#F2F5F9" /><circle cx="576" cy="30" r="6" fill="#D9480F" />
               <circle r="5" fill="#F2F5F9"><animateMotion id="x-am" dur="5s" repeatCount="indefinite" begin="1.4s"><mpath href="#x-rp" /></animateMotion></circle>
-              <text x="24" y="116" id="x-rf">Bengaluru</text><text x="576" y="16" text-anchor="end" id="x-rt">Mysuru</text>
+              <text x="24" y="116" id="x-hf">Bengaluru</text><text x="576" y="16" text-anchor="end" id="x-rt">Mysuru</text>
             </svg>
             <form class="x-search" id="x-form" aria-label="Search buses">
               <div class="x-modes" role="group" aria-label="Travel mode">
@@ -742,7 +752,7 @@
           s.addEventListener("blur", function () { setTimeout(function () { if (document.activeElement !== fromS && document.activeElement !== toS) closeSugg(); }, 120); });
         });
         [fromS, toS].forEach(function (s) { s.addEventListener("focus", function () { s.select(); }); });
-        function syncForm() { fromS.value = state.from; toS.value = state.to; $("#x-rf").textContent = state.from; $("#x-rt").textContent = state.to; }
+        function syncForm() { fromS.value = state.from; toS.value = state.to; $("#x-hf").textContent = state.from; $("#x-rt").textContent = state.to; }
         fromS.addEventListener("change", function () { var c = findCity(fromS.value); if (c) state.from = c; else if (fromS.value.trim()) toast("Pick a city from the list"); syncForm(); });
         toS.addEventListener("change", function () { var c = findCity(toS.value); if (c) state.to = c; else if (toS.value.trim()) toast("Pick a city from the list"); syncForm(); });
         $("#x-swap").addEventListener("click", function () { var f = state.from; state.from = state.to; state.to = f; this.classList.toggle("is-spun"); syncForm(); });
@@ -904,6 +914,7 @@
         function unit() { return cur && cur.decks[0].sl ? "berth" : "seat"; }
         function renderDeck() {
           $("#x-limit").textContent = "Up to 6 " + unit() + "s per booking.";
+          if (!cur) return;
           var d = cur.decks[deck], g = $("#x-grid");
           g.className = "x-grid" + (d.sl ? " x-grid--sl" : "");
           $("#x-decks").hidden = cur.decks.length < 2;
@@ -1186,6 +1197,7 @@
           var li = document.querySelectorAll("#x-rf li"), st = function (i, c) { li[i].className = c; };
           li.forEach(function (x) { x.className = ""; });
           $("#x-credt").textContent = "In ~2 min";
+          if (!booking) return;
           $("#x-refmsg").textContent = inr(booking.amt) + " refunded to " + booking.dest + " · usually under 2 minutes";
           $("#x-refid").textContent = "Refund ref RF" + booking.pnr.slice(2) + " · PNR " + booking.pnr + " is now cancelled.";
           booking = null; show("cancelled");
